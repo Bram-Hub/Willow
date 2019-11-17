@@ -1,6 +1,8 @@
 head
-    title 404 | Willow
-    link(rel="stylesheet" type="text/css" href="/index.css")
+    title 404 - Willow
+    include /views/global/head.pug
 body
-    h1 404
-    p This page does not exist.
+    include /views/global/header.pug
+    .container
+        h1 404
+        p This page does not exist.
