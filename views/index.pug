@@ -1,0 +1,9 @@
+head
+  title Willow
+  include /views/global/head.pug
+  script(src="substitutions.js" type="text/javascript")
+body
+  include /views/global/header.pug
+  .container
+    div(style="text-align: center;")
+      input(type="text" oninput="makeSubstitutions(this)")
