@@ -20,10 +20,12 @@ function configureApp(app) {
 }
 
 /**
- * Launches the Express application on the provided port(s), and launches an HTTP redirect server (if applicable).
+ * Launches the Express application on the provided port(s), and launches an HTTP
+ * redirect server (if applicable).
  * 
  * @param {express.app} app the Express application to launch
- * @param {object} ports an object containing the port(s) on which to launch the application
+ * @param {object} ports an object containing the port(s) on which to launch the
+ * application
  */
 function launchServer(app, ports) {
   if (ports.http && ports.https) {
@@ -32,12 +34,16 @@ function launchServer(app, ports) {
       res.end();
     }).listen(ports.http);
   } else if (ports.http) {
-    app.listen(ports.http, () => console.log("Server launched on port " + ports.http));
+    app.listen(
+        ports.http, () => console.log("Server launched on port " + ports.http)
+    );
   }
   if (ports.https) {
     require("https").createServer({
       // TODO: retrieve HTTPS certificate
-    }, app).listen(ports.https, () => console.log("Server launched on port " + ports.https));
+    }, app).listen(
+        ports.https, () => console.log("Server launched on port " + ports.https)
+    );
   }
 }
 
@@ -49,6 +55,13 @@ configureApp(app);
 app.get("/", (req, res) => res.render("index"));
 // lowest priority request matches everything and returns a 404 error
 app.get("*", (req, res) => res.status(404).render("404"));
+
+if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
+  console.error(
+      "[ERROR] no ports configured for web server, see .env-template"
+  );
+  process.exit(1);
+}
 
 // get server ports from .env
 const ports = { http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT };
