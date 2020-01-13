@@ -29,6 +29,7 @@ function configureApp(app) {
  */
 function launchServer(app, ports) {
   if (ports.http && ports.https) {
+    // if both HTTP and HTTPS ports are provided, launch an HTTP redirect server
     require("http").createServer((req, res) => {
       res.writeHead(301, { Location: "https://" + req.headers.host + req.url });
       res.end();
