@@ -98,9 +98,9 @@ class AndStatement extends CompositeStatement {
    * @returns {boolean} the truth value of this statement
    */
   evaluate() {
-    result = true;
-    for (const component of this.operands) {
-      result = result && component.evaluate();
+    let result = true;
+    for (const operand of this.operands) {
+      result = result && operand.evaluate();
     }
     return result;
   }
@@ -123,9 +123,9 @@ class OrStatement extends CompositeStatement {
    * @returns {boolean} the truth value of this statement
    */
   evaluate() {
-    result = false;
-    for (const component of this.operands) {
-      result = result || component.evaluate();
+    let result = false;
+    for (const operand of this.operands) {
+      result = result || operand.evaluate();
     }
     return result;
   }
