@@ -48,6 +48,8 @@ class UnaryStatement extends Statement {
 class NotStatement extends UnaryStatement {
   /**
    * Constructs a {@link NotStatement}, which is composed of a single operand.
+   * 
+   * @param {Statement} operand the single operand which composes this statement
    */
   constructor(operand) {
     super(operand);

@@ -10,9 +10,33 @@ class TreeNode {
     // if no children were provided, initialize to an empty array
     this.children = children || [];
   }
+
+  /**
+   * @returns {number} the width of the tree rooted at this node
+   */
+  get width() {
+    if (this.children.length === 0) {
+      // if this is a leaf node, the width is 1
+      return 1;
+    }
+    let width = 0;
+    // if this is a non-leaf node, then its width is the sum of the widths of its
+    // children
+    for (const child of this.children) {
+      width += child.width;
+    }
+    return width;
+  }
 }
 
 class TruthTree {
+  /**
+   * @returns {number} the width of the entire truth tree
+   */
+  get width() {
+    return this.root ? this.root.width : 0;
+  }
+
   /**
    * Finds all branches in this truth tree.
    * 
