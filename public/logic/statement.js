@@ -41,6 +41,7 @@ class UnaryStatement extends Statement {
    * @param {Statement} operand the single operand which composes this statement 
    */
   constructor(operand) {
+    super();
     this.operand = operand;
   }
 }
@@ -75,6 +76,7 @@ class CompositeStatement extends Statement {
    * @param {Statement[]} operands the operands that compose this statement
    */
   constructor(operands) {
+    super();
     this.operands = operands;
   }
 }
