@@ -1,7 +1,7 @@
 const substitutions = {
   "!": "¬",
-  "|": "∨",
-  "&": "∧",
+  "|": " ∨ ",
+  "&": " ∧ ",
   "$": " → ",
   "%": " ↔ ",
 };
@@ -9,7 +9,7 @@ const substitutions = {
 /**
  * Makes character substitutions in a text input.
  * 
- * @param input the input element 
+ * @param input the input element
  */
 function makeSubstitutions(input) {
   const entries = Object.entries(substitutions);
