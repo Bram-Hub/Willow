@@ -11,6 +11,17 @@ class Statement {
   }
 
   /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    throw new Error(
+        "toString() not implemented for child instance of Statement"
+    );
+  }
+
+  /**
    * Determines if this statement is a literal, which is either an atomic
    * statement or the negation of an atomic statement.
    * 
@@ -32,6 +43,15 @@ class Tautology extends Statement {
   evaluate() {
     return true;
   }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "⊤";
+  }
 }
 
 class Contradiction extends Statement {
@@ -44,6 +64,15 @@ class Contradiction extends Statement {
   evaluate() {
     return false;
   }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "⊥";
+  }
 }
 
 class AtomicStatement extends Statement {
@@ -55,6 +84,15 @@ class AtomicStatement extends Statement {
   constructor(value) {
     super();
     this.value = value;
+  }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return this.value;
   }
 }
 
@@ -89,6 +127,15 @@ class NotStatement extends UnaryStatement {
    */
   evaluate() {
     return !this.operand.evaluate();
+  }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "¬" + this.operand.toString();
   }
 }
 
@@ -128,6 +175,16 @@ class AndStatement extends CompositeStatement {
     }
     return result;
   }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "(" + this.operands.map(operand => operand.toString()).join(" ∧ ") +
+        ")";
+  }
 }
 
 class OrStatement extends CompositeStatement {
@@ -152,6 +209,16 @@ class OrStatement extends CompositeStatement {
       result = result || operand.evaluate();
     }
     return result;
+  }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "(" + this.operands.map(operand => operand.toString()).join(" ∨ ") +
+        ")";
   }
 }
 
@@ -191,6 +258,15 @@ class ConditionalStatement extends BinaryStatement {
   evaluate() {
     return !this.lhs.evaluate() || this.rhs.evaluate();
   }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "(" + this.lhs.toString() + " → " + this.rhs.toString() + ")";
+  }
 }
 
 class BiconditionalStatement extends BinaryStatement {
@@ -213,6 +289,15 @@ class BiconditionalStatement extends BinaryStatement {
    */
   evaluate() {
     return this.lhs.evaluate() == this.rhs.evaluate();
+  }
+
+  /**
+   * Converts this statement to a string.
+   * 
+   * @returns {string} the string representation of this statement
+   */
+  toString() {
+    return "(" + this.lhs.toString() + " ↔ " + this.rhs.toString() + ")";
   }
 }
 
