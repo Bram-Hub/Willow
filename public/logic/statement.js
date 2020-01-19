@@ -9,6 +9,18 @@ class Statement {
         "evaluate() not implemented for child instance of Statement"
     );
   }
+
+  /**
+   * Determines if this statement is a literal, which is either an atomic
+   * statement or the negation of an atomic statement.
+   * 
+   * @returns {boolean} if this statement is a literal
+   */
+  isLiteral() {
+    return this instanceof AtomicStatement || (
+        this instanceof NotStatement && this.operand instanceof AtomicStatement
+    );
+  }
 }
 
 class Tautology extends Statement {
@@ -31,6 +43,18 @@ class Contradiction extends Statement {
    */
   evaluate() {
     return false;
+  }
+}
+
+class AtomicStatement extends Statement {
+  /**
+   * Constructs an {@link AtomicStatement}, which is represented by a value.
+   * 
+   * @param {string} value the value representing this statement
+   */
+  constructor(value) {
+    super();
+    this.value = value;
   }
 }
 
@@ -284,7 +308,7 @@ function parseStatement(string) {
       }
     }
   }
-  // if the string could not be broken down into a statement, it must be a
-  // variable
-  return string;
+  // if the string could not be broken down into a statement, it must be an atomic
+  // statement
+  return new AtomicStatement(string);
 }
