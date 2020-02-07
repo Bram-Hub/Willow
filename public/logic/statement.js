@@ -11,6 +11,16 @@ class Statement {
   }
 
   /**
+   * Decomposes this statement into an array of branches, where each branch
+   * contains the necessary decomposed statements.
+   * 
+   * @returns {Statement[][]} the decomposed statements by branch
+   */
+  decompose() {
+    return [];
+  }
+
+  /**
    * Converts this statement to a string.
    * 
    * @returns {string} the string representation of this statement
@@ -130,6 +140,33 @@ class NotStatement extends UnaryStatement {
   }
 
   /**
+   * Decomposes this statement into an array of branches, where each branch
+   * contains the necessary decomposed statements.
+   * 
+   * @returns {Statement[][]} the decomposed statements by branch
+   */
+  decompose() {
+    if (this.operand instanceof NotStatement) {
+      return [[this.operand.operand]];
+    } else if (this.operand instanceof AndStatement) {
+      return [
+        this.operand.operands.map(operand => [new NotStatement(operand)])
+      ];
+    } else if (this.operand instanceof OrStatement) {
+      return [
+        [this.operand.operands.map(operand => new NotStatement(operand))],
+      ];
+    } else if (this.operand instanceof ConditionalStatement) {
+      return [[this.operand.lhs, new NotStatement(this.operand.rhs)]];
+    } else if (this.operand instanceof BiconditionalStatement) {
+      return [
+        [this.operand.lhs, new NotStatement(this.operand.rhs)],
+        [new NotStatement(this.operand.lhs), this.operand.rhs],
+      ];
+    }
+  }
+
+  /**
    * Converts this statement to a string.
    * 
    * @returns {string} the string representation of this statement
@@ -177,6 +214,16 @@ class AndStatement extends CompositeStatement {
   }
 
   /**
+   * Decomposes this statement into an array of branches, where each branch
+   * contains the necessary decomposed statements.
+   * 
+   * @returns {Statement[][]} the decomposed statements by branch
+   */
+  decompose() {
+    return [this.operands];
+  }
+  
+  /**
    * Converts this statement to a string.
    * 
    * @returns {string} the string representation of this statement
@@ -209,6 +256,16 @@ class OrStatement extends CompositeStatement {
       result = result || operand.evaluate();
     }
     return result;
+  }
+
+  /**
+   * Decomposes this statement into an array of branches, where each branch
+   * contains the necessary decomposed statements.
+   * 
+   * @returns {Statement[][]} the decomposed statements by branch
+   */
+  decompose() {
+    return [this.operands.map(operand => [operand])];
   }
 
   /**
@@ -260,6 +317,16 @@ class ConditionalStatement extends BinaryStatement {
   }
 
   /**
+   * Decomposes this statement into an array of branches, where each branch
+   * contains the necessary decomposed statements.
+   * 
+   * @returns {Statement[][]} the decomposed statements by branch
+   */
+  decompose() {
+    return [[new NotStatement(this.lhs)], [this.rhs]];
+  }
+  
+  /**
    * Converts this statement to a string.
    * 
    * @returns {string} the string representation of this statement
@@ -289,6 +356,19 @@ class BiconditionalStatement extends BinaryStatement {
    */
   evaluate() {
     return this.lhs.evaluate() == this.rhs.evaluate();
+  }
+
+  /**
+   * Decomposes this statement into an array of branches, where each branch
+   * contains the necessary decomposed statements.
+   * 
+   * @returns {Statement[][]} the decomposed statements by branch
+   */
+  decompose() {
+    return [
+      [this.lhs, this.rhs],
+      [new NotStatement(this.lhs), new NotStatement(this.rhs)],
+    ];
   }
 
   /**
