@@ -1,11 +1,12 @@
 head
   title Willow
   include /views/global/head.pug
+  script(src="controls.js" type="text/javascript")
   script(src="substitutions.js" type="text/javascript")
   script(src="logic/statement.js" type="text/javascript")
   script(src="logic/tree.js" type="text/javascript")
+  script(src="index.js" type="text/javascript" defer)
 body
   include /views/global/header.pug
-  .container
-    div(style="text-align: center;")
-      input(type="text" oninput="makeSubstitutions(this)")
+  .container#tree-container(style="position: relative;")
+    tree-node(:node="root" :level="1")

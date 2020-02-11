@@ -1,6 +1,7 @@
 // import environment variables from .env into process.env
 require("dotenv").config();
 
+const middleware = require("./util/middleware");
 const express = require("express");
 
 /**
@@ -17,6 +18,8 @@ function configureApp(app) {
   app.locals.basedir = __dirname;
   // expose the /public directory and its contents to clients, if necessary
   app.use(express.static(__dirname + "/public"));
+
+  app.use(middleware.injectGlobalLocals);
 }
 
 /**
