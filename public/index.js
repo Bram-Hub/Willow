@@ -1,7 +1,7 @@
 const vm = new Vue({
   el: "#tree-container",
   data: {
-    root: new TreeNode(undefined, [new TreeNode(), new TreeNode()]),
+    root: new TreeNode(undefined, [new TreeNode(), new TreeNode(undefined, [new TreeNode(), new TreeNode()])]),
   },
   components: {
     treeNode: {

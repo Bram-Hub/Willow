@@ -12,8 +12,7 @@ const substitutions = {
  * @param input the input element
  */
 function makeSubstitutions(input) {
-  const entries = Object.entries(substitutions);
-  for (let i = 0; i < entries.length; ++i) {
-    input.value = input.value.replace(entries[i][0], entries[i][1]);
+  for (const [from, to] of Object.entries(substitutions)) {
+    input.value = input.value.replace(from, to);
   }
 }
