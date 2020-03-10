@@ -8,5 +8,5 @@ head
   script(src="index.js" type="text/javascript" defer)
 body
   include /views/global/header.pug
-  .container#tree-container(style="position: relative;")
+  .container#tree-container
     tree-node(:node="root" :level="1")

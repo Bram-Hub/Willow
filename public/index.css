@@ -10,3 +10,9 @@ body {
   text-align: center;
   padding: 8px;
 }
+
+.level-separator {
+  border-top: solid 1px #000000;
+  display: flex;
+  padding-top: 30px;
+}
