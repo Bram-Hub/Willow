@@ -1,20 +1,51 @@
+const sampleRoot = new TreeNode([
+  "(W∨S) → C",
+  "C ↔ (I∧V)",
+  "¬(¬W → ¬V)",
+  "¬W",
+  "¬¬V",
+  "V",
+], [
+  new TreeNode(["¬(W∨S)", "¬W", "¬S"], [
+    new TreeNode(["C", "I∧V", "I", "V", "o"]),
+    new TreeNode(["¬C", "¬(I∧V)"], [
+        new TreeNode(["¬I", "o"]),
+        new TreeNode(["¬V", "x"]),
+    ]),
+  ]),
+  new TreeNode(["C"], [
+    new TreeNode(["C", "I∧V", "I", "V", "o"]),
+    new TreeNode(["¬C", "¬(I∧V)", "x"]),
+  ]),
+]);
+
 const vm = new Vue({
   el: "#tree-container",
   data: {
-    root: new TreeNode(undefined, [new TreeNode(), new TreeNode(undefined, [new TreeNode(), new TreeNode()])]),
+    root: sampleRoot,
   },
   components: {
     treeNode: {
       name: "tree-node",
-      props: {node: Object, level: Number},
+      data: () => ({
+        expanded: true,
+      }),
+      props: {
+        node: Object,
+        level: Number,
+      },
       template: `
-<div>
-  <div><input class="node" type="text" oninput="makeSubstitutions(this)"/></div>
-  <div v-if="node.children.length > 1" class="level-separator">
-    <tree-node v-for="child in node.children" :node="child" :level="level + 1" style="flex: 1 1 auto;"/>
-  </div>
-  <tree-node v-else v-for="child in node.children" :node="child" :level="level + 1"/>
-</div>`,
+<ul class="node-list">
+  <li v-for="(statement, idx) in node.statements">
+    <input v-if="idx == 0 || expanded" v-model="statement.str" class="statement" type="text" oninput="makeSubstitutions(this)"/>
+    <span v-if="idx == 0 && (node.statements.length > 1 || node.children.length > 1)" @click="expanded = !expanded" class="expand-arrow">{{ expanded ? "▼" : "►" }}</span>
+  </li>
+  <li v-if="(node.statements.length > 1 || node.children.length > 1) && !expanded" class="dots">⋮</li>
+  <template v-if="expanded" v-for="child in node.children">
+    <hr class="branch-line">
+    <tree-node :node="child" :level="level + 1"/>
+  </template>
+</ul>`,
     }
   }
 });

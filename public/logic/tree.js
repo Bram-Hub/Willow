@@ -2,11 +2,11 @@ class TreeNode {
   /**
    * Constructs a {@link TreeNode}.
    * 
-   * @param {Statement} statement the logic statement of the node
+   * @param {String[]} [statements=[]] the logic statements within the node
    * @param {TreeNode[]} [children=[]] the children of the node
    */
-  constructor(statement, children) {
-    this.statement = statement;
+  constructor(statements, children) {
+    this.statements = statements.map(statement => ({str: statement})) || [];
     // if no children were provided, initialize to an empty array
     this.children = children || [];
   }

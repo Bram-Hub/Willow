@@ -427,7 +427,7 @@ const operatorsByPrecedence = [["↔", "→"], ["∨"], ["∧"], ["¬"]];
 /**
  * Parses a string for a {@link Statement}.
  * 
- * @param {string} string the string to parse
+ * @param {String} string the string to parse
  * @returns {Statement} the parsed statement
  */
 function parseStatement(string) {
