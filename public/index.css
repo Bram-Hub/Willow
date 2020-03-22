@@ -27,6 +27,7 @@ body {
   all: unset;
   color: #888;
   cursor: pointer;
+  user-select: none;
 }
 
 .dots {
