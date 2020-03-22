@@ -24,6 +24,7 @@ body {
 }
 
 .expand-arrow {
+  all: unset;
   color: #888;
   cursor: pointer;
 }
