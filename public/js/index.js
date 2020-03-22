@@ -1,3 +1,17 @@
+$(function() {
+  $(".dropdown button").click(function() {
+    const menu = $(this).parent().find(".dropdown-menu");
+    menu.slideToggle();
+    $(".dropdown-menu").not(menu).slideUp();
+  });
+
+  window.onclick = function(event) {
+    if (!event.target.matches(".dropdown button")) {
+      $(".dropdown-menu").slideUp();
+    }
+  }
+});
+
 const sampleRoot = new TreeNode([
   "(W∨S) → C",
   "C ↔ (I∧V)",
@@ -22,7 +36,16 @@ const sampleRoot = new TreeNode([
 const vm = new Vue({
   el: "#tree-container",
   data: {
+    name: "Untitled",
     root: sampleRoot,
+  },
+  watch: {
+    name: {
+      immediate: true,
+      handler: function(name) {
+        document.title = name + " | Willow";
+      },
+    },
   },
   components: {
     treeNode: {
