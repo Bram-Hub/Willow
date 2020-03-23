@@ -102,6 +102,7 @@ header * {
   background-color: #bbb;
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  padding: 30px;
   position: fixed;
   top: 100px;
   left: 50%;
@@ -116,6 +117,7 @@ header * {
 .close-button {
   color: #c44;
   cursor: pointer;
-  float: right;
-  margin: 10px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
