@@ -48,8 +48,15 @@ header * {
 
 .toolbar .menu-option {
   background-color: #f8f8f8;
+  box-sizing: border-box;
+  color: black;
+  cursor: default;
+  display: block;
+  font-size: 10pt;
   min-width: 100px;
+  padding: 5px 10px;
   text-align: left;
+  text-decoration: none;
   width: 100%;
 }
 
@@ -89,4 +96,26 @@ header * {
 .dots {
   font-weight: bold;
   margin-left: 5px;
+}
+
+#about-panel {
+  background-color: #bbb;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+#about-panel * {
+  vertical-align: middle;
+}
+
+.close-button {
+  color: #c44;
+  cursor: pointer;
+  float: right;
+  margin: 10px;
 }
