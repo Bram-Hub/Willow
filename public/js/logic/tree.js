@@ -27,55 +27,35 @@ class TreeNode {
     }
     return width;
   }
-}
 
-class TruthTree {
   /**
-   * @returns {number} the width of the entire truth tree
+   * @returns {TreeNode} the last (rightmost) leaf node in the tree rooted at this
+   * node
    */
-  get width() {
-    return this.root ? this.root.width : 0;
+  get lastLeaf() {
+    // start at this node
+    let node = this;
+    while (node.children.length > 0) {
+      // move to the rightmost child until we reach a leaf node
+      node = node.children[node.children.length - 1];
+    }
+    return node;
   }
 
   /**
-   * Finds all branches in this truth tree.
+   * Returns the node at the given position, determined by branch indices relative
+   * to this node.
    * 
-   * @returns {TreeNode[][]} an array of branches, with each branch represented
-   * by an array of {@link TreeNode}
+   * @param {Number[]} [branches=[]] the branch indices to follow 
+   * @returns {TreeNode} the node at the position described above
    */
-  get branches() {
-    if (!this.root) {
-      // if this tree does not have a root, there are no branches
-      return [];
-    } else if (this.root.children.length === 0) {
-      // if the root does not have any children, then there is a single path which
-      // only contains the root
-      return [[this.root]];
+  child(branches) {
+    let node = this;
+    // follow the provided branch indices, if they exist
+    for (const branch of (branches || [])) {
+      node = node.children[branch];
     }
-
-    // traverse the tree and find all branches by performing a breadth-first
-    // search
-
-    // initialize an array to store completed branches (last node has no children)
-    const completed = [];
-    // maintain a queue of in-progress branches
-    const queue = [[this.root]];
-    while (queue.length > 0) {
-      const branch = queue.shift();
-      for (const child of branch[branch.length - 1].children) {
-        // extend the current branch by each of its children
-        const nextBranch = [...branch, child];
-        // add the extended branch to the array of completed branches if the
-        // current child has no children, otherwise add it back to the queue
-        if (child.children.length === 0) {
-          completed.push(nextBranch);
-        } else {
-          queue.push(nextBranch);
-        }
-      }
-    }
-
-    return completed;
+    return node;
   }
 }
 
