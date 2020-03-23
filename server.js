@@ -1,7 +1,9 @@
 // import environment variables from .env into process.env
 require("dotenv").config();
 
+const index = require("./routes/index");
 const middleware = require("./util/middleware");
+
 const express = require("express");
 
 /**
@@ -56,7 +58,7 @@ const app = express();
 configureApp(app);
 
 // configure routing for application
-app.get("/", (req, res) => res.render("index"));
+app.get("/", index.get);
 // lowest priority request matches everything and returns a 404 error
 app.get("*", (req, res) => res.status(404).render("404"));
 
