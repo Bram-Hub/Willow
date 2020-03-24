@@ -36,7 +36,7 @@ function launchServer(app, ports) {
   if (ports.http && ports.https) {
     // if both HTTP and HTTPS ports are provided, launch an HTTP redirect server
     require("http").createServer((req, res) => {
-      res.writeHead(301, { Location: "https://" + req.headers.host + req.url });
+      res.writeHead(301, {Location: "https://" + req.headers.host + req.url});
       res.end();
     }).listen(ports.http);
   } else if (ports.http) {
@@ -70,5 +70,5 @@ if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
 }
 
 // get server ports from .env
-const ports = { http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT };
+const ports = {http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
 launchServer(app, ports);
