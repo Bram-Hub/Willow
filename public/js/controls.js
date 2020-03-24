@@ -48,6 +48,26 @@ function moveUp() {
 }
 
 /**
+ * Focuses the first statement in the branch containing the focused statement, or
+ * does nothing if no statement is focused.
+ */
+function moveUpBranch() {
+  const el = $(document.activeElement);
+  if (el.is(".statement")) {
+    const offset = parseInt(el.attr("offset"));
+    if (offset === 0) {
+      // if this is the first statement in the branch, then move up normally
+      moveUp();
+      return;
+    }
+    
+    // focus the first statement in the branch (offset of zero)
+    const branches = JSON.parse(el.attr("branches"));
+    focusStatement(branches, 0);
+  }
+}
+
+/**
  * Focuses the statement below the focused statement, or does nothing if no
  * statement is focused.
  */
@@ -64,6 +84,29 @@ function moveDown() {
         return;
       }
     }
+  }
+}
+
+/**
+ * Focuses the last statement in the branch containing the focused statement, or
+ * does nothing if no statement is focused.
+ */
+function moveDownBranch() {
+  const el = $(document.activeElement);
+  if (el.is(".statement")) {
+    const branches = JSON.parse(el.attr("branches"));
+    const offset = parseInt(el.attr("offset"));
+
+    // get the node representing the branch containing the focused statement
+    const node = vm.root.child(branches);
+    if (offset === node.statements.length - 1) {
+      // if this is the last statement in the branch, then move down normally
+      moveDown();
+      return;
+    }
+
+    // focus the last statement in the branch (offset of length - 1)
+    focusStatement(branches, node.statements.length - 1);
   }
 }
 
@@ -220,7 +263,17 @@ const shortcuts = [
     key: 38,
   },
   {
+    callback: moveUpBranch,
+    ctrl: true,
+    key: 38,
+  },
+  {
     callback: moveDown,
+    key: 40,
+  },
+  {
+    callback: moveDownBranch,
+    ctrl: true,
     key: 40,
   },
   {
