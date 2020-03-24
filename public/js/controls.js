@@ -110,6 +110,72 @@ function moveDownBranch() {
   }
 }
 
+const MAX_HISTORY_LENGTH = 32;
+const undoStack = [];
+let redoStack = [];
+
+/**
+ * Records the current state of the tree in the history.
+ */
+function recordState() {
+  // add a clone of the root node to the undo stack and truncate it if necessary
+  undoStack.push(vm.root.clone());
+  while (undoStack.length > MAX_HISTORY_LENGTH) {
+    undoStack.shift();
+  }
+
+  // clear the redo stack anytime a new change is made
+  redoStack = [];
+}
+
+/**
+ * Reverts the most recent action in the history.
+ */
+function undo() {
+  if ($(document.activeElement).is(".statement")) {
+    // if the focused element is a statement, then use default browser undo
+    // behavior
+    return true;
+  }
+  if (undoStack.length === 0) {
+    // if the undo stack is empty, do nothing
+    return;
+  }
+  
+  // add a clone of the root node to the redo stack and truncate it if necessary
+  redoStack.push(vm.root.clone());
+  while (redoStack.length > MAX_HISTORY_LENGTH) {
+    redoStack.shift();
+  }
+
+  // set the tree to the most recent clone in the undo stack
+  vm.root = undoStack.pop();
+}
+
+/**
+ * Reapplies the most recent undone action.
+ */
+function redo() {
+  if ($(document.activeElement).is(".statement")) {
+    // if the focused element is a statement then use default browser redo
+    // behavior
+    return true;
+  }
+  if (redoStack.length === 0) {
+    // if the redo stack is empty, do nothing
+    return;
+  }
+
+  // add a clone of the root node to the undo stack and truncate it if necessary
+  undoStack.push(vm.root.clone());
+  while (undoStack.length > MAX_HISTORY_LENGTH) {
+    undoStack.shift();
+  }
+
+  // set the tree to the most recent clone in the redo stack
+  vm.root = redoStack.pop();
+}
+
 /**
  * Adds a blank statement before the focused statement, or to the beginning of the
  * tree if no statement is focused.
@@ -277,31 +343,46 @@ const shortcuts = [
     key: 40,
   },
   {
+    callback: undo,
+    ctrl: true,
+    key: "Z",
+  },
+  {
+    callback: redo,
+    ctrl: true,
+    key: "Y",
+  },
+  {
     callback: addStatementBefore,
     ctrl: true,
     key: "B",
+    record: true,
   },
   {
     callback: addStatementAfter,
     ctrl: true,
     key: "A",
+    record: true,
   },
   {
     callback: deleteStatement,
     ctrl: true,
     key: "D",
+    record: true,
   },
   {
     callback: addBranch,
     ctrl: true,
     shift: true,
     key: "B",
+    record: true,
   },
   {
     callback: deleteBranch,
     ctrl: true,
     shift: true,
     key: "D",
+    record: true,
   },
   {
     callback: endBranch,
@@ -322,11 +403,19 @@ document.onkeydown = function(event) {
     if ((shortcut.ctrl || false) === event.ctrlKey &&
         (shortcut.shift || false) === event.shiftKey &&
         key === event.which) {
-      // if the shortcut is activated, then execute its callback and stop default
-      // behavior (defined by browser)
-      shortcut.callback(event);
-      event.preventDefault();
-      event.stopPropagation();
+      if (shortcut.record) {
+        // if this shortcut should record the state of the tree, then record its
+        // state before the callback is executed
+        recordState();
+      }
+
+      // execute the callback
+      if (!shortcut.callback(event)) {
+        // if the callback does not return true, then stop default browser
+        // behavior
+        event.preventDefault();
+        event.stopPropagation();
+      }
     }
   }
 }

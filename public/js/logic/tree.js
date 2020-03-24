@@ -57,6 +57,18 @@ class TreeNode {
     }
     return node;
   }
+
+  /**
+   * Clones this node (deep copy).
+   * 
+   * @returns {TreeNode} the cloned node
+   */
+  clone() {
+    return new TreeNode(
+        this.statements.map(statement => statement.str),
+        this.children.map(child => child.clone())
+    );
+  }
 }
 
 /**
