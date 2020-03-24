@@ -20,6 +20,7 @@ body
         a.menu-option(href="/" target="_blank") New
         hr
         button.menu-option Open
+        button.menu-option(onclick="vm.name = prompt('Enter the new name for this truth tree:') || vm.name") Rename
         button.menu-option Save
         hr
         button.menu-option(onclick="window.close()") Close
