@@ -27,8 +27,8 @@ body
     .dropdown
       button Edit
       .dropdown-menu(style="display: none;")
-        button.menu-option Undo
-        button.menu-option Redo
+        button.menu-option(onclick="undo()") Undo
+        button.menu-option(onclick="redo()") Redo
         hr
         button.menu-option(onclick="addStatementBefore()") Add Statement Before
         button.menu-option(onclick="addStatementAfter()") Add Statement After
