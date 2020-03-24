@@ -29,12 +29,13 @@ body
         button.menu-option Undo
         button.menu-option Redo
         hr
-        button.menu-option Add Statement Before
+        button.menu-option(onclick="addStatementBefore()") Add Statement Before
         button.menu-option(onclick="addStatementAfter()") Add Statement After
         button.menu-option(onclick="deleteStatement()") Delete Statement
         hr
         button.menu-option(onclick="addBranch()") Add Branch
         button.menu-option(onclick="deleteBranch()") Delete Branch
+        button.menu-option(onclick="endBranch()") End Branch
     .dropdown
       button Help
       .dropdown-menu(style="display: none;")
