@@ -78,7 +78,27 @@ header * {
 }
 
 .node-list li {
+  padding: 2px;
+  position: relative;
   white-space: nowrap;
+}
+
+.node-list li.referenced {
+  background-color: #dbb;
+}
+
+.node-list li.referenced:before {
+  background-color: #c44;
+  border: solid 1px #a22;
+  border-radius: 50%;
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  left: -20px;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
 }
 
 .branch-line {
