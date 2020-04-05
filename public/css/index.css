@@ -101,10 +101,14 @@ header * {
   height: 10px;
 }
 
-.branch-line {
-  border: solid 1px black;
-  margin: 0px;
-  width: 50px;
+div.selected-statement {
+  background-color: rgba(51, 153, 255, 0.5);
+  position: absolute;
+  top: 0px;
+  right: -100%;
+  bottom: 0px;
+  left: -100%;
+  z-index: -1;
 }
 
 .expand-arrow {
@@ -117,6 +121,12 @@ header * {
 .dots {
   font-weight: bold;
   margin-left: 5px;
+}
+
+.branch-line {
+  border: solid 1px black;
+  margin: 0px;
+  width: 50px;
 }
 
 #about-panel {

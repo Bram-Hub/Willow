@@ -7,7 +7,9 @@
         "type": "git",
         "url": "https://github.com/connorjayr/Willow"
     },
-    "scripts": { "start": "node server.js"},
+    "scripts": {
+        "start": "node server.js"
+    },
     "license": "MIT",
     "devDependencies": {
         "eslint": "^6.6.0"
