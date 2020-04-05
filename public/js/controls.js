@@ -145,7 +145,7 @@ function recordState() {
  * Reverts the most recent action in the history.
  */
 function undo() {
-  if (getSelectedStatement().is(".statement")) {
+  if ($(document.activeElement).is(".statement")) {
     // if the focused element is a statement, then use default browser undo
     // behavior
     return true;
@@ -169,7 +169,7 @@ function undo() {
  * Reapplies the most recent undone action.
  */
 function redo() {
-  if (getSelectedStatement().is(".statement")) {
+  if ($(document.activeElement).is(".statement")) {
     // if the focused element is a statement then use default browser redo
     // behavior
     return true;
