@@ -1,4 +1,15 @@
 /**
+ * Returns the selected statement.
+ */
+function getSelectedStatement() {
+  return $(
+      ".statement"
+      + `[branches="${JSON.stringify(selected.branches)}"]`
+      + `[offset="${selected.offset}"]`
+  );
+}
+
+/**
  * Focuses on a statement within a tree, with its position given by branch indices
  * and an offset.
  * 
@@ -32,12 +43,13 @@ function focusLastStatement() {
  * statement is focused.
  */
 function moveUp() {
-  if ($(document.activeElement).is(".statement")) {
+  const el = getSelectedStatement();
+  if (el.is(".statement")) {
     const statements = $(".statement");
     // search through all statements on the page except for the first, since we
     // cannot move up from the first one
     for (let i = 1; i < statements.length; ++i) {
-      if (statements.get(i) === document.activeElement) {
+      if (statements.get(i) === el[0]) {
         // if this statement matches the focused statement, then focus the
         // statement before this one
         statements.get(i - 1).focus();
@@ -52,7 +64,7 @@ function moveUp() {
  * does nothing if no statement is focused.
  */
 function moveUpBranch() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     const offset = parseInt(el.attr("offset"));
     if (offset === 0) {
@@ -72,12 +84,13 @@ function moveUpBranch() {
  * statement is focused.
  */
 function moveDown() {
-  if ($(document.activeElement).is(".statement")) {
+  const el = getSelectedStatement();
+  if (el.is(".statement")) {
     const statements = $(".statement");
     // search through all statements of the page except for the last, since we
     // cannot move down from the last one
     for (let i = 0; i < statements.length - 1; ++i) {
-      if (statements.get(i) === document.activeElement) {
+      if (statements.get(i) === el[0]) {
         // if this statement matches the focused statement, then focus the
         // statement after this one
         statements.get(i + 1).focus();
@@ -92,7 +105,7 @@ function moveDown() {
  * does nothing if no statement is focused.
  */
 function moveDownBranch() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     const branches = JSON.parse(el.attr("branches"));
     const offset = parseInt(el.attr("offset"));
@@ -181,7 +194,7 @@ function redo() {
  * tree if no statement is focused.
  */
 function addStatementBefore() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     const branches = JSON.parse(el.attr("branches"));
     const offset = parseInt(el.attr("offset"));
@@ -202,7 +215,7 @@ function addStatementBefore() {
  * if no statement is focused.
  */
 function addStatementAfter() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     const branches = JSON.parse(el.attr("branches"));
     const offset = parseInt(el.attr("offset")) + 1;
@@ -223,7 +236,7 @@ function addStatementAfter() {
  * focused.
  */
 function deleteStatement() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     const branches = JSON.parse(el.attr("branches"));
     const offset = parseInt(el.attr("offset"));
@@ -258,7 +271,7 @@ function deleteStatement() {
  * the tree if no statement is focused.
  */
 function addBranch() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     const branches = JSON.parse(el.attr("branches"));
     const children = vm.root.child(branches).children;
@@ -280,7 +293,7 @@ function addBranch() {
  */
 function deleteBranch() {
   // get the element within the branch to be deleted
-  let el = $(document.activeElement);
+  let el = getSelectedStatement();
   if (!el.is(".statement")) {
     el = $(".statement").last();
   }
@@ -306,7 +319,7 @@ function deleteBranch() {
  * no statements are focused.
  */
 function endBranch() {
-  const el = $(document.activeElement);
+  const el = getSelectedStatement();
   if (el.is(".statement")) {
     // get the parent node with respect to the focused statement
     const branches = JSON.parse(el.attr("branches"));
