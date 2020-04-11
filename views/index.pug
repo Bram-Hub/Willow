@@ -5,6 +5,7 @@ head
   script(src="/js/substitutions.js" type="text/javascript")
   script(src="/js/logic/statement.js" type="text/javascript")
   script(src="/js/logic/tree.js" type="text/javascript")
+  script(src="/js/fileManagement.js" type="text/javascript")
   if tree === "sample"
     script(src="/js/sample.js" type="text/javascript")
   else
@@ -19,9 +20,9 @@ body
       .dropdown-menu(style="display: none;")
         a.menu-option(href="/" target="_blank") New
         hr
-        button.menu-option Open
+        button.menu-option(onclick="open()") Open
         button.menu-option(onclick="vm.name = prompt('Enter the new name for this truth tree:') || vm.name") Rename
-        button.menu-option Save
+        button.menu-option(onclick="save()") Save
         hr
         button.menu-option(onclick="window.close()") Close
     .dropdown
