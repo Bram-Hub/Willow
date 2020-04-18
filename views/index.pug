@@ -10,7 +10,7 @@ head
     script(src="/js/sample.js" type="text/javascript")
   else
     script(type="text/javascript").
-      const root = new TreeNode([""]);
+      const root = {node: new TreeNode([""])};
   script(src="/js/index.js" type="text/javascript" defer)
 body
   include /views/global/header.pug
@@ -45,9 +45,9 @@ body
         hr
         button.menu-option(onclick="$('#about-panel').slideDown()") About Willow
   div(style="display: none;")
-    input#open-file(type="file")
+    input#open-file(type="file" onchange="loadFile(event)")
   .container#tree-container
-    tree-node(:node="root" style="margin-left: 0px;")
+    tree-node(:node="root.node" style="margin-left: 0px;")
   #about-panel(style="display: none;")
     i.fas.fa-times.close-button(onclick="$(this).parent().slideUp()")
     img(src="/img/logo.png" width="200")
