@@ -20,9 +20,9 @@ body
       .dropdown-menu(style="display: none;")
         a.menu-option(href="/" target="_blank") New
         hr
-        button.menu-option(onclick="open()") Open
+        button.menu-option(onclick="openFile()") Open
         button.menu-option(onclick="vm.name = prompt('Enter the new name for this truth tree:') || vm.name") Rename
-        button.menu-option(onclick="save()") Save
+        button.menu-option(onclick="saveFile()") Save
         hr
         button.menu-option(onclick="window.close()") Close
     .dropdown
@@ -44,6 +44,8 @@ body
         button.menu-option Tutorial
         hr
         button.menu-option(onclick="$('#about-panel').slideDown()") About Willow
+  div(style="display: none;")
+    input#open-file(type="file")
   .container#tree-container
     tree-node(:node="root" style="margin-left: 0px;")
   #about-panel(style="display: none;")

@@ -1,7 +1,7 @@
 /**
  * Saves a JSON file storing the current tree to the client.
  */
-function save() {
+function saveFile() {
   const filename = prompt("Enter the file name:")
   var blob = new Blob(
       [JSON.stringify(vm.root)],
@@ -13,22 +13,14 @@ function save() {
 /**
  * Opens a JSON file containing a tree.
  */
-function open() {
-  // TODO
-
-  const input = document.createElement("input");
-  input.type = "file";
-
-  input.onchange = event => { 
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsText(file, "UTF-8");
-
-    reader.onload = readerEvent => {
-      const content = readerEvent.target.result;
-      console.log(content);
-    }
+function openFile() {
+  if (!confirm(
+      "Opening a file will overwrite the current tree. Are you sure?"
+  )) {
+    return;
   }
 
-  input.click();
+  $("#open-file").click();
+
+  // TODO: load file
 }
