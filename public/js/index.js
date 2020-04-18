@@ -72,7 +72,11 @@ const vm = new Vue({
             return;
           }
           const referenceStr = JSON.stringify(reference);
-
+          console.log(root);
+          console.log(selected.branches);
+          console.log(root.child(selected.branches));
+          console.log(root.child(selected.branches).statements);
+          console.log(selected.offset);
           const references = root.child(
               selected.branches
           ).statements[selected.offset].references;
