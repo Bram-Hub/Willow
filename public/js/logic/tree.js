@@ -6,12 +6,30 @@ class TreeNode {
    * @param {TreeNode[]} [children=[]] the children of the node
    */
   constructor(statements, children) {
-    this.statements = (statements || []).map(statement => ({
-      str: statement,
-      references: [],
-    }));
-    // if no children were provided, initialize to an empty array
+    // default value of both arguments is an empty array
+    this.statements = statements || [];
+    // convert any string statements to objects
+    for (let i = 0; i < this.statements.length; ++i) {
+      const statement = this.statements[i];
+      if (typeof statement === "string" || statement instanceof String) {
+        this.statements[i] = {str: statement, references: []};
+      }
+    }
+
     this.children = children || [];
+  }
+
+  /**
+   * Parses a raw object into a {@link TreeNode} instance.
+   * 
+   * @param {Object} obj the raw object
+   * @returns {TreeNode} the parsed TreeNode instance 
+   */
+  static fromObject(obj) {
+    return new TreeNode(
+        obj.statements,
+        obj.children.map(child => TreeNode.fromObject(child))
+    );
   }
 
   /**

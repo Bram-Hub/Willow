@@ -3,23 +3,14 @@
  */
 function saveFile() {
   var blob = new Blob(
-      [JSON.stringify(vm.root)],
+      [JSON.stringify(vm.root.node)],
       {type: "text/plain;charset=utf-8"}
   );
   saveAs(blob, vm.name + ".json");
 }
 
-function convertToTreeNode(obj) {
-  var treenode = new TreeNode();
-  treenode.statements = obj.statements;
-  for(var child of obj.children) {
-    treenode.children.push(convertToTreeNode(child));
-  }
-  return treenode;
-}
-
 /**
- * Opens a JSON file containing a tree.
+ * Opens a file browser, which will eventually load the tree.
  */
 function openFile() {
   if (!confirm(
@@ -27,21 +18,30 @@ function openFile() {
   )) {
     return;
   }
-  document.getElementById("open-file").onchange = e => {
-    // getting a hold of the file reference
-    var file = e.target.files[0]; 
-
-    // setting up the reader
-    var reader = new FileReader();
-    reader.readAsText(file,'UTF-8');
-
-    // here we tell the reader what to do when it's done reading...
-    reader.onload = readerEvent => {
-      var content = readerEvent.target.result; // this is the content!
-      var obj = JSON.parse(content);
-      vm.root = convertToTreeNode(obj);
-      console.log(vm.root);
-    }
-  }
   $("#open-file").click();
+}
+
+/**
+ * Loads the selected file to the tree.
+ */
+function loadFile(event) {
+  // retrieve the file reference
+  const file = event.target.files[0]; 
+
+  // setting up the reader
+  const reader = new FileReader();
+  reader.readAsText(file, "UTF-8");
+
+  // load content when reader is done reading the file
+  reader.onload = function(readerEvent) {
+    let filename = file.name;
+    if (filename.endsWith(".json")) {
+      filename = filename.substring(0, filename.length - 5);
+    }
+    vm.name = filename;
+
+    const content = readerEvent.target.result;
+    const nodeObj = JSON.parse(content);
+    vm.root.node = TreeNode.fromObject(nodeObj);
+  }
 }
