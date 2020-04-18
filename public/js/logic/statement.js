@@ -391,6 +391,10 @@ class BiconditionalStatement extends BinaryStatement {
  * @returns {boolean} if the string is wrapped in parentheses as described above
  */
 function validateParentheses(string) {
+  if(string==""){
+    return false;
+  }
+  
   let depth = 0;
   // initialize wrapped to true until we find a character outside of the first
   // pair of parentheses
