@@ -6,7 +6,10 @@ class TreeNode {
    * @param {TreeNode[]} [children=[]] the children of the node
    */
   constructor(statements, children) {
-    this.statements = (statements || []).map(statement => ({str: statement}));
+    this.statements = (statements || []).map(statement => ({
+      str: statement,
+      references: [],
+    }));
     // if no children were provided, initialize to an empty array
     this.children = children || [];
   }

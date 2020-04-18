@@ -201,11 +201,14 @@ function addStatementBefore() {
 
     // append and focus a statement before the focused statement (use element
     // attributes to determine position)
-    vm.root.child(branches).statements.splice(offset, 0, {str: ""});
+    vm.root.child(branches).statements.splice(offset, 0, {
+      str: "",
+      references: [],
+    });
     focusStatement(branches, offset);
   } else {
     // prepend and focus a statement to the root node of the tree
-    vm.root.statements.unshift({str: ""});
+    vm.root.statements.unshift({str: "", references: []});
     focusFirstStatement();
   }
 }
@@ -222,11 +225,14 @@ function addStatementAfter() {
 
     // append and focus a statement after the focused statement (use element
     // attributes to determine position)
-    vm.root.child(branches).statements.splice(offset, 0, {str: ""});
+    vm.root.child(branches).statements.splice(offset, 0, {
+      str: "",
+      references: [],
+    });
     focusStatement(branches, offset);
   } else {
     // append and focus a statement to the last node of the tree
-    vm.root.lastLeaf.statements.push({str: ""});
+    vm.root.lastLeaf.statements.push({str: "", references: []});
     focusLastStatement();
   }
 }

@@ -17,6 +17,8 @@ $(function() {
 let selected = {
   branches: undefined,
   offset: undefined,
+
+  references: undefined,
 };
 
 const vm = new Vue({
@@ -39,7 +41,52 @@ const vm = new Vue({
       data: () => ({
         expanded: true,
         selected: selected,
+        itemClasses: undefined,
       }),
+      methods: {
+        hasSelection: function() {
+          return selected !== undefined
+              && selected.branches !== undefined
+              && selected.offset !== undefined
+              && selected.references !== undefined;
+        },
+        isSelected: function(branches, offset) {
+          return JSON.stringify(selected.branches) === JSON.stringify(branches)
+              && selected.offset === offset;
+        },
+        referenceStatement: function(event) {
+          if (!this.hasSelection()) {
+            return;
+          }
+
+          let referenceEl = $(event.target);
+          if (!referenceEl.is(".statement")) {
+            referenceEl = referenceEl.find(".statement");
+          }
+
+          const reference = {
+            branches: JSON.parse(referenceEl.attr("branches")),
+            offset: parseInt(referenceEl.attr("offset")),
+          };
+          if (this.isSelected(reference.branches, reference.offset)) {
+            return;
+          }
+          const referenceStr = JSON.stringify(reference);
+
+          const references = root.child(
+              selected.branches
+          ).statements[selected.offset].references;
+          const referenceIdx = references.indexOf(referenceStr);
+          if (referenceIdx !== -1) {
+            references.splice(referenceIdx, 1);
+          } else {
+            references.push(referenceStr);
+          }
+
+          event.preventDefault();
+          event.stopPropagation();
+        },
+      },
       props: {
         node: Object,
         branches: {
@@ -47,11 +94,30 @@ const vm = new Vue({
           default: () => [],
         },
       },
+      watch: {
+        selected: {
+          handler: function() {
+            const classes = this.node.statements.map(() => []);
+            if (this.hasSelection()) {
+              const branchesStr = JSON.stringify(this.branches);
+              for (const referenceStr of this.selected.references) {
+                const reference = JSON.parse(referenceStr);
+                if (JSON.stringify(reference.branches) === branchesStr) {
+                  classes[reference.offset].push("referenced");
+                }
+              }
+            }
+            this.itemClasses = classes;
+          },
+          immediate: true,
+          deep: true,
+        },
+      },
       template: `
 <ul class="node-list">
-  <li v-for="(statement, idx) in node.statements" v-if="idx === 0 || expanded">
+  <li v-for="(statement, idx) in node.statements" v-if="idx === 0 || expanded" @contextmenu="referenceStatement" :class="itemClasses[idx]">
     <div v-if="JSON.stringify(selected.branches) === JSON.stringify(branches) && selected.offset === idx" class="selected-statement"></div>
-    <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx;" class="statement" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
+    <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" class="statement" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
     <button v-if="idx == 0 && (node.statements.length > 1 || node.children.length > 0)" @click="expanded = !expanded" class="expand-arrow">{{ expanded ? "▼" : "►" }}</button>
   </li>
   <li v-if="(node.statements.length > 1 || node.children.length > 0) && !expanded" class="dots">⋮</li>
