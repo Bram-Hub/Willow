@@ -111,7 +111,7 @@ function moveDownBranch() {
     const offset = parseInt(el.attr("offset"));
 
     // get the node representing the branch containing the focused statement
-    const node = vm.root.child(branches);
+    const node = vm.root.node.child(branches);
     if (offset === node.statements.length - 1) {
       // if this is the last statement in the branch, then move down normally
       moveDown();
@@ -132,7 +132,7 @@ let redoStack = [];
  */
 function recordState() {
   // add a clone of the root node to the undo stack and truncate it if necessary
-  undoStack.push(vm.root.clone());
+  undoStack.push(vm.root.node.clone());
   while (undoStack.length > MAX_HISTORY_LENGTH) {
     undoStack.shift();
   }
@@ -156,13 +156,13 @@ function undo() {
   }
   
   // add a clone of the root node to the redo stack and truncate it if necessary
-  redoStack.push(vm.root.clone());
+  redoStack.push(vm.root.node.clone());
   while (redoStack.length > MAX_HISTORY_LENGTH) {
     redoStack.shift();
   }
 
   // set the tree to the most recent clone in the undo stack
-  vm.root = undoStack.pop();
+  vm.root.node = undoStack.pop();
 }
 
 /**
@@ -180,13 +180,13 @@ function redo() {
   }
 
   // add a clone of the root node to the undo stack and truncate it if necessary
-  undoStack.push(vm.root.clone());
+  undoStack.push(vm.root.node.clone());
   while (undoStack.length > MAX_HISTORY_LENGTH) {
     undoStack.shift();
   }
 
   // set the tree to the most recent clone in the redo stack
-  vm.root = redoStack.pop();
+  vm.root.node = redoStack.pop();
 }
 
 /**
@@ -201,14 +201,14 @@ function addStatementBefore() {
 
     // append and focus a statement before the focused statement (use element
     // attributes to determine position)
-    vm.root.child(branches).statements.splice(offset, 0, {
+    vm.root.node.child(branches).statements.splice(offset, 0, {
       str: "",
       references: [],
     });
     focusStatement(branches, offset);
   } else {
     // prepend and focus a statement to the root node of the tree
-    vm.root.statements.unshift({str: "", references: []});
+    vm.root.node.statements.unshift({str: "", references: []});
     focusFirstStatement();
   }
 }
@@ -225,14 +225,14 @@ function addStatementAfter() {
 
     // append and focus a statement after the focused statement (use element
     // attributes to determine position)
-    vm.root.child(branches).statements.splice(offset, 0, {
+    vm.root.node.child(branches).statements.splice(offset, 0, {
       str: "",
       references: [],
     });
     focusStatement(branches, offset);
   } else {
     // append and focus a statement to the last node of the tree
-    vm.root.lastLeaf.statements.push({str: "", references: []});
+    vm.root.node.lastLeaf.statements.push({str: "", references: []});
     focusLastStatement();
   }
 }
@@ -248,7 +248,7 @@ function deleteStatement() {
     const offset = parseInt(el.attr("offset"));
 
     // get the array of statements for the node containing the focused statement
-    const statements = vm.root.child(branches).statements;
+    const statements = vm.root.node.child(branches).statements;
     if (statements.length <= 1) {
       // do not remove the statement if it is the only statement in the node
       alert("You cannot delete the only statement in a branch.");
@@ -260,7 +260,7 @@ function deleteStatement() {
     focusStatement(branches, Math.max(0, offset - 1));
   } else {
     // get the array of statements for the last node in the tree
-    const statements = vm.root.lastLeaf.statements;
+    const statements = vm.root.node.lastLeaf.statements;
     if (statements.length <= 1) {
       // do not remove the last statement if it is the only statement in the node
       alert("You cannot delete the only statement in a branch.");
@@ -280,7 +280,7 @@ function addBranch() {
   const el = getSelectedStatement();
   if (el.is(".statement")) {
     const branches = JSON.parse(el.attr("branches"));
-    const children = vm.root.child(branches).children;
+    const children = vm.root.node.child(branches).children;
 
     // append a branch to the node containing the focused statement, and focus its
     // first statement
@@ -288,7 +288,7 @@ function addBranch() {
     focusStatement([...branches, children.length - 1], 0);
   } else {
     // append a branch to the last node of the tree, and focus its first statement
-    vm.root.lastLeaf.children.push(new TreeNode([""]));
+    vm.root.node.lastLeaf.children.push(new TreeNode([""]));
     focusLastStatement();
   }
 }
@@ -313,7 +313,7 @@ function deleteBranch() {
   }
 
   const branchIdx = branches.pop();
-  const parent = vm.root.child(branches);
+  const parent = vm.root.node.child(branches);
   // remove the branch from its parent node, and focus the last statement of the
   // parent node (preceding the deleted branch)
   parent.children.splice(branchIdx, 1);
@@ -335,7 +335,7 @@ function endBranch() {
       return;
     }
     branches.pop();
-    const parent = vm.root.child(branches);
+    const parent = vm.root.node.child(branches);
 
     // focus the last statement of the parent branch
     focusStatement(branches, parent.statements.length - 1);

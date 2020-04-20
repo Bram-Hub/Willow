@@ -17,7 +17,6 @@ $(function() {
 let selected = {
   branches: undefined,
   offset: undefined,
-
   references: undefined,
 };
 
@@ -72,8 +71,7 @@ const vm = new Vue({
             return;
           }
           const referenceStr = JSON.stringify(reference);
-
-          const references = root.child(
+          const references = root.node.child(
               selected.branches
           ).statements[selected.offset].references;
           const referenceIdx = references.indexOf(referenceStr);
@@ -88,23 +86,23 @@ const vm = new Vue({
         },
         isValid: function(statement, node){
           const answer = parseStatement(statement.str);
-          
+
           //must be decomposed into the correct number of statements
           //TODO this actually is not correct because it needs to check this per branch
           //Which makes some of the later code also wrong
           if(statement.references.length != answer.decompose().flat().length){
             return false;
           }
-          
+
           //atomic statements are always correctly decomposed
           if(answer.value == parseStatement(statement.str).toString()){
             return true;
           }
-          
+
           console.log(statement.str)
           console.log(statement.references)
           console.log(answer.decompose())
-          
+
           if(answer.decompose().length == 2){
             let val0 = JSON.parse(statement.references[0])
             val0 = parseStatement(node.child(val0.branches).statements[val0.offset].str).toString();
@@ -148,8 +146,8 @@ const vm = new Vue({
       template: `
 <ul class="node-list">
   <li v-for="(statement, idx) in node.statements" v-if="idx === 0 || expanded" @contextmenu="referenceStatement" :class="itemClasses[idx]">
-    <i class="fa fa-check" style="color:green" v-if="isValid(statement, node)"></i>
-    <i class="fa fa-times" style="color:red" v-else></i>
+    <i class="fa fa-check valid-mark" v-if="isValid(statement, node)"></i>
+    <i class="fa fa-times valid-mark" v-else></i>
     <div v-if="JSON.stringify(selected.branches) === JSON.stringify(branches) && selected.offset === idx" class="selected-statement"></div>
     <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" class="statement" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
     <button v-if="idx == 0 && (node.statements.length > 1 || node.children.length > 0)" @click="expanded = !expanded" class="expand-arrow">{{ expanded ? "▼" : "►" }}</button>
