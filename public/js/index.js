@@ -117,7 +117,7 @@ const vm = new Vue({
     <i class="fa fa-check valid-mark" v-if="node.isValid(branches, idx)"></i>
     <i class="fa fa-times valid-mark" v-else></i>
     <div v-if="JSON.stringify(selected.branches) === JSON.stringify(branches) && selected.offset === idx" class="selected-statement"></div>
-    <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" class="statement" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
+    <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" :class="{statement: true, 'branch-terminator': statement.str === '◯' || statement.str === '×'}" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
     <button v-if="idx == 0 && (node.statements.length > 1 || node.children.length > 0)" @click="expanded = !expanded" class="expand-arrow">{{ expanded ? "▼" : "►" }}</button>
   </li>
   <li v-if="(node.statements.length > 1 || node.children.length > 0) && !expanded" class="dots">⋮</li>

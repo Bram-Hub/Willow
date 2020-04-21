@@ -114,6 +114,10 @@ div.selected-statement {
   z-index: -1;
 }
 
+.branch-terminator {
+  text-align: center;
+}
+
 .expand-arrow {
   all: unset;
   color: #888;
