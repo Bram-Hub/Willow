@@ -87,27 +87,30 @@ header * {
   background-color: #dbb;
 }
 
-.node-list li.referenced:before {
-  background-color: #c44;
-  border: solid 1px #a22;
-  border-radius: 50%;
-  content: "";
-  display: inline-block;
+.valid-mark {
   position: absolute;
   top: 50%;
-  left: -20px;
   transform: translateY(-50%);
-  width: 10px;
-  height: 10px;
+}
+
+.valid-mark.fa-check {
+  color: green;
+  left: -25px;
+}
+
+.valid-mark.fa-times {
+  color: red;
+  left: -20px;
 }
 
 div.selected-statement {
   background-color: rgba(51, 153, 255, 0.5);
+  min-width: 400px;
   position: absolute;
   top: 0px;
-  right: -100%;
+  right: 0px;
   bottom: 0px;
-  left: -100%;
+  left: 0px;
   z-index: -1;
 }
 

@@ -114,6 +114,8 @@ const vm = new Vue({
       template: `
 <ul class="node-list">
   <li v-for="(statement, idx) in node.statements" v-if="idx === 0 || expanded" @contextmenu="referenceStatement" :class="itemClasses[idx]">
+    <i class="fa fa-check valid-mark" v-if="node.isValid(branches, idx)"></i>
+    <i class="fa fa-times valid-mark" v-else></i>
     <div v-if="JSON.stringify(selected.branches) === JSON.stringify(branches) && selected.offset === idx" class="selected-statement"></div>
     <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" class="statement" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
     <button v-if="idx == 0 && (node.statements.length > 1 || node.children.length > 0)" @click="expanded = !expanded" class="expand-arrow">{{ expanded ? "▼" : "►" }}</button>

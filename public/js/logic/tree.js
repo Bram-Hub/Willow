@@ -64,6 +64,40 @@ class TreeNode {
   }
 
   /**
+   * Determines if the statement at the given offset is valid or not.
+   * 
+   * @param {Number[]} branches the branch indices for this node
+   * @param {Number} offset the offset of the statement
+   * @returns {Boolean} if the statement is valid or not
+   */
+  isValid(branches, offset) {
+    const statement = parseStatement(this.statements[offset].str);
+    const references = Array.from(
+        this.statements[offset].references,
+        JSON.parse
+    );
+    // if this statement is not a terminator, verify that there are no backwards
+    // references
+    for (const reference of references) {
+      if (
+          !arrayStartsWith(reference.branches, branches)
+          || (
+              JSON.stringify(reference.branches) === JSON.stringify(branches)
+              && reference.offset <= offset
+          )
+      ) {
+        return false;
+      }
+    }
+
+    const decomposition = normalize(recursiveMap(
+        statement.decompose(),
+        el => el.toString()
+    ));
+    return validateDecomposition(decomposition, references, branches, this);
+  }
+
+  /**
    * Returns the node at the given position, determined by branch indices relative
    * to this node.
    * 
@@ -90,6 +124,69 @@ class TreeNode {
         this.children.map(child => child.clone())
     );
   }
+}
+
+function addToReferenceDict(referenceDict, branches, el) {
+  const branchesStr = JSON.stringify(branches);
+  if (!(branchesStr in referenceDict)) {
+    referenceDict[branchesStr] = [];
+
+    const parentBranches = [...branches];
+    parentBranches.pop();
+    addToReferenceDict(
+        referenceDict,
+        parentBranches,
+        referenceDict[branchesStr]
+    );
+  }
+
+  referenceDict[branchesStr].push(el);
+}
+
+function validateDecomposition(decomposition, references, branches, node) {
+  const referenceDict = {};
+  // initialize the root branch to an empty array
+  referenceDict[JSON.stringify(branches)] = [];
+  for (const reference of references) {
+    addToReferenceDict(
+        referenceDict,
+        reference.branches,
+        parseStatement(
+            root.node.child(reference.branches).statements[reference.offset].str
+        ).toString()
+    );
+  }
+
+  const unorderedReferences = referenceDict[JSON.stringify(branches)];
+  if (decomposition === normalize(unorderedReferences)) {
+    return true;
+  }
+
+  if (node.children.length === 0) {
+    return false;
+  }
+
+  for (let i = 0; i < node.children.length; ++i) {
+    // check if the statement is decomposed in each child branch
+    const childBranches = [...branches, i];
+    // filter references only in this child branch
+    const branchReferences = references.filter(
+        reference => arrayStartsWith(reference.branches, childBranches)
+    );
+    if (!validateDecomposition(
+        decomposition,
+        branchReferences,
+        childBranches,
+        node.children[i]
+    )) {
+      // if this statement is not decomposed in this child branch, then the
+      // decomposition is invalid
+      return false;
+    }
+  }
+  // if this statement is decomposed in each child branch, then the decomposition
+  // is valid
+  return true;
 }
 
 /**

@@ -147,23 +147,21 @@ class NotStatement extends UnaryStatement {
    */
   decompose() {
     if (this.operand instanceof NotStatement) {
-      return [[this.operand.operand]];
+      return [this.operand.operand];
     } else if (this.operand instanceof AndStatement) {
-      return [
-        this.operand.operands.map(operand => [new NotStatement(operand)])
-      ];
+      return this.operand.operands.map(operand => [new NotStatement(operand)]);
     } else if (this.operand instanceof OrStatement) {
-      return [
-        [this.operand.operands.map(operand => new NotStatement(operand))],
-      ];
+      return this.operand.operands.map(operand => new NotStatement(operand));
     } else if (this.operand instanceof ConditionalStatement) {
-      return [[this.operand.lhs, new NotStatement(this.operand.rhs)]];
+      return [this.operand.lhs, new NotStatement(this.operand.rhs)];
     } else if (this.operand instanceof BiconditionalStatement) {
       return [
         [this.operand.lhs, new NotStatement(this.operand.rhs)],
         [new NotStatement(this.operand.lhs), this.operand.rhs],
       ];
     }
+    // negation of literal, so no decomposition
+    return [];
   }
 
   /**
@@ -220,7 +218,7 @@ class AndStatement extends CompositeStatement {
    * @returns {Statement[][]} the decomposed statements by branch
    */
   decompose() {
-    return [this.operands];
+    return this.operands;
   }
   
   /**
@@ -265,7 +263,7 @@ class OrStatement extends CompositeStatement {
    * @returns {Statement[][]} the decomposed statements by branch
    */
   decompose() {
-    return [this.operands.map(operand => [operand])];
+    return this.operands.map(operand => [operand]);
   }
 
   /**
@@ -391,6 +389,10 @@ class BiconditionalStatement extends BinaryStatement {
  * @returns {boolean} if the string is wrapped in parentheses as described above
  */
 function validateParentheses(string) {
+  if(string==""){
+    return false;
+  }
+  
   let depth = 0;
   // initialize wrapped to true until we find a character outside of the first
   // pair of parentheses
