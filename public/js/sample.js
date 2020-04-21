@@ -8,15 +8,15 @@ const root = {
     "V",
   ], [
     new TreeNode(["¬(W∨S)", "¬W", "¬S"], [
-      new TreeNode(["C", "I∧V", "I", "V", "o"]),
+      new TreeNode(["C", "I∧V", "I", "V", "◯"]),
       new TreeNode(["¬C", "¬(I∧V)"], [
-          new TreeNode(["¬I", "o"]),
-          new TreeNode(["¬V", "x"]),
+          new TreeNode(["¬I", "◯"]),
+          new TreeNode(["¬V", "×"]),
       ]),
     ]),
     new TreeNode(["C"], [
-      new TreeNode(["C", "I∧V", "I", "V", "o"]),
-      new TreeNode(["¬C", "¬(I∧V)", "x"]),
+      new TreeNode(["C", "I∧V", "I", "V", "◯"]),
+      new TreeNode(["¬C", "¬(I∧V)", "×"]),
     ]),
   ]),
 };
