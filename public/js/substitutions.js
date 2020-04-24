@@ -1,4 +1,4 @@
-var substitutions = {
+let substitutions = {
   "!": "¬",
   "|": "∨",
   "&": "∧",

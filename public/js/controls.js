@@ -12,7 +12,7 @@ function getSelectedStatement() {
 /**
  * Focuses on a statement within a tree, with its position given by branch indices
  * and an offset.
- * 
+ *
  * @param {Number[]} branches the branch indices
  * @param {Number} offset the offset within the node
  */
@@ -72,7 +72,7 @@ function moveUpBranch() {
       moveUp();
       return;
     }
-    
+
     // focus the first statement in the branch (offset of zero)
     const branches = JSON.parse(el.attr("branches"));
     focusStatement(branches, 0);
@@ -154,7 +154,7 @@ function undo() {
     // if the undo stack is empty, do nothing
     return;
   }
-  
+
   // add a clone of the root node to the redo stack and truncate it if necessary
   redoStack.push(vm.root.node.clone());
   while (redoStack.length > MAX_HISTORY_LENGTH) {
@@ -342,7 +342,7 @@ function endBranch() {
   }
 }
 
-const shortcuts = [
+let shortcuts = [
   {
     callback: moveUp,
     key: 38,
@@ -409,6 +409,18 @@ const shortcuts = [
     key: "E",
   },
 ];
+
+if (localStorage.getItem("shortcuts") === null) {
+  localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+}else{
+  savedShortcuts = JSON.parse(localStorage.getItem("shortcuts"));
+  //must copy over each ctrl and key because otherwise it breaks the callback
+  for(let i=0;i<savedShortcuts.length;i++){
+    shortcuts[i].ctrl = savedShortcuts[i].ctrl;
+    shortcuts[i].key = savedShortcuts[i].key;
+    shortcuts[i].key = parseInt(shortcuts[i].key) ? parseInt(shortcuts[i].key) : shortcuts[i].key;
+  }
+}
 
 document.onkeydown = function(event) {
   for (const shortcut of shortcuts) {

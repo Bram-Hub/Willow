@@ -136,7 +136,8 @@ Vue.component('keybindings', {
   data: function () {
     return {
       substitutions: substitutions,
-      reverse_substitutions: {}
+      reverse_substitutions: {},
+      shortcuts: shortcuts
     }
   },
   beforeMount(){
@@ -156,15 +157,43 @@ Vue.component('keybindings', {
       }
       localStorage.setItem("substitutions", JSON.stringify(this.substitutions));
       substitutions = this.substitutions;
+    },
+    saveChangesShortcut: function(input, index){
+      this.shortcuts[index].key = parseInt(input.target.value) ? parseInt(input.target.value) : input.target.value;
+      localStorage.setItem("shortcuts", JSON.stringify(this.shortcuts));
+    },
+    saveChangesShortcutCtrl: function(input, index){
+      this.shortcuts[index].ctrl = input.target.checked;
+      localStorage.setItem("shortcuts", JSON.stringify(this.shortcuts));
     }
   },
   template: `
 <div>
   <p>Change substitutions:</p>
-  <div v-for="substitution_value, substitution_key, index in reverse_substitutions">
-    {{substitution_key}}
-    <input type="text" maxlength="1" :value="substitution_value" v-on:input="saveChanges($event, substitution_key)">
-  </div>
+  <table>
+    <tr>
+      <th>Logic Symbol</th>
+      <th></th>
+      <th>Key</th>
+    </tr>
+    <tr v-for="substitution_value, substitution_key, index in reverse_substitutions">
+      <td>{{substitution_key}}</td>
+      <td></td>
+      <td><input style="width:3rem" type="text" maxlength="1" :value="substitution_value" v-on:input="saveChanges($event, substitution_key)"></td>
+    </tr>
+    <tr><td></td></tr>
+    <tr><td></td></tr>
+    <tr>
+      <th>Action</th>
+      <th>ctrl</th>
+      <th>Key</th>
+    </tr>
+    <tr v-for="shortcut,index in shortcuts">
+      <td>{{shortcut.callback.name.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); })}}:</td>
+      <td><input type="checkbox" v-bind:checked="shortcut.ctrl" v-on:input="saveChangesShortcutCtrl($event, index)"></td>
+      <td><input type="text" style="width:3rem" maxlength="3" v-bind:value="shortcut.key" v-on:input="saveChangesShortcut($event, index)"></td>
+    </tr>
+  </table>
 </div>
   `
 })
