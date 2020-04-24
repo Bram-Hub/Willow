@@ -159,3 +159,27 @@ div.selected-statement {
   top: 10px;
   right: 10px;
 }
+
+#keybindings {
+  background-color: #eee;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+#keybindings * {
+  vertical-align: middle;
+}
+
+.close-keybindings {
+  color: #c44;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}

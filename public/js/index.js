@@ -129,3 +129,43 @@ const vm = new Vue({
     }
   }
 });
+
+
+
+Vue.component('keybindings', {
+  data: function () {
+    return {
+      substitutions: substitutions,
+      reverse_substitutions: {}
+    }
+  },
+  beforeMount(){
+    this.reverse();
+  },
+  methods:{
+    reverse: function() {
+      for(var key in this.substitutions){
+        this.reverse_substitutions[this.substitutions[key]] = key;
+      }
+    },
+    saveChanges: function(input, substitution_key) {
+      this.reverse_substitutions[substitution_key] = input.target.value
+      this.substitutions = {}
+      for(var key in this.reverse_substitutions){
+        this.substitutions[this.reverse_substitutions[key]] = key;
+      }
+      localStorage.setItem("substitutions", JSON.stringify(this.substitutions));
+      substitutions = this.substitutions;
+    }
+  },
+  template: `
+<div>
+  <p>Change substitutions:</p>
+  <div v-for="substitution_value, substitution_key, index in reverse_substitutions">
+    {{substitution_key}}
+    <input type="text" maxlength="1" :value="substitution_value" v-on:input="saveChanges($event, substitution_key)">
+  </div>
+</div>
+  `
+})
+new Vue({ el: '#keybindings' })

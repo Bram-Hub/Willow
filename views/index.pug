@@ -41,6 +41,7 @@ body
         button.menu-option(onclick="addBranch()") Add Branch
         button.menu-option(onclick="deleteBranch()") Delete Branch
         button.menu-option(onclick="endBranch()") End Branch
+        button.menu-option(onclick="$('#keybindings-panel').slideDown()") Keybindings
     .dropdown
       button Help
       .dropdown-menu(style="display: none;")
@@ -57,3 +58,7 @@ body
     div(style="display: inline-block; margin-left: 30px;")
       h3 Willow
       p Current commit: #{commit}
+  #keybindings-panel(style="display: none;")
+    i.fas.fa-times.close-keybindings(onclick="$(this).parent().slideUp()")
+    .div#keybindings
+      keybindings

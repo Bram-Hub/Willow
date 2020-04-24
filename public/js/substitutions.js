@@ -1,4 +1,4 @@
-const substitutions = {
+var substitutions = {
   "!": "¬",
   "|": "∨",
   "&": "∧",
@@ -8,9 +8,15 @@ const substitutions = {
   "'": str => str.length <= 1 ? "×" : "",
 };
 
+if (localStorage.getItem("substitutions") === null) {
+  localStorage.setItem("substitutions", JSON.stringify(substitutions));
+}else{
+  substitutions = JSON.parse(localStorage.getItem("substitutions"));
+}
+
 /**
  * Makes character substitutions in a text input.
- * 
+ *
  * @param input the input element
  */
 function makeSubstitutions(input) {
