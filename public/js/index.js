@@ -157,6 +157,8 @@ Vue.component('keybindings', {
       }
       localStorage.setItem("substitutions", JSON.stringify(this.substitutions));
       substitutions = this.substitutions;
+      substitutions[";"] = str => str.length <= 1 ? "◯" : "";
+      substitutions["'"] = str => str.length <= 1 ? "×" : "";
     },
     saveChangesShortcut: function(input, index){
       this.shortcuts[index].key = parseInt(input.target.value) ? parseInt(input.target.value) : input.target.value;
