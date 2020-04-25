@@ -1,0 +1,90 @@
+﻿{
+    "statements": [
+        {
+            "str": "A → B",
+            "references": [
+                "{\"branches\":[0],\"offset\":0}",
+                "{\"branches\":[1],\"offset\":0}"
+            ]
+        },
+        {
+            "str": "B → C",
+            "references": []
+        },
+        {
+            "str": "¬(A → C)",
+            "references": [
+                "{\"branches\":[],\"offset\":3}",
+                "{\"branches\":[],\"offset\":4}"
+            ]
+        },
+        {
+            "str": "A",
+            "references": []
+        },
+        {
+            "str": "¬C",
+            "references": []
+        }
+    ],
+    "children": [
+        {
+            "statements": [
+                {
+                    "str": "¬A",
+                    "references": []
+                },
+                {
+                    "str": "×",
+                    "references": [
+                        "{\"branches\":[0],\"offset\":0}",
+                        "{\"branches\":[],\"offset\":3}"
+                    ]
+                }
+            ],
+            "children": []
+        },
+        {
+            "statements": [
+                {
+                    "str": "B",
+                    "references": []
+                }
+            ],
+            "children": [
+                {
+                    "statements": [
+                        {
+                            "str": "¬B",
+                            "references": []
+                        },
+                        {
+                            "str": "×",
+                            "references": [
+                                "{\"branches\":[1,0],\"offset\":0}",
+                                "{\"branches\":[1],\"offset\":0}"
+                            ]
+                        }
+                    ],
+                    "children": []
+                },
+                {
+                    "statements": [
+                        {
+                            "str": "C",
+                            "references": []
+                        },
+                        {
+                            "str": "×",
+                            "references": [
+                                "{\"branches\":[1,1],\"offset\":0}",
+                                "{\"branches\":[],\"offset\":4}"
+                            ]
+                        }
+                    ],
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

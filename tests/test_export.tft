@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tree>
+<BranchLine content="A → B"index="0">
+</BranchLine>
+<BranchLine content="B → C"index="1">
+</BranchLine>
+<BranchLine content="¬(A → C)"index="2">
+</BranchLine>
+<BranchLine content="A"index="3">
+</BranchLine>
+<BranchLine content="¬C"index="4">
+</BranchLine>
+<Branch>
+<BranchLine content="¬A"index="5">
+</BranchLine>
+<BranchLine content="×"index="6">
+</BranchLine>
+</Branch>
+<Branch>
+<BranchLine content="B"index="7">
+</BranchLine>
+<Branch>
+<BranchLine content="¬B"index="8">
+</BranchLine>
+<BranchLine content="×"index="9">
+</BranchLine>
+</Branch>
+<Branch>
+<BranchLine content="C"index="10">
+</BranchLine>
+<BranchLine content="×"index="11">
+</BranchLine>
+</Branch>
+</Branch>
+</Tree>
