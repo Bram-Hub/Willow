@@ -3,7 +3,7 @@
  */
 function saveFile() {
   const blob = new Blob(
-      [JSON.stringify(vm.root.node)],
+      [JSON.stringify(vm.root.node, null, 4)],
       {type: "text/plain;charset=utf-8"}
   );
   saveAs(blob, vm.name + ".json");
@@ -44,4 +44,124 @@ function loadFile(event) {
     const nodeObj = JSON.parse(content);
     vm.root.node = TreeNode.fromObject(nodeObj);
   }
+}
+
+function recordBranch(obj, xml_string, index, ref_line_map, ref_branch_map, branch_arr) {
+  for(statement of obj.statements) {
+    if (statement.str == "×") {
+      xml_string += "<Terminator close=\"true\" index=\"" + index + "\">\n"
+      xml_string += "</Terminator>\n"
+    }
+    else if (statement.str == "◯") {
+      xml_string += "<Terminator close=\"open\" index=\"" + index + "\">\n"
+      xml_string += "</Terminator>\n"
+    }
+    else {
+      if(statement.references.length == 0) {
+        xml_string += "<BranchLine content=\"" + statement.str + "\" index=\"" + index + "\"/>\n"
+      }
+      else {
+        xml_string += "<BranchLine content=\"" + statement.str + "\" index=\"" + index + "\">\n"
+        let branches_used = []
+        for (ref of statement.references) {
+          let ref_obj = JSON.parse(ref)
+          let branches = ref_obj["branches"]
+          let branches_minus_last = []
+          if (branches.length > 0) {
+            branches_minus_last = branches.slice(0, -1)
+          }
+          else {
+            branches_minus_last = "null"
+          }
+          let branch_ref = branches_minus_last.toString()
+          console.log(statement.str)
+          console.log(branch_arr)
+          console.log(branches)
+          console.log(branch_arr.length != branches.length)
+          if (!branches_used.includes(branch_ref) && branch_arr.length != branches.length) {
+            xml_string += "<Decomposition branchIndex=\"" + ref_branch_map[branch_ref.toString()] + "\"/>\n"
+            branches_used.push(branch_ref)
+          }
+          xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n"
+        }
+        xml_string += "</BranchLine>\n"
+      } 
+    }
+    index += 1
+  }
+  let i = 0
+  for(child of obj.children) {
+    const new_branch_arr = [...branch_arr]
+    new_branch_arr.push(i)
+    console.log(new_branch_arr.toString())
+    xml_string += "<Branch index=\"" + ref_branch_map[new_branch_arr.toString()] + "\">\n"
+    ret_val = recordBranch(child, xml_string, index, ref_line_map, ref_branch_map, new_branch_arr)
+    xml_string = ret_val[0]
+    index = ret_val[1]
+    xml_string += "</Branch>\n"
+    i += 1
+  }
+  return [xml_string, index]
+}
+
+function make_index_mapping(obj, map, index, branch_arr) {
+  let i = 0
+  for(statement of obj.statements) {
+    const map_obj = {}
+    map_obj["branches"] = branch_arr
+    map_obj["offset"] = i
+    map_obj_str = JSON.stringify(map_obj)
+    map[map_obj_str] = index;
+    index += 1;
+    i += 1;
+  }
+  i = 0
+  for(child of obj.children) {
+    const new_branch_arr = [...branch_arr]
+    new_branch_arr.push(i)
+    index = make_index_mapping(child, map, index, new_branch_arr)
+    i += 1
+  }
+  return index;
+}
+
+function make_branch_mapping(obj, map, index, branch_arr) {
+  map[branch_arr.toString()] = index
+  index += 1;
+  let i = 0
+  for(child of obj.children) {
+    const new_branch_arr = [...branch_arr]
+    new_branch_arr.push(i)
+    index = make_branch_mapping(child, map, index, new_branch_arr)
+    i += 1
+  }
+  return index;
+}
+
+function exportToTFT() {
+
+  ref_to_index = {}
+  make_index_mapping(vm.root.node, ref_to_index, 0, [])
+  for(key in ref_to_index) {
+    //console.log(key + ":" + ref_to_index[key])
+  }
+
+  arr_to_branch = {}
+  make_branch_mapping(vm.root.node, arr_to_branch, 0, [])
+  for(key in arr_to_branch) {
+    console.log(key + ":" + arr_to_branch[key])
+  }
+  let xml_string = ""
+  xml_string += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+  xml_string += "<Tree>\n"
+  xml_string += "<Branch>\n"
+  xml_string = recordBranch(vm.root.node, xml_string, 0, ref_to_index, arr_to_branch, [])[0]
+  xml_string += "</Branch>\n"
+  xml_string += "</Tree>\n"
+
+  const blob = new Blob(
+    [xml_string],
+    {type: "text/plain;charset=utf-8"}
+  );
+  saveAs(blob, vm.name + ".tft");
 }
