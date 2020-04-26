@@ -94,12 +94,16 @@ header * {
 }
 
 .valid-mark.fa-check {
-  color: green;
+  color: #282;
   left: -25px;
 }
 
+.valid-mark.fa-check.closed-mark {
+  color: #4d4;
+}
+
 .valid-mark.fa-times {
-  color: red;
+  color: #c44;
   left: -20px;
 }
 

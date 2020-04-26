@@ -98,6 +98,37 @@ class TreeNode {
   }
 
   /**
+   * Determines if a node is closed or not. A node is closed iff it has a valid
+   * close terminator or all of its grandchildren are closed.
+   * 
+   * @param {Number[]} branches the branch indices for this node 
+   * @returns {Boolean} if this node is closed, as defined above
+   */
+  isClosed(branches) {
+    // search for the close terminator in this branch
+    let closeIdx = -1;
+    for (let i = 0; i < this.statements.length; ++i) {
+      if (this.statements[i].str === "×") {
+        closeIdx = i;
+        break;
+      }
+    }
+
+    if (closeIdx === -1) {
+      // if this node does not contain a close terminator, check all of its
+      // grandchildren
+      if (this.children.length === 0) {
+        // if this node has no children, then it cannot possibly be closed
+        return false;
+      }
+      return this.children.every(child => child.isClosed());
+    }
+
+    // otherwise, this node has a close terminator, so make sure it's valid
+    return this.isValid(branches, closeIdx);
+  }
+
+  /**
    * Returns the node at the given position, determined by branch indices relative
    * to this node.
    * 
