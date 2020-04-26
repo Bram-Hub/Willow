@@ -2,7 +2,7 @@
  * Saves a JSON file storing the current tree to the client.
  */
 function saveFile() {
-  var blob = new Blob(
+  const blob = new Blob(
       [JSON.stringify(vm.root.node)],
       {type: "text/plain;charset=utf-8"}
   );
