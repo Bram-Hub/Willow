@@ -9,9 +9,18 @@ let substitutions = {
 };
 
 if (localStorage.getItem("substitutions") === null) {
+  for(let key in substitutions){
+    substitutions[key] = substitutions[key].toString()
+  }
   localStorage.setItem("substitutions", JSON.stringify(substitutions));
 }else{
   substitutions = JSON.parse(localStorage.getItem("substitutions"));
+}
+for(let key in substitutions){
+  try {
+    substitutions[key] = eval(substitutions[key])
+  }
+  catch(error) {}
 }
 
 /**

@@ -145,18 +145,35 @@ Vue.component('keybindings', {
   },
   methods:{
     reverse: function() {
-      for(var key in this.substitutions){
-        this.reverse_substitutions[this.substitutions[key]] = key;
+      for(let key in this.substitutions){
+        if(typeof this.substitutions[key] === "function"){
+          this.reverse_substitutions[this.substitutions[key](key)] = key;
+          console.log(this.substitutions[key](key))
+        }else{
+          this.reverse_substitutions[this.substitutions[key]] = key;
+        }
       }
     },
     saveChanges: function(input, substitution_key) {
       this.reverse_substitutions[substitution_key] = input.target.value
       this.substitutions = {}
-      for(var key in this.reverse_substitutions){
-        this.substitutions[this.reverse_substitutions[key]] = key;
+      for(let key in this.reverse_substitutions){
+        if(key === "◯"){
+          this.substitutions[this.reverse_substitutions[key]] = (str => str.length <= 1 ? "◯" : "").toString();
+        }else if(key === "×"){
+          this.substitutions[this.reverse_substitutions[key]] = (str => str.length <= 1 ? "×" : "").toString();
+        }else{
+          this.substitutions[this.reverse_substitutions[key]] = key;
+        }
       }
       localStorage.setItem("substitutions", JSON.stringify(this.substitutions));
       substitutions = this.substitutions;
+      for(let key in substitutions){
+        try {
+          substitutions[key] = eval(substitutions[key])
+        }
+        catch(error) {}
+      }
     },
     saveChangesShortcut: function(input, index){
       this.shortcuts[index].key = parseInt(input.target.value) ? parseInt(input.target.value) : input.target.value;
