@@ -1,35 +1,39 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Tree>
-<BranchLine content="A → B"index="0">
-</BranchLine>
-<BranchLine content="B → C"index="1">
-</BranchLine>
-<BranchLine content="¬(A → C)"index="2">
-</BranchLine>
-<BranchLine content="A"index="3">
-</BranchLine>
-<BranchLine content="¬C"index="4">
-</BranchLine>
 <Branch>
-<BranchLine content="¬A"index="5">
+<BranchLine content="A → B" index="0">
+<Decomposition branchIndex="0"/>
+<Decomposition lineIndex="5"/>
+<Decomposition lineIndex="7"/>
 </BranchLine>
-<BranchLine content="×"index="6">
+<BranchLine content="B → C" index="1">
+<Decomposition branchIndex="2"/>
+<Decomposition lineIndex="8"/>
+<Decomposition lineIndex="10"/>
 </BranchLine>
+<BranchLine content="¬(A → C)" index="2">
+<Decomposition lineIndex="3"/>
+<Decomposition lineIndex="4"/>
+</BranchLine>
+<BranchLine content="A" index="3"/>
+<BranchLine content="¬C" index="4"/>
+<Branch index="1">
+<BranchLine content="¬A" index="5"/>
+<Terminator close="true" index="6">
+</Terminator>
 </Branch>
-<Branch>
-<BranchLine content="B"index="7">
-</BranchLine>
-<Branch>
-<BranchLine content="¬B"index="8">
-</BranchLine>
-<BranchLine content="×"index="9">
-</BranchLine>
+<Branch index="2">
+<BranchLine content="B" index="7"/>
+<Branch index="3">
+<BranchLine content="¬B" index="8"/>
+<Terminator close="true" index="9">
+</Terminator>
 </Branch>
-<Branch>
-<BranchLine content="C"index="10">
-</BranchLine>
-<BranchLine content="×"index="11">
-</BranchLine>
+<Branch index="4">
+<BranchLine content="C" index="10"/>
+<Terminator close="true" index="11">
+</Terminator>
+</Branch>
 </Branch>
 </Branch>
 </Tree>
