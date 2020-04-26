@@ -342,7 +342,7 @@ function endBranch() {
   }
 }
 
-let shortcuts = [
+const shortcuts = [
   {
     callback: moveUp,
     key: 38,
@@ -412,13 +412,14 @@ let shortcuts = [
 
 if (localStorage.getItem("shortcuts") === null) {
   localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
-}else{
-  savedShortcuts = JSON.parse(localStorage.getItem("shortcuts"));
-  //must copy over each ctrl and key because otherwise it breaks the callback
-  for(let i=0;i<savedShortcuts.length;i++){
-    shortcuts[i].ctrl = savedShortcuts[i].ctrl;
-    shortcuts[i].key = savedShortcuts[i].key;
-    shortcuts[i].key = parseInt(shortcuts[i].key) ? parseInt(shortcuts[i].key) : shortcuts[i].key;
+} else {
+  const storedShortcuts = JSON.parse(localStorage.getItem("shortcuts"));
+  // only copy "ctrl" and "key" properties to maintain the callback
+  for (let i = 0; i < storedShortcuts.length; i++) {
+    shortcuts[i].ctrl = storedShortcuts[i].ctrl;
+    shortcuts[i].key = parseInt(shortcuts[i].key)
+        ? parseInt(shortcuts[i].key)
+        : shortcuts[i].key;
   }
 }
 

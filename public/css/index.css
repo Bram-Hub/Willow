@@ -185,3 +185,7 @@ table.table-default th, table.table-default td {
 .col-key {
   width: 50px;
 }
+
+.col-key * {
+  width: 100%;
+}

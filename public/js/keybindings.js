@@ -52,13 +52,13 @@ const keybindingsVm = new Vue({
       <thead>
         <tr>
           <th>Symbol</th>
-          <th>Keybind</th>
+          <th class="col-key">Key</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="keybind, symbol, index in inverseSubstitutions">
           <td style="text-align: center;">{{ symbol.trim() }}</td>
-          <td><input type="text" :value="keybind" style="text-align: center; width: 100%;" @keydown="changeSymbolKeybind($event, symbol)" @input="$event.target.value = inverseSubstitutions[symbol]"></td>
+          <td class="col-key"><input type="text" :value="keybind" style="text-align: center; width: 100%;" @keydown="changeSymbolKeybind($event, symbol)" @input="$event.target.value = inverseSubstitutions[symbol]"></td>
         </tr>
       </tbody>
     </table>
@@ -74,7 +74,7 @@ const keybindingsVm = new Vue({
       <tr v-for="shortcut, index in shortcuts">
         <td style="padding: 0px 2px;">{{ shortcut.callback.name.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}}</td>
         <td style="text-align: center;"><input type="checkbox" v-model="shortcut.ctrl"></td>
-        <td><input type="text" class="col-key" maxlength="3" :value="shortcut.key" @input="changeActionKey($event, index)"></td>
+        <td class="col-key"><input type="text" maxlength="3" :value="shortcut.key" @input="changeActionKey($event, index)"></td>
       </tr>
     </table>
   </div>
