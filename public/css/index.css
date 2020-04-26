@@ -136,7 +136,7 @@ div.selected-statement {
   width: 50px;
 }
 
-#about-panel {
+.fixed-panel {
   background-color: #eee;
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
@@ -148,7 +148,7 @@ div.selected-statement {
   white-space: nowrap;
 }
 
-#about-panel * {
+.fixed-panel * {
   vertical-align: middle;
 }
 
@@ -160,26 +160,28 @@ div.selected-statement {
   right: 10px;
 }
 
-#keybindings {
-  background-color: #eee;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  padding: 30px;
-  position: fixed;
-  top: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
+table.table-default {
+  border-collapse: collapse;
+  width: 100%;
 }
 
-#keybindings * {
-  vertical-align: middle;
+table.table-default tr:nth-child(odd) {
+  background-color: #f8f8f8;
 }
 
-.close-keybindings {
-  color: #c44;
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 10px;
+table.table-default tr:nth-child(even) {
+  background-color: #f0f0f0;
+}
+
+table.table-default th {
+  background-color: white;
+  font-weight: bold;
+}
+
+table.table-default th, table.table-default td {
+  border: 1px solid #aaa;
+}
+
+.col-key {
+  width: 50px;
 }
