@@ -84,6 +84,10 @@ const vm = new Vue({
           event.preventDefault();
           event.stopPropagation();
         },
+        isDecomposed: function(branches, idx, node){
+          node.correctlyDecomposed[idx] = node.isPremise(idx) || node.isValid(branches, idx) || node.isClosed(branches);
+          return node.correctlyDecomposed[idx];
+        }
       },
       props: {
         node: Object,
@@ -114,7 +118,7 @@ const vm = new Vue({
       template: `
 <ul class="node-list">
   <li v-for="(statement, idx) in node.statements" v-if="idx === 0 || expanded" @contextmenu="referenceStatement" :class="itemClasses[idx]">
-    <i :class="{'fa': true, 'fa-check': true, 'valid-mark': true, 'premise': node.isPremise(idx), 'closed': !node.isValid(branches, idx) && node.isClosed(branches)}" v-if="node.isPremise(idx) || node.isValid(branches, idx) || node.isClosed(branches)"></i>
+    <i :class="{'fa': true, 'fa-check': true, 'valid-mark': true, 'premise': node.isPremise(idx), 'closed': !node.isValid(branches, idx) && node.isClosed(branches)}" v-if="isDecomposed(branches, idx, node)"></i>
     <i class="fa fa-times valid-mark" v-else></i>
     <div v-if="JSON.stringify(selected.branches) === JSON.stringify(branches) && selected.offset === idx" class="selected-statement"></div>
     <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" :class="{statement: true, 'branch-terminator': statement.str === '◯' || statement.str === '×'}" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
