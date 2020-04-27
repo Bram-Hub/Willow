@@ -222,7 +222,9 @@ class TreeNode {
         // if this node has no children, then it cannot possibly be closed
         return false;
       }
-      return this.children.every(child => child.isClosed());
+      return this.children.every(
+          (child, idx) => child.isClosed([...branches, idx])
+      );
     }
 
     // otherwise, this node has a close terminator, so make sure it's valid
