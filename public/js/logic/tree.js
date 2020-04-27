@@ -133,7 +133,6 @@ class TreeNode {
         return false;
       }
       // all references must be ancestors of the terminator
-      console.log(branches);
       for (const reference of references) {
         if (!isAncestor({branches: branches, offset: offset}, reference)) {
           return false;
@@ -262,7 +261,6 @@ class TreeNode {
 }
 
 function isAncestor(node, ancestor) {
-  console.log(node);
   return arrayStartsWith(node.branches, ancestor.branches) || (
       JSON.stringify(node.branches) === JSON.stringify(ancestor.branches)
       && ancestor.offset < node.offset

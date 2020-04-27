@@ -55,9 +55,15 @@ function recordPremises(xml_string, ref_line_map, ref_branch_map) {
     }
     if (statement.str === "×") {
       xml_string += "<Terminator close=\"true\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
       xml_string += "</Terminator>\n";
-    } else if (statement.str == "◯") {
+    } else if (statement.str === "◯") {
       xml_string += "<Terminator close=\"open\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
       xml_string += "</Terminator>\n";
     } else {
       if (statement.references.length === 0) {
@@ -86,6 +92,7 @@ function recordPremises(xml_string, ref_line_map, ref_branch_map) {
     }
     index += 1;
   }
+  return xml_string;
 }
 
 function recordBranch(obj, xml_string, index, ref_line_map, ref_branch_map, branch_arr) {
@@ -96,9 +103,15 @@ function recordBranch(obj, xml_string, index, ref_line_map, ref_branch_map, bran
     }
     if (statement.str === "×") {
       xml_string += "<Terminator close=\"true\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
       xml_string += "</Terminator>\n";
     } else if (statement.str == "◯") {
       xml_string += "<Terminator close=\"open\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
       xml_string += "</Terminator>\n";
     } else {
       if (statement.references.length === 0) {
