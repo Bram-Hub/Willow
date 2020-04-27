@@ -98,8 +98,12 @@ header * {
   left: -25px;
 }
 
-.valid-mark.fa-check.closed-mark {
+.valid-mark.fa-check.closed {
   color: #4d4;
+}
+
+.valid-mark.fa-check.premise {
+  color: #0dd;
 }
 
 .valid-mark.fa-times {

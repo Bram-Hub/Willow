@@ -12,7 +12,11 @@ class TreeNode {
     for (let i = 0; i < this.statements.length; ++i) {
       const statement = this.statements[i];
       if (typeof statement === "string" || statement instanceof String) {
-        this.statements[i] = {str: statement, references: []};
+        this.statements[i] = {
+          str: statement,
+          premise: false,
+          references: [],
+        };
       }
     }
 
@@ -61,6 +65,16 @@ class TreeNode {
       node = node.children[node.children.length - 1];
     }
     return node;
+  }
+
+  /**
+   * Returns whether or not the statement at a given offset is a premise or not.
+   * 
+   * @param {Number} offset the offset of the statement
+   * @returns {Boolean} if the statement is a premise or not 
+   */
+  isPremise(offset) {
+    return this.statements[offset].premise;
   }
 
   /**

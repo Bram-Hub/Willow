@@ -203,12 +203,17 @@ function addStatementBefore() {
     // attributes to determine position)
     vm.root.node.child(branches).statements.splice(offset, 0, {
       str: "",
+      premise: false,
       references: [],
     });
     focusStatement(branches, offset);
   } else {
     // prepend and focus a statement to the root node of the tree
-    vm.root.node.statements.unshift({str: "", references: []});
+    vm.root.node.statements.unshift({
+      str: "",
+      premise: false,
+      references: [],
+    });
     focusFirstStatement();
   }
 }
@@ -227,12 +232,17 @@ function addStatementAfter() {
     // attributes to determine position)
     vm.root.node.child(branches).statements.splice(offset, 0, {
       str: "",
+      premise: false,
       references: [],
     });
     focusStatement(branches, offset);
   } else {
     // append and focus a statement to the last node of the tree
-    vm.root.node.lastLeaf.statements.push({str: "", references: []});
+    vm.root.node.lastLeaf.statements.push({
+      str: "",
+      premise: false,
+      references: [],
+    });
     focusLastStatement();
   }
 }
@@ -342,6 +352,27 @@ function endBranch() {
   }
 }
 
+/**
+ * Toggles if the selected statement is a premise or not.
+ */
+function togglePremise() {
+  const el = getSelectedStatement();
+  if (el.is(".statement")) {
+    const branches = JSON.parse(el.attr("branches"));
+    const offset = parseInt(el.attr("offset"));
+    
+    const statement = root.node.child(branches).statements[offset];
+    if (statement.str === "◯" || statement.str === "×") {
+      alert("A branch terminator cannot be a premise.");
+      return;
+    }
+
+    statement.premise = !statement.premise;
+  } else {
+    alert("You must select a statement before performing this action.");
+  }
+}
+
 const shortcuts = [
   {
     callback: moveUp,
@@ -407,6 +438,11 @@ const shortcuts = [
     callback: endBranch,
     ctrl: true,
     key: "E",
+  },
+  {
+    callback: togglePremise,
+    ctrl: true,
+    key: "P",
   },
 ];
 

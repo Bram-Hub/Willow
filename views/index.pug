@@ -47,9 +47,14 @@ body
         hr
         button.menu-option(onclick="$('#keybindings-panel').slideDown()") Keybindings
     .dropdown
+      button Line
+      .dropdown-menu(style="display: none;")
+        button.menu-option(onclick="togglePremise()") Toggle Premise
+    .dropdown
       button Help
       .dropdown-menu(style="display: none;")
-        button.menu-option Tutorial
+        //- TODO: insert tutorial link
+        a.menu-option(href="" target="_blank") Tutorial
         hr
         button.menu-option(onclick="$('#about-panel').slideDown()") About Willow
   div(style="display: none;")
