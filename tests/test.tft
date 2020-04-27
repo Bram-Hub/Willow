@@ -1,0 +1,17 @@
+﻿undefined<Branch>
+<BranchLine content=" A" index="3"/>
+<BranchLine content="¬C" index="4"/>
+<Branch index="1">
+<BranchLine content="¬A" index="5"/>
+</Branch>
+<Branch index="2">
+<BranchLine content="B" index="6"/>
+<Branch index="3">
+<BranchLine content="¬B" index="7"/>
+</Branch>
+<Branch index="4">
+<BranchLine content="C" index="8"/>
+</Branch>
+</Branch>
+</Branch>
+</Tree>
