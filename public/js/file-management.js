@@ -222,11 +222,11 @@ function exportToTFT() {
   saveAs(blob, vm.name + ".tft");
 }
 
-function handle_branch(node, map, index, branch_arr, ignore_statements) {
+function handle_branch(node, map, index, branch_arr) {
   let branch_index = 0
   let offset = 0
   for (const child of node.children) {
-    if ((child.tagName === "BranchLine" || child.tagName === "Terminator") && !ignore_statements) {
+    if ((child.tagName === "BranchLine" || child.tagName === "Terminator")) {
       map[index] = "{\"branches\":[" + branch_arr.toString() + "],\"offset\":" + offset + "}"
       index += 1
       offset += 1
@@ -257,7 +257,7 @@ function make_line_to_ref_mapping(xmlDoc, map){
           index += 1
         }
         if (grandchild.tagName === "Branch") {
-          index = handle_branch(grandchild, map, index, [branch_index], false)
+          index = handle_branch(grandchild, map, index, [branch_index])
           branch_index += 1
         }
       }
@@ -407,7 +407,7 @@ function loadImportFile(event) {
   reader.onload = function(readerEvent) {
     let filename = file.name;
     if (filename.endsWith(".tft")) {
-      filename = filename.substring(0, filename.length - 5);
+      filename = filename.substring(0, filename.length - 4);
     }
     vm.name = filename;
 
