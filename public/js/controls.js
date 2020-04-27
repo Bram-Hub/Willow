@@ -190,6 +190,38 @@ function redo() {
 }
 
 /**
+ * Collapses any branch where even node is correctly decomposed
+ */
+function autoCollapse(){
+  let node_html = $('#tree-container > ul').first();
+  autoCollapseNode(vm.root.node, node_html);
+}
+
+/**
+ * Recursive function to auto collapse a node and its children
+ */
+function autoCollapseNode(node, node_html){
+  for(let i=0;i<node.statements.length;i++){
+    if(!node.correctlyDecomposed[i]){
+      return false;
+    }
+  }
+
+  let node_html_children = node_html.children('ul');
+  for(let i=0;i<node.children.length;i++){
+    if(!autoCollapseNode(node.children[i], $(node_html_children[i]))){
+      return false;
+    }
+  }
+
+  let statement_html = node_html.children('li');
+  if(statement_html.children('button').text() !== "►"){
+    statement_html.children('button').click();
+  }
+  return true;
+}
+
+/**
  * Adds a blank statement before the focused statement, or to the beginning of the
  * tree if no statement is focused.
  */
@@ -443,6 +475,11 @@ const shortcuts = [
     callback: togglePremise,
     ctrl: true,
     key: "P",
+  },
+  {
+    callback: autoCollapse,
+    ctrl: true,
+    key: "L",
   },
 ];
 

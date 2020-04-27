@@ -21,6 +21,7 @@ class TreeNode {
     }
 
     this.children = children || [];
+    this.correctlyDecomposed = {};
   }
 
   /**
