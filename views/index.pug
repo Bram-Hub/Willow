@@ -29,6 +29,7 @@ body
         button.menu-option(onclick="vm.name = prompt('Enter the new name for this truth tree:') || vm.name") Rename
         button.menu-option(onclick="saveFile()") Save
         button.menu-option(onclick="exportToTFT()") Export to TFT
+        button.menu-option(onclick="openImportFile()") Import from TFT
         hr
         button.menu-option(onclick="window.close()") Close
     .dropdown
@@ -59,6 +60,7 @@ body
         button.menu-option(onclick="$('#about-panel').slideDown()") About Willow
   div(style="display: none;")
     input#open-file(type="file" onchange="loadFile(event)")
+    input#open-import-file(type="file" onchange="loadImportFile(event)")
   .container#tree-container
     tree-node(:node="root.node" style="margin-left: 0px;")
   #about-panel.fixed-panel(style="display: none;")
