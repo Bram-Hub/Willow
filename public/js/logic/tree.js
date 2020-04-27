@@ -71,21 +71,77 @@ class TreeNode {
    * @returns {Boolean} if the statement is valid or not
    */
   isValid(branches, offset) {
-    const statement = parseStatement(this.statements[offset].str);
+    const statementStr = this.statements[offset].str;
     const references = Array.from(
         this.statements[offset].references,
         JSON.parse
     );
+    if (statementStr === "◯") {
+      if (offset !== this.statements.length - 1) {
+        // a terminator must be the last statement in the branch
+        return false;
+      }
+
+      // check every ancestor statement
+      const ancestorBranches = [];
+      while (ancestorBranches.length <= branches.length) {
+        const ancestor = root.node.child(ancestorBranches);
+        for (let i = 0; i < ancestor.statements.length; ++i) {
+          if (
+              ancestorBranches.length === branches.length
+              && i === ancestor.statements.length - 1
+          ) {
+            // prevent self-dependence
+            continue;
+          }
+          if (!ancestor.isValid(ancestorBranches, i)) {
+            // if any ancestor statement is invalid, then this open terminator is
+            // invalid
+            return false;
+          }
+        }
+        ancestorBranches.push(branches[ancestorBranches.length]);
+      }
+      // if all ancestor statements are valid, then this open terminator is valid
+      return true;
+    } else if (statementStr === "×") {
+      if (offset !== this.statements.length - 1) {
+        // a terminator must be the last statement in the branch
+        return false;
+      }
+      if (references.length !== 2) {
+        // a close terminator must have exactly two references
+        return false;
+      }
+      // all references must be ancestors of the terminator
+      for (const reference of references) {
+        if (!isAncestor({branches: branches, offset: offset}, reference)) {
+          return false;
+        }
+      }
+
+      const statements = references.map(reference => parseStatement(
+          root.node.child(reference.branches).statements[reference.offset].str)
+      );
+      // the terminator is valid if the references are a literal and its negation
+      if (statements[0] instanceof AtomicStatement) {
+        return statements[1].toString()
+            === new NotStatement(statements[0]).toString();
+      } else if (statements[0] instanceof NotStatement) {
+        return statements[1].toString() === statements[0].operand.toString();
+      }
+      // otherwise, the terminator is invalid
+      return false;
+    }
+
+    const statement = parseStatement(statementStr);
     // if this statement is not a terminator, verify that there are no backwards
     // references
     for (const reference of references) {
-      if (
-          !arrayStartsWith(reference.branches, branches)
-          || (
-              JSON.stringify(reference.branches) === JSON.stringify(branches)
-              && reference.offset <= offset
-          )
-      ) {
+      if (!arrayStartsWith(reference.branches, branches) || (
+          JSON.stringify(reference.branches) === JSON.stringify(branches)
+          && reference.offset <= offset
+      )) {
         return false;
       }
     }
@@ -157,6 +213,13 @@ class TreeNode {
   }
 }
 
+function isAncestor(node, ancestor) {
+  return arrayStartsWith(node.branches, ancestor.branches) || (
+      JSON.stringify(node.branches) === JSON.stringify(ancestor.branches)
+      && ancestor.offset < node.offset
+  );
+}
+
 function addToReferenceDict(referenceDict, branches, el) {
   const branchesStr = JSON.stringify(branches);
   if (!(branchesStr in referenceDict)) {
@@ -218,36 +281,4 @@ function validateDecomposition(decomposition, references, branches, node) {
   // if this statement is decomposed in each child branch, then the decomposition
   // is valid
   return true;
-}
-
-/**
- * Determines if a branch is able to be closed, which is when the branch contains
- * both a literal and its negation.
- * 
- * @param {Statement[]} branch the branch
- * @returns {boolean} if the branch can be closed
- */
-function canCloseBranch(branch) {
-  // convert the branch to a set of strings for constant-time lookup
-  // TODO: define toString for Statement
-  branch = Set(branch.map(statement => statement.toString()));
-
-  for (const statement of branch) {
-    if (statement.isLiteral()) {
-      // if the statement is a literal, check if the branch contains its negation
-      if (statement instanceof NotStatement &&
-          branch.has(statement.operand.toString())) {
-        // if the statement is a NotStatement, check if the branch contains its
-        // operand
-        return true;
-      } else if (branch.has(new NotStatement(statement).toString())) {
-        // if the statement is an AtomicStatement, check if the branch contains
-        // its negation
-        return true;
-      }
-    }
-  }
-  // if none of the statements had a negation contained in the branch, then the
-  // branch cannot be closed
-  return false;
 }
