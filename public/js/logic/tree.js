@@ -86,6 +86,11 @@ class TreeNode {
    */
   isValid(branches, offset) {
     const statementStr = this.statements[offset].str;
+    if (statementStr.length === 0) {
+      // an empty statement is always valid
+      return true;
+    }
+
     const references = Array.from(
         this.statements[offset].references,
         JSON.parse
@@ -145,6 +150,32 @@ class TreeNode {
         return statements[1].toString() === statements[0].operand.toString();
       }
       // otherwise, the terminator is invalid
+      return false;
+    }
+
+    // determine if this statement is a logical consequence of some other
+    // statement
+    const referenceStr = JSON.stringify({branches: branches, offset: offset});
+    let consequence = this.isPremise(offset);
+
+    const ancestorBranches = [];
+    while (ancestorBranches.length <= branches.length && !consequence) {
+      const ancestor = root.node.child(ancestorBranches);
+      for (let i = 0; i < ancestor.statements.length; ++i) {
+        if (ancestor.statements[i].references.includes(referenceStr) && (
+            ancestor.isValid(ancestorBranches, i) || ancestor.isPremise(i)
+        )) {
+          // if this statement is referenced by a valid ancestor, then it is a
+          // logical consequence
+          consequence = true;
+          break;
+        }
+      }
+      ancestorBranches.push(branches[ancestorBranches.length]);
+    }
+    if (!consequence) {
+      // if this statement is not a logical consequence of some other statement,
+      // then it is invalid
       return false;
     }
 
