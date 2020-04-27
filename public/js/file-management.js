@@ -46,13 +46,72 @@ function loadFile(event) {
   }
 }
 
-function recordBranch(obj, xml_string, index, ref_line_map, ref_branch_map, branch_arr) {
-  for (const statement of obj.statements) {
+function recordPremises(xml_string, ref_line_map, ref_branch_map) {
+  index = 0;
+  for (const statement of vm.root.node.statements) {
+    if (!statement.premise) {
+      index += 1;
+      continue;
+    }
     if (statement.str === "×") {
       xml_string += "<Terminator close=\"true\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
+      xml_string += "</Terminator>\n";
+    } else if (statement.str === "◯") {
+      xml_string += "<Terminator close=\"open\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
+      xml_string += "</Terminator>\n";
+    } else {
+      if (statement.references.length === 0) {
+        xml_string += "<BranchLine content=\"" + statement.str + "\" index=\"" + index + "\"/>\n";
+      } else {
+        xml_string += "<BranchLine content=\"" + statement.str + "\" index=\"" + index + "\">\n";
+        let branches_used = [];
+        for (const ref of statement.references) {
+          const ref_obj = JSON.parse(ref);
+          const branches = ref_obj["branches"];
+          let branches_minus_last = [];
+          if (branches.length > 0) {
+            branches_minus_last = branches.slice(0, -1);
+          } else {
+            branches_minus_last = "null";
+          }
+          let branch_ref = branches_minus_last.toString();
+          if (!branches_used.includes(branch_ref) && 0 != branches.length) {
+            xml_string += "<Decomposition branchIndex=\"" + ref_branch_map[branch_ref.toString()] + "\"/>\n";
+            branches_used.push(branch_ref);
+          }
+          xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+        }
+        xml_string += "</BranchLine>\n";
+      } 
+    }
+    index += 1;
+  }
+  return xml_string;
+}
+
+function recordBranch(obj, xml_string, index, ref_line_map, ref_branch_map, branch_arr) {
+  for (const statement of obj.statements) {
+    if (statement.premise) {
+      index += 1;
+      continue;
+    }
+    if (statement.str === "×") {
+      xml_string += "<Terminator close=\"true\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
       xml_string += "</Terminator>\n";
     } else if (statement.str == "◯") {
       xml_string += "<Terminator close=\"open\" index=\"" + index + "\">\n";
+      for(const ref of statement.references) {
+        xml_string += "<Decomposition lineIndex=\"" + ref_line_map[ref] + "\"/>\n";
+      }
       xml_string += "</Terminator>\n";
     } else {
       if (statement.references.length === 0) {
@@ -141,6 +200,7 @@ function exportToTFT() {
   let xml_string = "";
   xml_string += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n";
   xml_string += "<Tree>\n";
+  xml_string = recordPremises(xml_string, ref_to_index, arr_to_branch);
   xml_string += "<Branch>\n";
   xml_string = recordBranch(vm.root.node, xml_string, 0, ref_to_index, arr_to_branch, [])[0];
   xml_string += "</Branch>\n";

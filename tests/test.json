@@ -2,6 +2,7 @@
     "statements": [
         {
             "str": "A → B",
+            "premise": true,
             "references": [
                 "{\"branches\":[0],\"offset\":0}",
                 "{\"branches\":[1],\"offset\":0}"
@@ -9,21 +10,28 @@
         },
         {
             "str": "B → C",
-            "references": []
+            "premise": true,
+            "references": [
+                "{\"branches\":[1,0],\"offset\":0}",
+                "{\"branches\":[1,1],\"offset\":0}"
+            ]
         },
         {
             "str": "¬(A → C)",
+            "premise": true,
             "references": [
                 "{\"branches\":[],\"offset\":3}",
                 "{\"branches\":[],\"offset\":4}"
             ]
         },
         {
-            "str": "A",
+            "str": " A",
+            "premise": false,
             "references": []
         },
         {
             "str": "¬C",
+            "premise": false,
             "references": []
         }
     ],
@@ -32,10 +40,12 @@
             "statements": [
                 {
                     "str": "¬A",
+                    "premise": false,
                     "references": []
                 },
                 {
                     "str": "×",
+                    "premise": false,
                     "references": [
                         "{\"branches\":[0],\"offset\":0}",
                         "{\"branches\":[],\"offset\":3}"
@@ -48,6 +58,7 @@
             "statements": [
                 {
                     "str": "B",
+                    "premise": false,
                     "references": []
                 }
             ],
@@ -56,10 +67,12 @@
                     "statements": [
                         {
                             "str": "¬B",
+                            "premise": false,
                             "references": []
                         },
                         {
                             "str": "×",
+                            "premise": false,
                             "references": [
                                 "{\"branches\":[1,0],\"offset\":0}",
                                 "{\"branches\":[1],\"offset\":0}"
@@ -72,10 +85,12 @@
                     "statements": [
                         {
                             "str": "C",
+                            "premise": false,
                             "references": []
                         },
                         {
                             "str": "×",
+                            "premise": false,
                             "references": [
                                 "{\"branches\":[1,1],\"offset\":0}",
                                 "{\"branches\":[],\"offset\":4}"
