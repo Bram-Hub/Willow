@@ -309,7 +309,6 @@ function parseBranch(node, line_map) {
     }
     else if (child.tagName === "Branch") {
       branch_node.children.push(parseBranch(child, line_map))
-      index += 1
     }
   }
   return branch_node;
@@ -385,7 +384,6 @@ function parseTFT(content) {
         }
         else if (deep_child.tagName === "Branch") {
           tree_root.children.push(parseBranch(deep_child, line_map))
-          index += 1
         }
       }
     }
