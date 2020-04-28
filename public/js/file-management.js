@@ -48,7 +48,7 @@ function loadFile(event) {
   reader.onload = function(readerEvent) {
     let filename = file.name;
     if (filename.endsWith(".willow")) {
-      filename = filename.substring(0, filename.length - 5);
+      filename = filename.substring(0, filename.length - 7);
     }
     vm.name = filename;
 
