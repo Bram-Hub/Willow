@@ -84,8 +84,10 @@ const vm = new Vue({
           event.preventDefault();
           event.stopPropagation();
         },
-        isDecomposed: function(branches, idx, node){
-          node.correctlyDecomposed[idx] = node.isPremise(idx) || node.isValid(branches, idx) || node.isClosed(branches);
+        isDecomposed: function(node, branches, idx) {
+          node.correctlyDecomposed[idx] = node.isPremise(idx)
+              || node.isValid(branches, idx) === true
+              || node.isClosed(branches);
           return node.correctlyDecomposed[idx];
         }
       },
@@ -118,8 +120,8 @@ const vm = new Vue({
       template: `
 <ul class="node-list">
   <li v-for="(statement, idx) in node.statements" v-if="idx === 0 || expanded" @contextmenu="referenceStatement" :class="itemClasses[idx]">
-    <i :class="{'fa': true, 'fa-check': true, 'valid-mark': true, 'premise': node.isPremise(idx), 'closed': !node.isValid(branches, idx) && node.isClosed(branches)}" v-if="isDecomposed(branches, idx, node)"></i>
-    <i class="fa fa-times valid-mark" v-else></i>
+    <i :class="{'fa': true, 'fa-check': true, 'valid-mark': true, 'premise': node.isPremise(idx), 'closed': node.isValid(branches, idx) !== true && node.isClosed(branches)}" :title="node.getTitle(branches, idx)" v-if="isDecomposed(node, branches, idx)"></i>
+    <i class="fa fa-times valid-mark" :title="node.getTitle(branches, idx)" v-else></i>
     <div v-if="JSON.stringify(selected.branches) === JSON.stringify(branches) && selected.offset === idx" class="selected-statement"></div>
     <input v-model="statement.str" @focus="selected.branches = branches; selected.offset = idx; selected.references = statement.references;" :class="{statement: true, 'branch-terminator': statement.str === '◯' || statement.str === '×'}" type="text" oninput="makeSubstitutions(this)" :branches="JSON.stringify(branches)" :offset="idx"/>
     <button v-if="idx == 0 && (node.statements.length > 1 || node.children.length > 0)" @click="expanded = !expanded" class="expand-arrow">{{ expanded ? "▼" : "►" }}</button>
