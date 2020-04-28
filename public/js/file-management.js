@@ -6,7 +6,7 @@ function saveFile() {
       [JSON.stringify(vm.root.node, null, 4)],
       {type: "text/plain;charset=utf-8"}
   );
-  saveAs(blob, vm.name + ".json");
+  saveAs(blob, vm.name + ".willow");
 }
 
 /**
@@ -47,8 +47,8 @@ function loadFile(event) {
   // load content when reader is done reading the file
   reader.onload = function(readerEvent) {
     let filename = file.name;
-    if (filename.endsWith(".json")) {
-      filename = filename.substring(0, filename.length - 5);
+    if (filename.endsWith(".willow")) {
+      filename = filename.substring(0, filename.length - 7);
     }
     vm.name = filename;
 

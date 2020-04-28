@@ -83,7 +83,6 @@ class TreeNode {
    * 
    * @param {Number[]} branches the branch indices for this node
    * @param {Number} offset the offset of the statement
-   * @returns {Boolean} if the statement is valid or not
    */
   isValid(branches, offset) {
     const statementStr = this.statements[offset].str;
@@ -99,7 +98,7 @@ class TreeNode {
     if (statementStr === "◯") {
       if (offset !== this.statements.length - 1) {
         // a terminator must be the last statement in the branch
-        return false;
+        return {error: "terminator_not_last"};
       }
 
       // check every ancestor statement
@@ -114,10 +113,10 @@ class TreeNode {
             // prevent self-dependence
             continue;
           }
-          if (!ancestor.isValid(ancestorBranches, i)) {
+          if (ancestor.isValid(ancestorBranches, i) !== true) {
             // if any ancestor statement is invalid, then this open terminator is
             // invalid
-            return false;
+            return {error: "open_invalid_ancestor"};
           }
         }
         ancestorBranches.push(branches[ancestorBranches.length]);
@@ -127,16 +126,23 @@ class TreeNode {
     } else if (statementStr === "×") {
       if (offset !== this.statements.length - 1) {
         // a terminator must be the last statement in the branch
-        return false;
+        return {error: "terminator_not_last"};
       }
       if (references.length !== 2) {
         // a close terminator must have exactly two references
-        return false;
+        return {error: "closed_reference_length"};
       }
       // all references must be ancestors of the terminator
       for (const reference of references) {
         if (!isAncestor({branches: branches, offset: offset}, reference)) {
-          return false;
+          return {error: "closed_not_ancestor"}
+        }
+        const refNode = root.node.child(reference.branches);
+        if (
+            !refNode.isPremise(reference.offset)
+            && refNode.isValid(reference.branches, reference.offset) !== true
+        ) {
+          return {error: "closed_reference_invalid"};
         }
       }
 
@@ -144,14 +150,18 @@ class TreeNode {
           root.node.child(reference.branches).statements[reference.offset].str)
       );
       // the terminator is valid if the references are a literal and its negation
-      if (statements[0] instanceof AtomicStatement) {
-        return statements[1].toString()
-            === new NotStatement(statements[0]).toString();
-      } else if (statements[0] instanceof NotStatement) {
-        return statements[1].toString() === statements[0].operand.toString();
+      if (statements[0] instanceof AtomicStatement && (
+          statements[1].toString()
+          === new NotStatement(statements[0]).toString()
+      )) {
+        return true;
+      } else if (statements[0] instanceof NotStatement && (
+          statements[1].toString() === statements[0].operand.toString()
+      )) {
+        return true;
       }
       // otherwise, the terminator is invalid
-      return false;
+      return {error: "closed_not_negation"};
     }
 
     // determine if this statement is a logical consequence of some other
@@ -162,9 +172,12 @@ class TreeNode {
     const ancestorBranches = [];
     while (ancestorBranches.length <= branches.length && !consequence) {
       const ancestor = root.node.child(ancestorBranches);
-      for (let i = 0; i < ancestor.statements.length; ++i) {
+      const end = ancestorBranches.length === branches.length
+          ? offset
+          : ancestor.statements.length;
+      for (let i = 0; i < end; ++i) {
         if (ancestor.statements[i].references.includes(referenceStr) && (
-            ancestor.isValid(ancestorBranches, i) || ancestor.isPremise(i)
+            ancestor.isValid(ancestorBranches, i) === true
         )) {
           // if this statement is referenced by a valid ancestor, then it is a
           // logical consequence
@@ -177,7 +190,7 @@ class TreeNode {
     if (!consequence) {
       // if this statement is not a logical consequence of some other statement,
       // then it is invalid
-      return false;
+      return {error: "not_logical_consequence"};
     }
 
     const statement = parseStatement(statementStr);
@@ -188,7 +201,7 @@ class TreeNode {
           JSON.stringify(reference.branches) === JSON.stringify(branches)
           && reference.offset <= offset
       )) {
-        return false;
+        return {error: "reference_not_after"};
       }
     }
 
@@ -196,7 +209,10 @@ class TreeNode {
         statement.decompose(),
         el => el.toString()
     ));
-    return validateDecomposition(decomposition, references, branches, this);
+    if (validateDecomposition(decomposition, references, branches, this)) {
+      return true;
+    }
+    return {error: "invalid_decomposition"};
   }
 
   /**
@@ -229,7 +245,61 @@ class TreeNode {
     }
 
     // otherwise, this node has a close terminator, so make sure it's valid
-    return this.isValid(branches, closeIdx);
+    return this.isValid(branches, closeIdx) === true;
+  }
+
+  /**
+   * Returns the string that should be displayed when hovering over the validity
+   * indicator for a statement.
+   * 
+   * @param {Number[]} branches the branch indices for this node 
+   * @param {*} offset the offset of the statement
+   * @returns {String} the title attribute for this statement, as described above
+   */
+  getTitle(branches, offset) {
+    if (this.isPremise(offset)) {
+      return "This statement is a premise.";
+    }
+    const result = this.isValid(branches, offset);
+    if (result === true) {
+      if (
+          this.statements[offset].str === "◯"
+          || this.statements[offset].str === "×"
+      ) {
+        return "This terminator is correct.";
+      }
+      return "This statement is a logical consequence and is decomposed"
+          + " correctly.";
+    }
+    if (this.isClosed(branches)) {
+      return "This statement is in a closed branch, so it does not need to be"
+          + " decomposed.";
+    }
+    
+    if (result.error === "terminator_not_last") {
+      return "A branch terminator must be the last statement in a branch.";
+    } else if (result.error === "open_invalid_ancestor") {
+      return "This branch contains statements that are not correctly"
+          + " decomposed.";
+    } else if (result.error === "closed_reference_length") {
+      return "A closing terminator must reference exactly two statements.";
+    } else if (result.error === "closed_not_ancestor") {
+      return "A closing terminator must only reference statements that occur"
+          + " before it.";
+    } else if (result.error === "closed_reference_invalid") {
+      return "The referenced statements must be valid.";
+    } else if (result.error === "closed_not_negation") {
+      return "The referenced statements must consist of a literal and its"
+          + " negation.";
+    } else if (result.error === "not_logical_consequence") {
+      return "This statement is not a logical consequence of a statement that"
+          + " occurs before it.";
+    } else if (result.error === "reference_not_after") {
+      return "A statement must decompose into statements that occur after it.";
+    } else if (result.error === "invalid_decomposition") {
+      return "This statement is not decomposed correctly.";
+    }
+    return "This statement is invalid.";
   }
 
   /**
