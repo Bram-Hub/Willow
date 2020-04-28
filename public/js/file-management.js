@@ -59,7 +59,7 @@ function loadFile(event) {
 }
 
 function recordPremises(xml_string, ref_line_map, ref_branch_map) {
-  index = 0;
+  let index = 0;
   for (const statement of vm.root.node.statements) {
     if (!statement.premise) {
       index += 1;
@@ -173,7 +173,7 @@ function make_index_mapping(obj, map, index, branch_arr) {
     const map_obj = {};
     map_obj["branches"] = branch_arr;
     map_obj["offset"] = i;
-    map_obj_str = JSON.stringify(map_obj);
+    const map_obj_str = JSON.stringify(map_obj);
     map[map_obj_str] = index;
     index += 1;
     i += 1;
@@ -232,7 +232,7 @@ function handle_branch(node, map, index, branch_arr) {
       offset += 1
     }
     else if (child.tagName === "Branch") {
-      branch_arr_copy = [...branch_arr]
+      const branch_arr_copy = [...branch_arr]
       branch_arr_copy.push(branch_index)
       index = handle_branch(child, map, index, branch_arr_copy, false)
       branch_index += 1
@@ -267,7 +267,6 @@ function make_line_to_ref_mapping(xmlDoc, map){
 
 function parseBranch(node, line_map) {
   let branch_node = new TreeNode();
-  let index = 0
   for (child of node.children) {
     if (child.tagName === "BranchLine") {
       let statement = {}
@@ -325,7 +324,6 @@ function parseTFT(content) {
   make_line_to_ref_mapping(xmlDoc, line_map);
 
   let tree_root = new TreeNode();
-  let index = 0;
   for (const child of dom_root.children) {
     if (child.tagName === "BranchLine") {
       let statement = {}
@@ -413,6 +411,5 @@ function loadImportFile(event) {
 
     const content = readerEvent.target.result;
     parseTFT(content);
-
   }
 }
