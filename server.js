@@ -59,6 +59,8 @@ configureApp(app);
 
 // configure routing for application
 app.get("/", index.get);
+app.get("/assignments", (req, res) => res.render("assignments"));
+app.get("/auth/login", (req, res) => res.render("auth/login"));
 // lowest priority request matches everything and returns a 404 error
 app.get("*", (req, res) => res.status(404).render("404"));
 

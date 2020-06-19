@@ -1,0 +1,20 @@
+head
+  title Willow
+  include /views/global/head.pug
+body
+  include /views/global/header.pug
+  .container.center
+    h1 Log in
+    .panel(style="width: 400px;")
+      table
+        tr
+          td.col-left Username
+          td.col-right
+            input(name="username" type="text" required)
+        tr
+          td.col-left Password
+          td.col-right
+            input(name="password" type="password" required)
+      .right
+        a.small(href="/auth/reset") Forgot your password?
+      input.btn.btn-green(type="submit" value="Log in")

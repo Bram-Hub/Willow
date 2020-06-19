@@ -197,3 +197,67 @@ table.table-default th, table.table-default td {
 .col-key * {
   width: 100%;
 }
+
+.left {
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.panel {
+  background-color: #eee;
+  border-radius: 3px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
+  color: black;
+  display: inline-block;
+  margin: 10px;
+  padding: 10px;
+  text-decoration: none;
+  transition: all 0.33s;
+}
+
+.panel.clickable:hover {
+  background-color: #f4f4f4;
+}
+
+.col-left {
+  width: 100%;
+}
+
+.col-right {
+  width: 200px;
+}
+
+.small {
+  font-size: 10pt;
+}
+
+.btn {
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 10pt;
+  padding: 5px 10px;
+  transition: all 0.33s;
+}
+
+.btn-green {
+  background-color: #bdb;
+  border: 1px solid #9b9;
+}
+
+.btn-green:hover {
+  background-color: #dfd;
+}
+
+.m-0 {
+  margin: 0px;
+}
+

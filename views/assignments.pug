@@ -1,0 +1,17 @@
+head
+  title Assignments | Willow
+  include /views/global/head.pug
+body
+  include /views/global/header.pug
+  .container.center
+    h1 Your assignments
+    div
+      a.panel.clickable(href="/?tree=sample" style="width: 800px;")
+        h3(style="margin: 10px 0px;") Sample Tree
+        p(style="margin: 0px 0px 20px 0px;") This is an optional description that you can include alongside an assignment.
+        .left
+          p.m-0(style="color: #c44;") #[i.fas.fa-times] Incomplete
+          div(style="float: right;")
+            p.m-0 #[i.fas.fa-calendar] Due 6/19/20 at 11:59 PM EDT
+
+
