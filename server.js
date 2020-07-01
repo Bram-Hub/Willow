@@ -1,10 +1,12 @@
 // Import environment variables from .env into process.env
-require("dotenv").config();
+require('dotenv').config();
 
-const index = require("./routes/index");
-const middleware = require("./util/middleware");
+const auth = require('./auth/main');
+const index = require('./routes/index');
+const middleware = require('./util/middleware');
 
-const express = require("express");
+const bodyParser = require('body-parser');
+const express = require('express');
 
 /**
  * Configures an Express application.
@@ -13,15 +15,19 @@ const express = require("express");
  */
 function configureApp(app) {
   // Use Pug.js as the template engine
-  app.set("view engine", "pug");
+  app.set('view engine', 'pug');
   // Retrieve templates from the views/ directory
-  app.set("views", "views/");
+  app.set('views', 'views/');
   // Set base directory for Pug.js to the current working directory
   app.locals.basedir = __dirname;
   // Expose the /public directory and its contents to clients, if necessary
-  app.use(express.static(__dirname + "/public"));
+  app.use(express.static(__dirname + '/public'));
 
   app.use(middleware.injectLocals);
+
+  // Parse urlencoded and application/json requests
+  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(bodyParser.json());
 }
 
 /**
@@ -39,20 +45,20 @@ function configureApp(app) {
 function launchServer(app, ports) {
   if (ports.http && ports.https) {
     // If both HTTP and HTTPS ports are provided, launch an HTTP redirect server
-    require("http").createServer((req, res) => {
-      res.writeHead(301, {Location: "https://" + req.headers.host + req.url});
+    require('http').createServer((req, res) => {
+      res.writeHead(301, {Location: 'https://' + req.headers.host + req.url});
       res.end();
     }).listen(ports.http);
   } else if (ports.http) {
     app.listen(
-        ports.http, () => console.log("[INFO] Server launched on port " + ports.http)
+        ports.http, () => console.log('[INFO] Server launched on port ' + ports.http)
     );
   }
   if (ports.https) {
-    require("https").createServer({
+    require('https').createServer({
       // TODO: Retrieve HTTPS certificate
     }, app).listen(
-        ports.https, () => console.log("[INFO] Server launched on port " + ports.https)
+        ports.https, () => console.log('[INFO] Server launched on port ' + ports.https)
     );
   }
 }
@@ -62,16 +68,17 @@ const app = express();
 configureApp(app);
 
 // Configure web server routes
-app.get("/", index.get);
-app.get("/assignments", (req, res) => res.render("assignments"));
-app.get("/auth/login", (req, res) => res.render("auth/login"));
+app.get('/', index.get);
+app.get('/assignments', (req, res) => res.render('assignments'));
+app.get('/auth/login', auth.login.get);
+app.post('/auth/login', auth.login.post);
 // Fallback to 404 error
-app.get("*", (req, res) => res.status(404).render("404"));
+app.get('*', (req, res) => res.status(404).render('404'));
 
 if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
   // If no ports were configured for the web server, then exit the application
   console.error(
-      "[ERROR] No ports configured for web server, see .env-template"
+      '[ERROR] No ports configured for web server, see .env-template'
   );
   process.exit(1);
 }
@@ -79,3 +86,4 @@ if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
 // Read the web server ports from .env
 const ports = {http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
 launchServer(app, ports);
+
