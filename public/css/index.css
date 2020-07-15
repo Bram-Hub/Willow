@@ -261,3 +261,32 @@ table.table-default th, table.table-default td {
   margin: 0px;
 }
 
+.msg-bar {
+  border-radius: 5px;
+  padding: 5px;
+  position: fixed;
+  text-align: center;
+  top: 20%;
+  right: 20%;
+  left: 20%;
+}
+
+.msg-bar * {
+  vertical-align: middle;
+}
+
+.msg-bar i {
+  margin-right: 5px;
+}
+
+#error-bar {
+  background-color: #faa;
+  border: 1px solid #a55;
+  color: #622;
+}
+
+#info-bar {
+  background-color: #aaf;
+  border: 1px solid #55a;
+  color: #226;
+}

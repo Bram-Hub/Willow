@@ -1,14 +1,14 @@
 head
-  title Log in | Willow
+  title Register | Willow
   include /views/global/head.pug
   link(rel="stylesheet" href="/css/auth.css")
 body
   include /views/global/header.pug
   .container.center
-    h1 Log in
+    h1 Register
     .panel(style="width: 400px;")
       form.m-0(method="post")
-        table
+        table(style="margin-bottom: 10px;")
           tr
             td.col-left Email
             td.col-right
@@ -17,11 +17,4 @@ body
             td.col-left Password
             td.col-right
               input(name="password" type="password" required)
-        .right(style="margin-bottom: 10px;")
-          div
-            label#remember-me
-              input(name="remember_me" type="checkbox")
-              span.small Remember me
-          div
-            a.small(href="/auth/reset") Forgot your password?
-        input.btn.btn-green(type="submit" value="Log in")
+        input.btn.btn-green(type="submit" value="Register")

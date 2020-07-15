@@ -72,6 +72,8 @@ app.get('/', index.get);
 app.get('/assignments', (req, res) => res.render('assignments'));
 app.get('/auth/login', auth.login.get);
 app.post('/auth/login', auth.login.post);
+app.get('/auth/register', auth.register.get);
+app.post('/auth/register', auth.register.post);
 // Fallback to 404 error
 app.get('*', (req, res) => res.status(404).render('404'));
 
@@ -86,4 +88,3 @@ if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
 // Read the web server ports from .env
 const ports = {http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
 launchServer(app, ports);
-

@@ -2,3 +2,9 @@ header(style="background-color: #bdb;")
   a(href="/")
     img(src="/img/logo.png" width="60" style="margin-left: 30px;")
     h1(style="color: black; display: inline-block; margin: 30px;") Willow
+.msg-bar#info-bar(style=`display: ${msg && msg.info ? 'block' : 'none'};`)
+  i.fas.fa-info-circle
+  span= msg ? msg.info : ''
+.msg-bar#error-bar(style=`display: ${msg && msg.error ? 'block' : 'none'};`)
+  i.fas.fa-exclamation-circle
+  span= msg ? msg.error : ''
