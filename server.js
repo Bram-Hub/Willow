@@ -51,14 +51,14 @@ function launchServer(app, ports) {
     }).listen(ports.http);
   } else if (ports.http) {
     app.listen(
-        ports.http, () => console.log('[INFO] Server launched on port ' + ports.http)
+        ports.http, () => console.log('[INFO] server launched on port ' + ports.http)
     );
   }
   if (ports.https) {
     require('https').createServer({
       // TODO: Retrieve HTTPS certificate
     }, app).listen(
-        ports.https, () => console.log('[INFO] Server launched on port ' + ports.https)
+        ports.https, () => console.log('[INFO] server launched on port ' + ports.https)
     );
   }
 }
@@ -80,7 +80,7 @@ app.get('*', (req, res) => res.status(404).render('404'));
 if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
   // If no ports were configured for the web server, then exit the application
   console.error(
-      '[ERROR] No ports configured for web server, see .env-template'
+      '[ERROR] in server.js: no ports configured for web server, see .env-template'
   );
   process.exit(1);
 }
