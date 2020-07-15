@@ -275,8 +275,16 @@ table.table-default th, table.table-default td {
   vertical-align: middle;
 }
 
-.msg-bar i {
+.msg-bar i:not(i.fas.fa-times-circle) {
   margin-right: 5px;
+}
+
+.msg-bar i.fas.fa-times-circle {
+  cursor: pointer;
+  font-size: 10pt;
+  position: absolute;
+  top: 2px;
+  right: 2px;
 }
 
 #error-bar {
