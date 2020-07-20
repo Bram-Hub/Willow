@@ -2,6 +2,10 @@ const cp = require('child_process');
 
 /**
  * Injects global constants into the local scope of the Pug templating engine.
+ * @param {express.Request} req the request sent from the client
+ * @param {express.Response} res the response sent back to the client
+ * @param {Function} next callback function used to advance to the next
+ *     middleware
  */
 exports.injectLocals = function(req, res, next) {
   // Inject the hash string for the latest commit

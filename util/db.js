@@ -4,15 +4,15 @@ const pg = require('pg');
 exports.pool = new pg.Pool();
 
 /**
- * Executes the setup script for the database before the database is accessed by
- * the application.
+ * Executes a SQL script.
+ * @param {string} path the path to the script
  */
-async function setup() {
+async function execScript(path) {
   let contents = '';
   try {
-    contents = fs.readFileSync('./setup.sql').toString();
+    contents = fs.readFileSync(path).toString();
   } catch (err) {
-    console.error('[ERROR] in db.js: could not open file "setup.sql"');
+    console.error(`[ERROR] in db.js: could not open file "${path}"`);
     console.error(err);
     return;
   }
@@ -21,7 +21,15 @@ async function setup() {
 
   for (const query of contents.split(';')) {
     // Execute each query in the file
-    exports.pool.query(query);
+    await exports.pool.query(query);
   }
+}
+
+/**
+ * Executes the setup script for the database before the database is accessed by
+ * the application.
+ */
+async function setup() {
+  execScript('./setup.sql');
 }
 setup();
