@@ -25,8 +25,6 @@ function configureApp(app) {
   // Expose the /public directory and its contents to clients, if necessary
   app.use(express.static(__dirname + '/public'));
 
-  app.use(middleware.injectLocals);
-
   app.use(session({
     cookie: {secure: process.env.HTTPS_PORT ? true : false},
     resave: false,
@@ -38,6 +36,8 @@ function configureApp(app) {
   // Parse urlencoded and application/json requests
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
+
+  app.use(middleware.injectLocals);
 }
 
 /**

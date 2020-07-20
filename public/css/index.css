@@ -298,3 +298,26 @@ table.table-default th, table.table-default td {
   border: 1px solid #55a;
   color: #226;
 }
+
+.navbar {
+  background-color: #ccc;
+}
+
+.navbar > * {
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.navbar .navbar-link {
+  color: black;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.navbar .navbar-link:hover {
+  background-color: #ddd;
+}
+
+.navbar .navbar-link.active {
+  background-color: #bdb;
+}

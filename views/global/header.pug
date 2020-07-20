@@ -2,6 +2,13 @@ header(style="background-color: #bdb;")
   a(href="/")
     img(src="/img/logo.png" width="60" style="margin-left: 30px;")
     h1(style="color: black; display: inline-block; margin: 30px;") Willow
+.navbar
+  a.navbar-link(href="/" class={active: page === ''}) Tree Editor
+  a.navbar-link(href="/assignments" class={active: page === 'assignments'}) Assignments
+  if session && session.email
+    div(style="float: right;")
+      p.m-0 #{session.email} (#[a(href="/auth/logout") Log out])
+
 .msg-bar#info-bar(style=`display: ${msg && msg.info ? 'block' : 'none'};`)
   i.fas.fa-times-circle(onclick="$('#info-bar').hide()")
   i.fas.fa-info-circle
