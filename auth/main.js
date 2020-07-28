@@ -1,4 +1,7 @@
 const db = require('../util/db');
+const mailer = require('../util/mailer');
+
+const pug = require('pug');
 
 exports.login = {
   /**
@@ -98,4 +101,18 @@ exports.register = {
     // page
     res.redirect('/auth/login');
   },
+};
+
+exports.reset = async function(req, res) {
+  const tmp = pug.renderFile('./views/templates/password-reset.pug', {
+    baseUrl: process.env.BASE_URL,
+  });
+  console.log(tmp);
+  await mailer.transporter.sendMail({
+    // TODO: Retrieve relevant email addresses from .env
+    from: 'Willow <>',
+    to: '',
+    subject: 'Reset Your Password | Willow',
+    html: tmp,
+  });
 };
