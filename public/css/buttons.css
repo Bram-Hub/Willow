@@ -1,0 +1,14 @@
+.btn {
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-secondary);
+  border-radius: 3px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 10pt;
+  padding: 5px 10px;
+  transition: all 0.33s;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}

@@ -1,3 +1,60 @@
+@import "/css/buttons.css";
+@import "/css/tables.css";
+
+:root {
+  --color-primary: #bbddbb;
+  --color-secondary: #88aa88;
+
+  --color-light-red: #ff8888;
+  --color-red: #cc3333;
+  --color-dark-red: #990000;
+
+  --color-light-orange: #ffbb88;
+  --color-orange: #cc8833;
+  --color-dark-orange: #995500;
+
+  --color-light-yellow: #ffff88;
+  --color-yellow: #cccc33;
+  --color-dark-yellow: #999900;
+
+  --color-light-green: #88ff88;
+  --color-green: #33cc33;
+  --color-dark-green: #009900;
+
+  --color-light-cyan: #88bbff;
+  --color-cyan: #3388cc;
+  --color-dark-cyan: #005599;
+
+  --color-light-blue: #8888ff;
+  --color-blue: #3333cc;
+  --color-dark-blue: #000099;
+
+  --color-light-purple: #bb88ff;
+  --color-purple: #8833cc;
+  --color-dark-purple: #550099;
+
+  --color-light-pink: #ff88ff;
+  --color-pink: #cc33cc;
+  --color-dark-pink: #990099;
+
+  --color-light-brown: #886633;
+  --color-brown: #553300;
+  --color-dark-brown: #221100;
+
+  --color-light-gray: #bbbbbb;
+  --color-gray: #888888;
+  --color-dark-gray: #555555;
+
+  --color-light-silver: #eeeeee;
+  --color-silver: #dddddd;
+  --color-dark-silver: #cccccc;
+
+  --color-white: #ffffff;
+  --color-white-alt: #f8f8f8;
+  --color-black: #000000;
+  --color-black-alt: #080808;
+}
+
 * {
   font-family: Roboto, Arial, Helvetica, sans-serif;
 }
@@ -8,70 +65,9 @@ body {
   min-width: 100%;
 }
 
-div.selected-statement {
-  background-color: rgba(51, 153, 255, 0.5);
-  min-width: 400px;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-  z-index: -1;
-}
 
 header * {
   vertical-align: middle;
-}
-
-table.table-default th {
-  background-color: white;
-  font-weight: bold;
-}
-
-table.table-default th, table.table-default td {
-  border: 1px solid #aaa;
-}
-
-table.table-default tr:nth-child(even) {
-  background-color: #f0f0f0;
-}
-
-table.table-default tr:nth-child(odd) {
-  background-color: #f8f8f8;
-}
-
-table.table-default {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.branch-line {
-  border: solid 1px black;
-  margin: 0px;
-  width: 50px;
-}
-
-.branch-terminator {
-  text-align: center;
-}
-
-.btn {
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 10pt;
-  padding: 5px 10px;
-  transition: all 0.33s;
-}
-
-.btn-green {
-  background-color: #bdb;
-  border: 1px solid #9b9;
-}
-
-.btn-green:hover {
-  background-color: #dfd;
 }
 
 .center {
@@ -79,27 +75,11 @@ table.table-default {
 }
 
 .close-button {
-  color: #c44;
+  color: var(--color-red);
   cursor: pointer;
   position: absolute;
   top: 10px;
   right: 10px;
-}
-
-.col-key * {
-  width: 100%;
-}
-
-.col-key {
-  width: 50px;
-}
-
-.col-left {
-  width: 100%;
-}
-
-.col-right {
-  width: 200px;
 }
 
 .container {
@@ -118,7 +98,7 @@ table.table-default {
 
 .dropdown-menu hr {
   border: none;
-  border-top: solid 1px #ddd;
+  border-top: solid 1px var(--color-light-gray);
   margin: 0px;
 }
 
@@ -127,19 +107,12 @@ table.table-default {
   z-index: 1;
 }
 
-.expand-arrow {
-  all: unset;
-  color: #888;
-  cursor: pointer;
-  user-select: none;
-}
-
 .fixed-panel * {
   vertical-align: middle;
 }
 
 .fixed-panel {
-  background-color: #eee;
+  background-color: var(--color-light-silver);
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
   padding: 30px;
@@ -170,8 +143,8 @@ table.table-default {
   right: 2px;
 }
 
-.msg-bar i:not(i.fas.fa-times-circle) {
-  margin-right: 5px;
+.msg-bar span {
+  margin-left: 5px;
 }
 
 .msg-bar {
@@ -185,16 +158,16 @@ table.table-default {
 }
 
 .navbar .navbar-link {
-  color: black;
+  color: var(--color-black);
   display: inline-block;
   text-decoration: none;
 }
 
 .navbar .navbar-link.active {
-  background-color: #bdb;
+  background-color: var(--color-primary);
 }
 .navbar .navbar-link:hover {
-  background-color: #ddd;
+  background-color: var(--color-silver);
 }
 
 .navbar > * {
@@ -203,31 +176,14 @@ table.table-default {
 }
 
 .navbar {
-  background-color: #ccc;
-}
-
-.node-list li {
-  padding: 2px;
-  position: relative;
-  white-space: nowrap;
-}
-
-.node-list li.referenced {
-  background-color: #dbb;
-}
-
-.node-list {
-  border-left: solid 2px black;
-  list-style: none;
-  margin: 0px 0px 20px 50px;
-  padding-left: 0px;
+  background-color: var(--color-dark-silver);
 }
 
 .panel {
-  background-color: #eee;
+  background-color: var(--color-light-silver);
   border-radius: 3px;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
-  color: black;
+  color: var(--color-black);
   display: inline-block;
   margin: 10px;
   padding: 10px;
@@ -236,7 +192,7 @@ table.table-default {
 }
 
 .panel.clickable:hover {
-  background-color: #f4f4f4;
+  background-color: var(--color-white-alt);
 }
 
 .right {
@@ -252,9 +208,9 @@ table.table-default {
 }
 
 .toolbar .menu-option {
-  background-color: #f8f8f8;
+  background-color: var(--color-white-alt);
   box-sizing: border-box;
-  color: black;
+  color: var(--color-black);
   cursor: default;
   display: block;
   font-size: 10pt;
@@ -267,56 +223,32 @@ table.table-default {
 }
 
 .toolbar .menu-option:hover {
-  background-color: #39f;
-  color: white;
+  background-color: var(--color-light-cyan);
+  color: var(--color-white);
 }
 
 .toolbar button {
-  background-color: #eee;
+  background-color: var(--color-light-silver);
   border: none;
   padding: 5px 10px;
 }
 
 .toolbar button:hover, .toolbar button:focus {
-  background-color: #ddd;
+  background-color: var(--color-silver);
 }
 
 .toolbar {
-  background-color: #eee;
-}
-
-.valid-mark {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.valid-mark.fa-check {
-  color: #282;
-  left: -25px;
-}
-
-.valid-mark.fa-check.closed {
-  color: #4d4;
-}
-
-.valid-mark.fa-check.premise {
-  color: #0dd;
-}
-
-.valid-mark.fa-times {
-  color: #c44;
-  left: -20px;
+  background-color: var(--color-light-silver);
 }
 
 #error-bar {
-  background-color: #faa;
-  border: 1px solid #a55;
-  color: #622;
+  background-color: var(--color-light-red);
+  border: 1px solid var(--color-dark-red);
+  color: var(--color-dark-red);
 }
 
 #info-bar {
-  background-color: #aaf;
-  border: 1px solid #55a;
-  color: #226;
+  background-color: var(--color-light-blue);
+  border: 1px solid var(--color-dark-blue);
+  color: var(--color-dark-blue);
 }

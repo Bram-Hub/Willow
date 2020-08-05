@@ -1,0 +1,68 @@
+.selected-statement {
+  background-color: rgba(51, 153, 255, 0.5);
+  min-width: 400px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  z-index: -1;
+}
+
+.branch-line {
+  border: solid 1px var(--color-black);
+  margin: 0px;
+  width: 50px;
+}
+
+.branch-terminator {
+  text-align: center;
+}
+
+.expand-arrow {
+  all: unset;
+  color: #888;
+  cursor: pointer;
+  user-select: none;
+}
+
+.node-list li {
+  padding: 2px;
+  position: relative;
+  white-space: nowrap;
+}
+
+.node-list li.referenced {
+  background-color: #dbb;
+}
+
+.node-list {
+  border-left: solid 2px black;
+  list-style: none;
+  margin: 0px 0px 20px 50px;
+  padding-left: 0px;
+}
+
+.valid-mark {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.valid-mark.fa-check {
+  color: #282;
+  left: -25px;
+}
+
+.valid-mark.fa-check.closed {
+  color: #4d4;
+}
+
+.valid-mark.fa-check.premise {
+  color: #0dd;
+}
+
+.valid-mark.fa-times {
+  color: #c44;
+  left: -20px;
+}
