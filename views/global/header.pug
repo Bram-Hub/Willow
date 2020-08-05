@@ -7,13 +7,16 @@ header(style="background-color: #bdb;")
   a.navbar-link(href="/assignments" class={active: page === 'assignments'}) Assignments
   if session && session.email
     div(style="float: right;")
-      p.m-0 #{session.email} (#[a(href="/auth/logout") Log out])
+      if session.administrator
+        a(href="/admin/users")
+          i.fas.fa-user-cog(style="color: black; margin-right: 10px;")
+      span.m-0 #{session.email} (#[a(href="/auth/logout") Log out])
 
 .msg-bar#info-bar(style=`display: ${msg && msg.info ? 'block' : 'none'};`)
-  i.fas.fa-times-circle(onclick="$('#info-bar').hide()")
+  i.fas.fa-times-circle(onclick="$('#info-bar').fadeOut()")
   i.fas.fa-info-circle
   span= msg ? msg.info : ''
 .msg-bar#error-bar(style=`display: ${msg && msg.error ? 'block' : 'none'};`)
-  i.fas.fa-times-circle(onclick="$('#error-bar').hide()")
+  i.fas.fa-times-circle(onclick="$('#error-bar').fadeOut()")
   i.fas.fa-exclamation-circle
   span= msg ? msg.error : ''

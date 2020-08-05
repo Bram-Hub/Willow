@@ -1,6 +1,7 @@
 // Import environment variables from .env into process.env
 require('dotenv').config();
 
+const admin = require('./admin/main');
 const auth = require('./auth/main');
 const db = require('./util/db');
 const index = require('./routes/index');
@@ -80,6 +81,8 @@ configureApp(app);
 
 // Configure web server routes
 app.get('/', index.get);
+app.get('/admin/users', admin.users.get);
+app.post('/admin/users/update', admin.users.update);
 app.get('/assignments', (req, res) => res.render('assignments'));
 app.get('/auth/login', auth.login.get);
 app.post('/auth/login', auth.login.post);

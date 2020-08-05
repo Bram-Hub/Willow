@@ -1,3 +1,4 @@
+const config = require('../config');
 const objects = require('./objects');
 
 const cp = require('child_process');
@@ -22,8 +23,10 @@ exports.injectLocals = function(req, res, next) {
   res.locals.commit = cp.execSync('git rev-parse HEAD').toString().trim();
 
   // Inject the session information
+  const email = objects.nestedProperty(req, 'session.email');
   res.locals.session = {
-    email: objects.nestedProperty(req, 'session.email'),
+    administrator: (config.administrators || []).includes(email),
+    email: email,
   };
 
   next();

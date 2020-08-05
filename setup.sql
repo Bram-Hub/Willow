@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS users (
   email TEXT PRIMARY KEY,
   password TEXT,
-  instructor BOOLEAN NOT NULL
+  instructor BOOLEAN NOT NULL DEFAULT FALSE
 );
