@@ -48,7 +48,7 @@ const keybindingsVm = new Vue({
   <h3 style="margin-top: 0px; text-align: center;">Keybindings</h3>
   <h4 style="margin: 10px 0px;">Symbols <button @click="symbolsExpanded = !symbolsExpanded" class="expand-arrow">{{ symbolsExpanded ? "▼" : "►" }}</button></h4>
   <div v-if="symbolsExpanded">
-    <table class="table-default">
+    <table class="table-style-simple">
       <thead>
         <tr>
           <th>Symbol</th>
@@ -65,7 +65,7 @@ const keybindingsVm = new Vue({
   </div>
   <h4 style="margin: 10px 0px;">Actions <button @click="actionsExpanded = !actionsExpanded" class="expand-arrow">{{ actionsExpanded ? "▼" : "►" }}</button></h4>
   <div v-if="actionsExpanded">
-    <table class="table-default">
+    <table class="table-style-simple">
       <tr>
         <th>Action</th>
         <th>Ctrl</th>
