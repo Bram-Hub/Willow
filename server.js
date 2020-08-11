@@ -90,6 +90,7 @@ app.get('/auth/logout', auth.logout);
 app.get('/auth/register', auth.register.get);
 app.post('/auth/register', auth.register.post);
 app.get('/auth/reset', auth.reset);
+app.get('/courses', (req, res) => res.render('courses'));
 // Fallback to 404 error
 app.get('*', (req, res) => res.status(404).render('404'));
 

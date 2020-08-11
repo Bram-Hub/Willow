@@ -1,0 +1,11 @@
+head
+  title Courses | Willow
+  include /views/global/head.pug
+body
+  - const page = 'courses';
+  include /views/global/header.pug
+  .container.center
+    h1 Courses
+    if session.instructor
+      .right
+        a.btn.btn-primary Add Course

@@ -5,6 +5,7 @@ header(style="background-color: #bdb;")
 .navbar
   a.navbar-link(href="/" class={active: page === ''}) Tree Editor
   a.navbar-link(href="/assignments" class={active: page === 'assignments'}) Assignments
+  a.navbar-link(href="/courses" class={active: page === 'courses'}) Courses
   if session && session.email
     div(style="float: right;")
       if session.administrator

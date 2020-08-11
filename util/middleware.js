@@ -1,4 +1,5 @@
 const config = require('../config');
+const db = require('./db');
 const objects = require('./objects');
 
 const cp = require('child_process');
@@ -10,7 +11,7 @@ const cp = require('child_process');
  * @param {Function} next callback function used to advance to the next
  *     middleware
  */
-exports.injectLocals = function(req, res, next) {
+exports.injectLocals = async function(req, res, next) {
   // Inject the URLs for libraries
   res.locals.assets = {
     // The URL for Vue.js changes based on the environment
@@ -27,6 +28,11 @@ exports.injectLocals = function(req, res, next) {
   res.locals.session = {
     administrator: (config.administrators || []).includes(email),
     email: email,
+    instructor: (await db.pool.query(`
+SELECT COALESCE(
+  (SELECT instructor FROM users WHERE email = $1),
+  FALSE
+) AS instructor`, [email])).rows[0].instructor,
   };
 
   next();
