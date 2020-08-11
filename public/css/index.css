@@ -65,7 +65,6 @@ body {
   min-width: 100%;
 }
 
-
 header * {
   vertical-align: middle;
 }
@@ -121,6 +120,10 @@ header * {
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
+}
+
+.label-header {
+  margin-bottom: 0px;
 }
 
 .left {
@@ -239,6 +242,10 @@ header * {
 
 .toolbar {
   background-color: var(--color-light-silver);
+}
+
+.w-100 {
+  width: 100%;
 }
 
 #error-bar {

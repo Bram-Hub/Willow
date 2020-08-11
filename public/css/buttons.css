@@ -12,3 +12,17 @@
 .btn:hover {
   filter: brightness(1.1);
 }
+
+button.hidden {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0px;
+}
+
+.close {
+  color: var(--color-red);
+  position: absolute;
+  top: 5px;
+  right: 7px;
+}

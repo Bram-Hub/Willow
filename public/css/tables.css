@@ -14,7 +14,7 @@ table.table-style-simple th, table.table-style-simple td {
 }
 
 table.table-style-simple tr:nth-child(even) {
-  background-color: #eeeeee;
+  background-color: var(--color-light-silver);
 }
 
 table.table-style-simple tr:nth-child(odd) {

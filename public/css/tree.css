@@ -21,7 +21,7 @@
 
 .expand-arrow {
   all: unset;
-  color: #888;
+  color: var(--color-gray);
   cursor: pointer;
   user-select: none;
 }
@@ -33,11 +33,11 @@
 }
 
 .node-list li.referenced {
-  background-color: #dbb;
+  background-color: var(--color-light-red);
 }
 
 .node-list {
-  border-left: solid 2px black;
+  border-left: solid 2px var(--color-black);
   list-style: none;
   margin: 0px 0px 20px 50px;
   padding-left: 0px;
@@ -50,19 +50,19 @@
 }
 
 .valid-mark.fa-check {
-  color: #282;
+  color: var(--color-green);
   left: -25px;
 }
 
 .valid-mark.fa-check.closed {
-  color: #4d4;
+  color: var(--color-light-green);
 }
 
 .valid-mark.fa-check.premise {
-  color: #0dd;
+  color: var(--color-cyan);
 }
 
 .valid-mark.fa-times {
-  color: #c44;
+  color: var(--color-red);
   left: -20px;
 }

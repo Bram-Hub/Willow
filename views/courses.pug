@@ -8,4 +8,16 @@ body
     h1 Courses
     if session.instructor
       .right
-        a.btn.btn-primary Add Course
+        button.btn.btn-primary(onclick="$('#add-course-panel').slideToggle()") Add Course
+      .fixed-panel#add-course-panel(style="display: none; top: 20%; left: 50%; transform: translateX(-50%); width: 300px;")
+        button.hidden(onclick="$('#add-course-panel').slideUp()")
+          i.fas.fa-times.close
+        form.vertical.left.m-0(method="post")
+          label
+            h4.label-header Course Name
+            input.w-100(name="name" type="text" required)
+          label
+            h4.label-header Course Code
+            input.w-100(name="code" type="text" required)
+          .center
+            input.btn.btn-green(type="submit" value="Add Course" style="margin-top: 30px;")
