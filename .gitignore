@@ -130,6 +130,7 @@ dist
 # *.ps
 # *.eps
 *.pdf
+!presentation/presentation.pdf
 !proposal/proposal.pdf
 
 ## Generated if empty string is given at "Please type another file name for output:"
