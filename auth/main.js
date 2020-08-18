@@ -18,6 +18,12 @@ exports.login = {
               'password?" option below.',
           incorrect_credentials: 'The username or password you entered was ' +
               'incorrect.',
+          reset_invalid_link: 'The password reset link you attempted to open ' +
+              'is invalid. Request another password reset by choosing the ' +
+              '"Forgot your password?" option below.',
+          reset_no_account: 'There is no account with that email address.',
+          reset_no_email: 'You must provide the email address for the account' +
+              'whose password you would like to reset.',
         }[req.query.error],
       },
     });
@@ -103,16 +109,114 @@ exports.register = {
   },
 };
 
-exports.reset = async function(req, res) {
-  const tmp = pug.renderFile('./views/templates/password-reset.pug', {
-    baseUrl: process.env.BASE_URL,
-  });
-  console.log(tmp);
-  await mailer.transporter.sendMail({
-    // TODO: Retrieve relevant email addresses from .env
-    from: 'Willow <>',
-    to: '',
-    subject: 'Reset Your Password | Willow',
-    html: tmp,
-  });
+/**
+ * Deletes expired rows from the `password_resets` table in the database.
+ */
+async function deleteExpiredRows() {
+  await db.pool.query(`
+      DELETE FROM password_resets
+      WHERE expires_at > CURRENT_TIMESTAMP
+  `);
+}
+
+exports['forgot-password'] = {
+  /**
+   * POST /auth/forgot-password
+   * @param {express.Request} req the request sent from the client
+   * @param {express.Response} res the response sent back to the client
+   */
+  async post(req, res) {
+    const {email} = req.body;
+
+    // The `email` parameter is required
+    if (!email) {
+      res.redirect('/auth/login?error=reset_no_email');
+      return;
+    }
+
+    let token;
+    try {
+      // Generate a new UUID
+      await db.pool.query(`
+          DELETE FROM password_resets
+          WHERE email = $1
+      `, [email]);
+      token = (await db.pool.query(`
+          INSERT INTO password_reset (email)
+          VALUES ($1)
+          RETURNING token;
+      `, [email])).rows[0].token;
+    } catch (err) {
+      res.redirect('/auth/login?error=reset_no_account');
+      return;
+    }
+
+    // Send the password reset email to the provided email address
+    await mailer.transporter.sendMail({
+      from: `Willow <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'Reset Your Password | Willow',
+      html: pug.renderFile('./views/templates/password-reset.pug', {
+        baseUrl: process.env.BASE_URL,
+        token: token,
+      }),
+    });
+  },
+};
+
+exports.reset = {
+  /**
+   * GET /auth/reset
+   * @param {express.Request} req the request sent from the client
+   * @param {express.Response} res the response sent back to the client
+   */
+  async get(req, res) {
+    const {token} = req.query;
+    // The `token` parameter is required
+    if (!token) {
+      res.redirect('/auth/login?error=reset_invalid_link');
+      return;
+    }
+
+    const expiresAt = (await db.pool.query(`
+        SELECT expires_at
+        FROM password_resets
+        WHERE token = $1
+    `, [token]));
+    if (!expiresAt || new Date() > expiresAt) {
+      res.redirect('/auth/login?error=reset_expired');
+      return;
+    }
+
+    // Prompt the user for a new password
+    res.render('/auth/reset', {
+      token: token,
+    });
+  },
+
+  /**
+   * POST /auth/reset
+   * @param {express.Request} req the request sent from the client
+   * @param {express.Response} res the response sent back to the client
+   */
+  async post(req, res) {
+    const {password, token} = req.body;
+    if (!password || !token) {
+      res.redirect('/auth/login?error=reset_no_password');
+      return;
+    }
+
+    const {email, expiresAt} = (await db.pool.query(`
+        SELECT email, expiresAt
+        FROM password_resets
+        WHERE token = $1
+    `, [token])).rows[0];
+
+
+    await db.pool.query(`
+        UPDATE users
+        SET password = crypt($1, gen_salt('bf'))
+        WHERE email = $2
+    `, []);
+  },
 };

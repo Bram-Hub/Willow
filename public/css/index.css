@@ -69,8 +69,36 @@ header * {
   vertical-align: middle;
 }
 
+.left {
+  text-align: left;
+}
+
 .center {
   text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.small {
+  font-size: 10pt;
+}
+
+.large {
+  font-size: 18pt;
+}
+
+.container {
+  padding: 30px 15%;
+}
+
+.m-0 {
+  margin: 0px;
+}
+
+.w-100 {
+  width: 100%;
 }
 
 .close-button {
@@ -79,10 +107,6 @@ header * {
   position: absolute;
   top: 10px;
   right: 10px;
-}
-
-.container {
-  padding: 30px;
 }
 
 .dots {
@@ -126,14 +150,6 @@ header * {
   margin-bottom: 0px;
 }
 
-.left {
-  text-align: left;
-}
-
-.m-0 {
-  margin: 0px;
-}
-
 .msg-bar * {
   vertical-align: middle;
 }
@@ -158,6 +174,18 @@ header * {
   top: 20%;
   right: 20%;
   left: 20%;
+}
+
+#error-bar {
+  background-color: var(--color-light-red);
+  border: 1px solid var(--color-dark-red);
+  color: var(--color-dark-red);
+}
+
+#info-bar {
+  background-color: var(--color-light-blue);
+  border: 1px solid var(--color-dark-blue);
+  color: var(--color-dark-blue);
 }
 
 .navbar .navbar-link {
@@ -198,14 +226,6 @@ header * {
   background-color: var(--color-white-alt);
 }
 
-.right {
-  text-align: right;
-}
-
-.small {
-  font-size: 10pt;
-}
-
 .toolbar .dropdown-menu {
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
 }
@@ -242,20 +262,4 @@ header * {
 
 .toolbar {
   background-color: var(--color-light-silver);
-}
-
-.w-100 {
-  width: 100%;
-}
-
-#error-bar {
-  background-color: var(--color-light-red);
-  border: 1px solid var(--color-dark-red);
-  color: var(--color-dark-red);
-}
-
-#info-bar {
-  background-color: var(--color-light-blue);
-  border: 1px solid var(--color-dark-blue);
-  color: var(--color-dark-blue);
 }

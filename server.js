@@ -84,12 +84,17 @@ app.get('/', index.get);
 app.get('/admin/users', admin.users.get);
 app.post('/admin/users/update', admin.users.update);
 app.get('/assignments', (req, res) => res.render('assignments'));
+app.get(
+    '/auth/forgot-password', (req, res) => res.render('auth/forgot-password'),
+);
+app.post('/auth/forgot-password', auth['forgot-password'].post);
+app.get('/auth/reset', auth.reset.get);
+app.post('/auth/reset', auth.reset.post);
 app.get('/auth/login', auth.login.get);
 app.post('/auth/login', auth.login.post);
 app.get('/auth/logout', auth.logout);
 app.get('/auth/register', auth.register.get);
 app.post('/auth/register', auth.register.post);
-app.get('/auth/reset', auth.reset);
 app.get('/courses', (req, res) => res.render('courses'));
 // Fallback to 404 error
 app.get('*', (req, res) => res.status(404).render('404'));
