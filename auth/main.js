@@ -25,6 +25,11 @@ exports.login = {
           reset_no_email: 'You must provide the email address for the account' +
               'whose password you would like to reset.',
         }[req.query.error],
+        info: {
+          password_reset_sent: 'A password reset link has been sent to your ' +
+              'email address. Visit the link in the next 24 hours to reset ' +
+              'your password.',
+        }[req.query.info],
       },
     });
   },
@@ -111,6 +116,9 @@ exports.register = {
 
 /**
  * Deletes expired rows from the `password_resets` table in the database.
+ *
+ * TODO: Call this function before checking the existance of a password reset
+ * request.
  */
 async function deleteExpiredRows() {
   await db.pool.query(`
@@ -142,7 +150,7 @@ exports['forgot-password'] = {
           WHERE email = $1
       `, [email]);
       token = (await db.pool.query(`
-          INSERT INTO password_reset (email)
+          INSERT INTO password_resets (email)
           VALUES ($1)
           RETURNING token;
       `, [email])).rows[0].token;
@@ -161,6 +169,8 @@ exports['forgot-password'] = {
         token: token,
       }),
     });
+
+    res.redirect('/auth/login?info=password_reset_sent');
   },
 };
 
@@ -189,7 +199,7 @@ exports.reset = {
     }
 
     // Prompt the user for a new password
-    res.render('/auth/reset', {
+    res.render('auth/reset', {
       token: token,
     });
   },

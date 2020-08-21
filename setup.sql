@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
   instructor BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS password_reset (
+CREATE TABLE IF NOT EXISTS password_resets (
   email TEXT PRIMARY KEY REFERENCES users(email),
   token UUID NOT NULL DEFAULT uuid_generate_v4(),
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP + interval '1 day'
