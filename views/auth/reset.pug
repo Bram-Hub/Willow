@@ -8,3 +8,9 @@ body
     h1 Reset your password
     .panel
       form.m-0(method="post")
+        table(style="margin-bottom: 10px;")
+          tr
+            td.col-left New Password
+            td.col-right
+              input(name="password" type="password" required)
+        input.btn.btn-green(type="submit" value="Reset")
