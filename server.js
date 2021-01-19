@@ -99,7 +99,7 @@ app.get('/courses', (req, res) => res.render('courses'));
 // Fallback to 404 error
 app.get('*', (req, res) => res.status(404).render('404'));
 
-if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
+if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT && !process.env.PORT) {
   // If no ports were configured for the web server, then exit the application
   console.error(
       '[ERROR] in server.js: no ports configured for web server, see ' +
@@ -109,5 +109,5 @@ if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT) {
 }
 
 // Read the web server ports from .env
-const ports = {http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
+const ports = {http: process.env.PORT || process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
 launchServer(app, ports);
