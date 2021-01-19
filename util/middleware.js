@@ -20,8 +20,9 @@ exports.injectLocals = async function(req, res, next) {
         'https://cdn.jsdelivr.net/npm/vue@2.6.11',
   };
 
-  // // Inject the hash string for the latest commit
-  res.locals.commit = process.env.SOURCE_VERSION || cp.execSync('git rev-parse HEAD').toString().trim();
+  // Inject the hash string for the latest commit
+  console.log(process.env.SOURCE_VERSION.toString().trim())
+  res.locals.commit = process.env.SOURCE_VERSION.toString().trim() || cp.execSync('git rev-parse HEAD').toString().trim();
 
   // Inject the session information
   const email = objects.nestedProperty(req, 'session.email');

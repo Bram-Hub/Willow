@@ -111,10 +111,10 @@ if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT && !process.env.PORT) {
 // Read the web server ports from .env
 const ports = {http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
 
-//Required for Heroku which sets process.env.PORT automatically
-if(process.env.PORT){
+// Required for Heroku which sets process.env.PORT automatically
+if (process.env.PORT) {
   ports.https = null;
-  ports.http = process.env.PORT
+  ports.http = process.env.PORT;
 }
 
 launchServer(app, ports);
