@@ -25,11 +25,11 @@ A web application used for building and assigning truth trees.
     </tr>
     <tr>
       <td>HTTP_PORT</td>
-      <td>The port of the HTTP web server, if one is to be launched. If both <code>HTTP_PORT</code> and <code>HTTPS_PORT</code> are specified, then this is the port for the HTTPS redirect.
+      <td>The port of the HTTP web server, if one is to be launched. If both <code>HTTP_PORT</code> and <code>HTTPS_PORT</code> are specified, then this is the port for the HTTPS redirect. (leave blank if deploying to Heroku)
     </tr>
     <tr>
       <td>HTTPS_PORT</td>
-      <td>The port of the HTTPS web server, if one is to be launched. If specified, a valid certificate must be located in <code>cert/</code>.
+      <td>The port of the HTTPS web server, if one is to be launched. If specified, a valid certificate must be located in <code>cert/</code>. (leave blank if deploying to Heroku)
     </tr>
     <tr>
       <td>NODE_ENV</td>
@@ -67,7 +67,7 @@ A web application used for building and assigning truth trees.
         The SMTP service used for sending emails; e.g., <code>gmail</code>.
         <br>
         <br>
-        <strong>NOTE:</strong> If <code>gmail</code> is used as the SMTP service, then you must enable insecure logins on the Google account settings page. 
+        <strong>NOTE:</strong> If <code>gmail</code> is used as the SMTP service, then you must enable insecure logins on the Google account settings page.
         For more information, run the application and see the link provided in the error message once authentication fails.
       </td>
     </tr>
@@ -82,7 +82,7 @@ A web application used for building and assigning truth trees.
   </tbody>
 </table>
 
-5. Install database extensions by executing `echo "CREATE EXTENSION pgcrypto;" | psql -U postgres <PGDATABASE>`, where `<PGDATABASE>` is the value of the corresponding environment variable found in `.env`.
+5. Install database extensions by executing `echo "CREATE EXTENSION pgcrypto; CREATE EXTENSION uuid-ossp;" | psql -U postgres <PGDATABASE>`, where `<PGDATABASE>` is the value of the corresponding environment variable found in `.env`.
 
 6. Prepare the database for storing login sessions by executing `cat node_modules/connect-pg-simple/table.sql | psql -U <PGUSER> <PGDATABASE>`, where `<PGUSER>` and `<PGDATABASE>` are the values of the corresponding environment variables found in `.env`.
 

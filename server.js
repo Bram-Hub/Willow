@@ -53,30 +53,26 @@ function configureApp(app) {
  *     server
  */
 function launchServer(app, ports) {
-  app.listen(
-      ports.http,
-      () => console.log('[INFO] server launched on port ' + ports.http),
-  );
-  // if (ports.http && ports.https) {
-  //   // If both HTTP and HTTPS ports are provided, launch an HTTP redirect server
-  //   require('http').createServer((req, res) => {
-  //     res.writeHead(301, {Location: 'https://' + req.headers.host + req.url});
-  //     res.end();
-  //   }).listen(ports.http);
-  // } else if (ports.http) {
-  //   app.listen(
-  //       ports.http,
-  //       () => console.log('[INFO] server launched on port ' + ports.http),
-  //   );
-  // }
-  // if (ports.https) {
-  //   require('https').createServer({
-  //     // TODO: Retrieve HTTPS certificate
-  //   }, app).listen(
-  //       ports.https,
-  //       () => console.log('[INFO] server launched on port ' + ports.https),
-  //   );
-  // }
+  if (ports.http && ports.https) {
+    // If both HTTP and HTTPS ports are provided, launch an HTTP redirect server
+    require('http').createServer((req, res) => {
+      res.writeHead(301, {Location: 'https://' + req.headers.host + req.url});
+      res.end();
+    }).listen(ports.http);
+  } else if (ports.http) {
+    app.listen(
+        ports.http,
+        () => console.log('[INFO] server launched on port ' + ports.http),
+    );
+  }
+  if (ports.https) {
+    require('https').createServer({
+      // TODO: Retrieve HTTPS certificate
+    }, app).listen(
+        ports.https,
+        () => console.log('[INFO] server launched on port ' + ports.https),
+    );
+  }
 }
 
 // Initialize Express application
@@ -113,5 +109,12 @@ if (!process.env.HTTP_PORT && !process.env.HTTPS_PORT && !process.env.PORT) {
 }
 
 // Read the web server ports from .env
-const ports = {http: process.env.PORT || process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
+const ports = {http: process.env.HTTP_PORT, https: process.env.HTTPS_PORT};
+
+//Required for Heroku which sets process.env.PORT automatically
+if(process.env.PORT){
+  ports.HTTPS_PORT = null;
+  ports.HTTP_PORT = process.env.PORT
+}
+
 launchServer(app, ports);
