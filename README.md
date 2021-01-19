@@ -25,11 +25,11 @@ A web application used for building and assigning truth trees.
     </tr>
     <tr>
       <td>HTTP_PORT</td>
-      <td>The port of the HTTP web server, if one is to be launched. If both <code>HTTP_PORT</code> and <code>HTTPS_PORT</code> are specified, then this is the port for the HTTPS redirect. (leave blank if deploying to Heroku)
+      <td>The port of the HTTP web server, if one is to be launched. If both <code>HTTP_PORT</code> and <code>HTTPS_PORT</code> are specified, then this is the port for the HTTPS redirect. (Leave blank if deploying to Heroku)
     </tr>
     <tr>
       <td>HTTPS_PORT</td>
-      <td>The port of the HTTPS web server, if one is to be launched. If specified, a valid certificate must be located in <code>cert/</code>. (leave blank if deploying to Heroku)
+      <td>The port of the HTTPS web server, if one is to be launched. If specified, a valid certificate must be located in <code>cert/</code>. (Leave blank if deploying to Heroku)
     </tr>
     <tr>
       <td>NODE_ENV</td>
