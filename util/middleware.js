@@ -21,8 +21,8 @@ exports.injectLocals = async function(req, res, next) {
   };
 
   // Inject the hash string for the latest commit
-  console.log(process.env.SOURCE_VERSION.toString().trim())
-  res.locals.commit = process.env.SOURCE_VERSION.toString().trim() || cp.execSync('git rev-parse HEAD').toString().trim();
+  console.log("SOURCE_VERSION ", process.env.SOURCE_VERSION)
+  res.locals.commit = process.env.SOURCE_VERSION || cp.execSync('git rev-parse HEAD').toString().trim();
 
   // Inject the session information
   const email = objects.nestedProperty(req, 'session.email');
