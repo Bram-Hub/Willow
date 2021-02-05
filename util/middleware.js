@@ -21,7 +21,13 @@ exports.injectLocals = async function(req, res, next) {
   };
 
   // Inject the hash string for the latest commit
-  res.locals.commit = cp.execSync('git rev-parse HEAD').toString().trim();
+  try {
+    res.locals.commit = cp.execSync('git rev-parse HEAD').toString().trim();
+  } catch (e) {
+    // The above command will fail in Heroku
+    // In theory Heroku provides a `SOURCE_VERSION` but I cannot get it working
+    res.locals.commit = "Production";
+  }
 
   // Inject the session information
   const email = objects.nestedProperty(req, 'session.email');
