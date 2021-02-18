@@ -1,10 +1,10 @@
 import {PL_Parser} from './parser';
-import {Statement} from './statement';
+import {Statement, AtomicStatement, UnaryStatement, NotStatement, BinaryStatement, ConditionalStatement, BiconditionalStatement, CommutativeStatement, AndStatement, OrStatement} from './statement';
 
 class TruthTreeNode {
 	id: number;
 
-	text = '';
+	private _text = '';
 	statement: Statement | null = null;
 	premise = false;
 
@@ -17,24 +17,43 @@ class TruthTreeNode {
 	decomposition: number[] = [];
 
 	constructor(id: number, tree: TruthTree) {
+		this.id = id;
 		this.tree = tree;
 	}
 
+	get text() {
+		return this._text;
+	}
+
+	set text(newText: string) {
+		this.text = newText;
+		try {
+			this.statement = this.tree.parser.parse(this.text);
+		} catch (err) {
+			this.statement = null;
+		}
+	}
+
 	isValid(): boolean {
+		if (this.statement === null) {
+			return this.text.trim() === "";
+		}
+
 		if (this.premise) {
-			// premises are assumed true
+			// Premises are always valid
 			return true;
 		}
 
 		// terminators are a special case
-		if (TruthTree.TERMINATORS.includes(this.statement)) {
-			if (this.statement === TruthTree.OPEN_TERMINATOR) {
+		if (TruthTree.TERMINATORS.includes(this.text)) {
+			if (this.text === TruthTree.OPEN_TERMINATOR) {
 				// open branch
 
 				let current: TruthTreeNode = this;
 				while (current.parent !== null) {
 					current = this.tree.nodes[current.parent];
-					// dprint(f"Now checking `{current.statement}` for decomposition and validity")
+					console.log(`Now checking '${current.statement}' for decomposition and validity`);
+
 					if (!current.isValid() || !current.isDecomposed()) {
 						return false;
 					}
@@ -50,17 +69,16 @@ class TruthTreeNode {
 				return false;
 			}
 
-			const decomposedStmts = [];
-			for (const nodeId of this.decomposition) {
-				decomposedStmts.push(this.tree.parseNodeStatement(nodeId));
-			}
-			// dprint(f"Checking if statements {decomp_stmts} form a valid contradiction.")
+			console.log(`Checking if nodes (${this.decomposition.join(', ')}) form a valid contradiction.`);
 
 			for (let i = 0; i < 2; ++i) {
-				const a = decomposedStmts[i];
-				const b = decomposedStmts[i - 1];
+				const a = this.tree.nodes[this.decomposition[i]].statement;
+				const b = this.tree.nodes[this.decomposition[i-1]].statement;
+				if (a === null || b === null) {
+					return false;
+				}
 
-				if (a instanceof NotStatement && a.operand === b) {
+				if (a instanceof NotStatement && a.operand.equals(b)) {
 					if (!(b instanceof AtomicStatement)) {
 						// print(f"Invalid: Contradiction must occur on atomic statements.")
 						return false;
@@ -68,7 +86,7 @@ class TruthTreeNode {
 
 					const thisBranch = this.getAncestorBranch();
 
-					const invalidNodes = [];
+					const invalidNodes : number[] = [];
 					for (const contradictor of this.decomposition) {
 						if (!thisBranch.includes(contradictor)) {
 							invalidNodes.push(contradictor);
@@ -93,34 +111,11 @@ class TruthTreeNode {
 			return false;
 		}
 
-		// non-terminators without children are never valid
-		if (!this.children) {
-			// print(f"Invalid: node {self.node_id} is a leaf node but not a terminator.")
-			return false;
-		}
-
-		// non-premises without antecedents are never valid
-		if (this.antecedent === null) {
-			// print(f"Invalid: node {self.node_id} is not a logical consequence of a previous statement.")
-			return false;
-		}
-
-		const parsedSource = this.tree.parseNodeStatement(this.antecedent);
-
-		const parsedStmt = this.tree.parseNodeStatement(this.nodeId);
-
-		// dprint(f"Checking if {parsed_stmt} is an element of a branch of {valid_decomp}")
-
-		if (!parsedStmt.inDecompositionOf(parsedSource)) {
-			// print(f"Invalid: {self.node_id} is not a logical consequence of the marked antecedent.")
-			return false;
-		}
-
-		return true;
+		// connor merge your fixes here
 	}
 
 	isDecomposed(): boolean {
-		const parsed = this.tree.parseNodeStatement(this.nodeId);
+		const parsed = this.tree.parseNodeStatement(this.id);
 		const expectedDecomp = parsed.decompose();
 
 		if (expectedDecomp === []) {
@@ -156,7 +151,7 @@ class TruthTreeNode {
 	}
 
 	getAncestorBranch(): number[] {
-		const branch: number[] = [this.nodeId];
+		const branch: number[] = [this.id];
 		let current: TruthTreeNode = this;
 		while (current.parent !== null) {
 			branch.push(current.parent);

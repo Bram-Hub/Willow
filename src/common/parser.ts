@@ -14,7 +14,7 @@ class ParseError extends Error {
 	}
 }
 
-abstract class Parser {
+abstract class Parser<T> {
 	cache: {[chars: string]: string[]};
 	text: string;
 	position: number;
@@ -24,7 +24,7 @@ abstract class Parser {
 		this.cache = {};
 	}
 
-	parse(text: string) {
+	parse(text: string): T {
 		this.text = text;
 		this.position = -1;
 		this.length = text.length - 1;
@@ -164,7 +164,7 @@ abstract class Parser {
 		throw new ParseError(lastErrorPosition, txt);
 	}
 
-	maybeChar(chars: string | null = null) {
+	maybeChar(chars: string | null = null): string | null {
 		try {
 			return this.char(chars);
 		} catch (e) {
@@ -172,17 +172,17 @@ abstract class Parser {
 		}
 	}
 
-	maybeMatch(...rules: string[]) {
+	maybeKeyword(...keywords: string[]): string | null {
 		try {
-			return this.match(...rules);
+			return this.keyword(...keywords);
 		} catch (e) {
 			return null;
 		}
 	}
 
-	maybeKeyword(...keywords: string[]) {
+	maybeMatch(...rules: string[]): T | null {
 		try {
-			return this.keyword(...keywords);
+			return this.match(...rules);
 		} catch (e) {
 			return null;
 		}
@@ -200,7 +200,7 @@ abstract class Parser {
  * and_expr        -> "and" not_expr and_expr      | eps
  * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
  */
-export class PL_Parser extends Parser {
+export class PL_Parser extends Parser<Statement> {
 	operators = {
 		iff: ['↔', '<->', '%', 'iff', 'equiv'],
 		implies: ['→', '->', '$', 'implies', 'only if'],
@@ -210,9 +210,7 @@ export class PL_Parser extends Parser {
 	};
 
 	start(): Statement {
-		const result = this.exprGen();
-		reduceStatement(result);
-		return result;
+		return this.exprGen();
 	}
 
 	exprGen(): Statement {
@@ -314,6 +312,11 @@ export class PL_Parser extends Parser {
 			return e4;
 		}
 
+		// auto-reduce and statements
+		if (f3 instanceof AndStatement) {
+			return new AndStatement(e4, ...f3.operands);
+		}
+
 		return new AndStatement(e4, f3);
 	}
 
@@ -329,6 +332,11 @@ export class PL_Parser extends Parser {
 		if (f3 === null) {
 			// eps
 			return e4;
+		}
+
+		// auto-reduce and statements
+		if (f3 instanceof AndStatement) {
+			return new AndStatement(e4, ...f3.operands);
 		}
 
 		return new AndStatement(e4, f3);
@@ -366,28 +374,4 @@ export class PL_Parser extends Parser {
 
 		return chars.join('');
 	}
-}
-
-function reduceStatement(statement: Statement) {
-	if (statement instanceof UnaryStatement) {
-		reduceStatement(statement.operand);
-	} else if (statement instanceof BinaryStatement) {
-		reduceStatement(statement.lhs);
-		reduceStatement(statement.rhs);
-	} else if (statement instanceof CommutativeStatement) {
-		for (const child of statement.operands) {
-			reduceStatement(child);
-			if (
-				child instanceof CommutativeStatement &&
-				typeof statement === typeof child
-			) {
-				// absorb the child's children
-				statement.operands = statement.operands.concat(child.operands);
-				// remove the child
-				const index = statement.operands.indexOf(child);
-				statement.operands.splice(index, 1);
-			}
-		}
-	}
-	// otherwise it's a literal in which case there is no reduction
 }
