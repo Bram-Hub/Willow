@@ -1,4 +1,4 @@
-import {Statement, AtomicStatement, UnaryStatement, NotStatement, BinaryStatement, ConditionalStatement, BiconditionalStatement, CommutativeStatement, AndStatement, OrStatement} from './statement';
+import {Statement, AtomicStatement, NotStatement, ConditionalStatement, BiconditionalStatement, AndStatement, OrStatement} from './statement';
 
 class ParseError extends Error {
 	position: number;
