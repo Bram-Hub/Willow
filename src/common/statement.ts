@@ -24,7 +24,9 @@ abstract class Statement {
 	 * @param antecedent the antecedent of this statement
 	 */
 	inDecompositionOf(antecedent: Statement): boolean {
-		return antecedent.decompose().some(branch => branch.includes(this));
+		return antecedent
+			.decompose()
+			.some(branch => branch.some(statement => this.equals(statement)));
 	}
 
 	/**
@@ -41,7 +43,7 @@ abstract class Statement {
 	abstract toString(): string;
 }
 
-class Tautology extends Statement {
+export class Tautology extends Statement {
 	decompose(): Statement[][] {
 		return [];
 	}
@@ -55,7 +57,7 @@ class Tautology extends Statement {
 	}
 }
 
-class Contradiction extends Statement {
+export class Contradiction extends Statement {
 	decompose(): Statement[][] {
 		return [];
 	}
@@ -69,7 +71,7 @@ class Contradiction extends Statement {
 	}
 }
 
-class AtomicStatement extends Statement {
+export class AtomicStatement extends Statement {
 	identifier: string;
 
 	/**
@@ -110,7 +112,7 @@ abstract class UnaryStatement extends Statement {
 	}
 }
 
-class NotStatement extends UnaryStatement {
+export class NotStatement extends UnaryStatement {
 	constructor(operand: Statement) {
 		super(operand);
 	}
@@ -164,7 +166,7 @@ abstract class BinaryStatement extends Statement {
 	}
 }
 
-class ConditionalStatement extends BinaryStatement {
+export class ConditionalStatement extends BinaryStatement {
 	constructor(lhs: Statement, rhs: Statement) {
 		super(lhs, rhs);
 	}
@@ -186,7 +188,7 @@ class ConditionalStatement extends BinaryStatement {
 	}
 }
 
-class BiconditionalStatement extends BinaryStatement {
+export class BiconditionalStatement extends BinaryStatement {
 	constructor(lhs: Statement, rhs: Statement) {
 		super(lhs, rhs);
 	}
@@ -225,7 +227,7 @@ abstract class CommutativeStatement extends Statement {
 	}
 }
 
-class AndStatement extends CommutativeStatement {
+export class AndStatement extends CommutativeStatement {
 	constructor(...operands: Statement[]) {
 		super(...operands);
 	}
@@ -249,7 +251,7 @@ class AndStatement extends CommutativeStatement {
 	}
 }
 
-class OrStatement extends CommutativeStatement {
+export class OrStatement extends CommutativeStatement {
 	constructor(...operands: Statement[]) {
 		super(...operands);
 	}

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build",
+    "lib": ["ES2020"],
     "strictNullChecks": true
   },
   "include": [

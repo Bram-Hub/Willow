@@ -1,15 +1,21 @@
+import {Statement} from './statement';
+
 class TruthTreeNode {
-	statement: string = null;
-	tree: TruthTree = null;
+	id: number;
+
+	text = '';
+	statement: Statement | null = null;
 	premise = false;
-	nodeId: number = null;
-	parent: number = null;
+
+	tree: TruthTree;
+
+	parent: number | null = null;
 	children: number[] = [];
-	antecedent: number = null;
+
+	antecedent: number | null = null;
 	decomposition: number[] = [];
 
-	constructor(statement: string, tree: TruthTree) {
-		this.statement = statement;
+	constructor(id: number, tree: TruthTree) {
 		this.tree = tree;
 	}
 
@@ -26,7 +32,7 @@ class TruthTreeNode {
 
 				let current: TruthTreeNode = this;
 				while (current.parent !== null) {
-					current = this.tree.adjList[current.parent];
+					current = this.tree.nodes[current.parent];
 					// dprint(f"Now checking `{current.statement}` for decomposition and validity")
 					if (!current.isValid() || !current.isDecomposed()) {
 						return false;
@@ -75,7 +81,7 @@ class TruthTreeNode {
 
 					// all contradictory nodes must be valid in order to create a contradiction
 					for (const nodeId of this.decomposition) {
-						if (!this.tree.adjList[nodeId].isValid()) {
+						if (!this.tree.nodes[nodeId].isValid()) {
 							return false;
 						}
 					}
@@ -123,7 +129,7 @@ class TruthTreeNode {
 
 		// ensure the decomposition is in every open branch
 		for (const openTermId of this.tree.leaves) {
-			const openTerm = this.tree.adjList[openTermId];
+			const openTerm = this.tree.nodes[openTermId];
 
 			// only check open branches
 			if (openTerm.statement !== TruthTree.OPEN_TERMINATOR) {
@@ -153,7 +159,7 @@ class TruthTreeNode {
 		let current: TruthTreeNode = this;
 		while (current.parent !== null) {
 			branch.push(current.parent);
-			current = this.tree.adjList[current.parent];
+			current = this.tree.nodes[current.parent];
 		}
 		return branch;
 	}
@@ -167,41 +173,46 @@ class TruthTree {
 		TruthTree.CLOSED_TERMINATOR,
 	];
 
-	leaves: Set<number>;
-	adjList: {[id: number]: TruthTreeNode};
-	parser: PL_Parser;
+	nodes: {[id: number]: TruthTreeNode} = {};
+	leaves: Set<number> = new Set();
 
-	constructor() {
-		this.parser = new PL_Parser();
-		this.leaves = new Set();
-	}
+	parser: PL_Parser = new PL_Parser();
 
 	fromWillowFile() {
 		// for loading a truth tree...
 	}
 
+	/**
+	 * Determines whether or not this truth tree is correct.
+	 * @returns true if this truth tree is correct, false otherwise
+	 */
 	isCorrect(): boolean {
 		for (const leaf of this.leaves) {
-			const leafNode = this.adjList[leaf];
-			if (TruthTree.TERMINATORS.includes(leafNode.statement)) {
-				// print(f"Invalid: leaf nodes must be terminators.")
+			const leafNode = this.nodes[leaf];
+			if (!TruthTree.TERMINATORS.includes(leafNode.statement)) {
+				// All branches in a correct truth tree must terminate with a terminator
 				return false;
 			}
 			if (!leafNode.isValid()) {
+				// All terminators in a correct truth tree must be valid
 				return false;
 			}
 		}
-
 		return true;
 	}
 
+	/**
+	 * Determines whether or not this truth tree is valid; i.e., it satisfies the
+	 * representation invariant. For example, the decomposition of every node's
+	 * antecedent must contain the node itself.
+	 * @return true if this truth tree is valid, false otherwise
+	 */
 	isValid(): boolean {
-		// for validation checking, unnecessary now.
-		return true;
+		throw new Error('TruthTree#isValid() not implemented');
 	}
 
 	parseNodeStatement(nodeId): Statement {
 		// parses the statement at node `nodeId`
-		return this.parser.parse(this.adjList[nodeId].statement);
+		return this.parser.parse(this.nodes[nodeId].statement);
 	}
 }
