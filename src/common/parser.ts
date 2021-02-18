@@ -285,6 +285,11 @@ export class PL_Parser extends Parser<Statement> {
 			return e3;
 		}
 
+		// auto-reduce
+		if (f2 instanceof OrStatement) {
+			return new OrStatement(e3, ...f2.operands);
+		}
+
 		return new OrStatement(e3, f2);
 	}
 
@@ -301,6 +306,11 @@ export class PL_Parser extends Parser<Statement> {
 			return e3;
 		}
 
+		// auto-reduce
+		if (f2 instanceof OrStatement) {
+			return new OrStatement(e3, ...f2.operands);
+		}
+
 		return new OrStatement(e3, f2);
 	}
 
@@ -312,7 +322,7 @@ export class PL_Parser extends Parser<Statement> {
 			return e4;
 		}
 
-		// auto-reduce and statements
+		// auto-reduce
 		if (f3 instanceof AndStatement) {
 			return new AndStatement(e4, ...f3.operands);
 		}
