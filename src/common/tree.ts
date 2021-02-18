@@ -180,7 +180,7 @@ class TruthTree {
         this.leaves = new Set();
     }
 
-    fromWillow() {
+    fromWillowFile() {
         // for loading a truth tree...
     }
 
