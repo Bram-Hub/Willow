@@ -50,7 +50,7 @@ class Parser {
         }
     }
 
-    splitCharRanges(chars) {
+    splitCharRanges(chars : string) : string[] {
         try {
             return this.cache[chars];
         } catch (e) {}
@@ -76,7 +76,7 @@ class Parser {
         return rv;
     }
 
-    char(chars : string[] = null) {
+    char(chars : string = null) {
         if (this.pos >= this.len) {
             const txt = `Expected ${chars} but got end of string`;
             throw new ParseError(this.pos + 1, txt);
@@ -188,7 +188,7 @@ class Parser {
 class PL_Parser extends Parser {
     operators = {
         'iff': [
-            '↔', '=', '%', 'iff', 'equiv'
+            '↔', '<->', '%', 'iff', 'equiv'
         ],
         'implies': [
             '→', '->', '$', 'implies', 'only if'
@@ -204,13 +204,13 @@ class PL_Parser extends Parser {
         ]
     };
 
-    start() {
+    start() : Statement {
         const result = this.exprGen();
         reduceStatement(result);
         return result;
     }
 
-    exprGen() {
+    exprGen() : Statement {
         const e2 = this.match('orExprGen');
         const f1 = this.match('expr');
         if (f1 === null) {
@@ -232,6 +232,14 @@ class PL_Parser extends Parser {
     }
 
     expr() {
+        /*
+        returns one of:
+            - BiconditionalStatement
+            - ConditionalStatement
+            - Tuple? containing [str, Statement]
+            - null
+        */
+
         const op = this.maybeKeyword(
             ...this.operators['iff'],
             ...this.operators['implies']
@@ -261,7 +269,7 @@ class PL_Parser extends Parser {
         );
     }
 
-    orExprGen() {
+    orExprGen() : Statement {
         const e3 = this.match('andExprGen');
         const f2 = this.match('orExpr');
         if (f2 === null) {
@@ -271,7 +279,7 @@ class PL_Parser extends Parser {
         return new OrStatement(e3, f2);
     }
 
-    orExpr() {
+    orExpr() : OrStatement | null {
         const op = this.maybeKeyword(...this.operators['or']);
         if (op === null) {
             // epsilon
@@ -287,7 +295,7 @@ class PL_Parser extends Parser {
         return new OrStatement(e3, f2);
     }
 
-    andExprGen() {
+    andExprGen() : Statement {
 
         const e4 = this.match('notExpr');
         const f3 = this.match('andExpr');
@@ -299,7 +307,7 @@ class PL_Parser extends Parser {
         return new AndStatement(e4, f3);
     }
     
-    andExpr() {
+    andExpr() : AndStatement | null {
         const op = this.maybeKeyword(...this.operators['and']);
         if (op === null) {
             // eps
@@ -316,7 +324,7 @@ class PL_Parser extends Parser {
         return new AndStatement(e4, f3);
     }
         
-    notExpr() {
+    notExpr() : Statement {
         
         if (this.maybeKeyword(...this.operators['not'])) {
             // not statement
@@ -335,7 +343,7 @@ class PL_Parser extends Parser {
         return new AtomicStatement(this.match('identifier'));
     }
 
-    identifier() {
+    identifier() : string {
         const acceptableChars = '0-9A-Za-z';
         const chars = [this.char(acceptableChars)];
 
@@ -352,7 +360,7 @@ class PL_Parser extends Parser {
     }
 }
 
-function reduceStatement(statement) {
+function reduceStatement(statement : Statement) {
     if (statement instanceof UnaryStatement) {
         reduceStatement(statement.operand);
     } else if (statement instanceof BinaryStatement) {
