@@ -47,78 +47,24 @@ class TruthTreeNode {
 		// terminators are a special case
 		if (TruthTree.TERMINATORS.includes(this.text)) {
 			if (this.text === TruthTree.OPEN_TERMINATOR) {
-				// open branch
-
-				let current: TruthTreeNode = this;
-				while (current.parent !== null) {
-					current = this.tree.nodes[current.parent];
-					console.log(`Now checking '${current.statement}' for decomposition and validity`);
-
-					if (!current.isValid() || !current.isDecomposed()) {
-						return false;
-					}
-				}
-
-				return true;
+				// connor code here
 			}
 			// closed branch
 
-			// requires exactly 2 statements
-			if (this.decomposition.length !== 2) {
-				// print("ERROR: closed_reference_length")
-				return false;
-			}
-
-			console.log(`Checking if nodes (${this.decomposition.join(', ')}) form a valid contradiction.`);
-
-			for (let i = 0; i < 2; ++i) {
-				const a = this.tree.nodes[this.decomposition[i]].statement;
-				const b = this.tree.nodes[this.decomposition[i-1]].statement;
-				if (a === null || b === null) {
-					return false;
-				}
-
-				if (a instanceof NotStatement && a.operand.equals(b)) {
-					if (!(b instanceof AtomicStatement)) {
-						// print(f"Invalid: Contradiction must occur on atomic statements.")
-						return false;
-					}
-
-					const thisBranch = this.getAncestorBranch();
-
-					const invalidNodes : number[] = [];
-					for (const contradictor of this.decomposition) {
-						if (!thisBranch.includes(contradictor)) {
-							invalidNodes.push(contradictor);
-						}
-					}
-
-					if (invalidNodes.length > 0) {
-						// print(f"Invalid: node(s) {', '.join(invalid_nodes)} are not in the closed branch.")
-						return false;
-					}
-
-					// all contradictory nodes must be valid in order to create a contradiction
-					for (const nodeId of this.decomposition) {
-						if (!this.tree.nodes[nodeId].isValid()) {
-							return false;
-						}
-					}
-					return true;
-				}
-			}
-			// print(f"Invalid: Contradictions do not match")
-			return false;
+			// connor code here
 		}
 
-		// connor merge your fixes here
+		// connor code here
 	}
 
 	isDecomposed(): boolean {
-		const parsed = this.tree.parseNodeStatement(this.id);
-		const expectedDecomp = parsed.decompose();
+		if (this.statement === null) {
+			return this.text === '';
+		}
 
-		if (expectedDecomp === []) {
+		const expectedDecomposition = this.statement.decompose();
+
+		if (expectedDecomposition.length === 0) {
 			// no decomposition means it is vacuously decomposed
 			return true;
 		}
@@ -128,7 +74,7 @@ class TruthTreeNode {
 			const openTerm = this.tree.nodes[openTermId];
 
 			// only check open branches
-			if (openTerm.statement !== TruthTree.OPEN_TERMINATOR) {
+			if (openTerm.text !== TruthTree.OPEN_TERMINATOR) {
 				continue;
 			}
 
@@ -185,7 +131,7 @@ class TruthTree {
 	isCorrect(): boolean {
 		for (const leaf of this.leaves) {
 			const leafNode = this.nodes[leaf];
-			if (!TruthTree.TERMINATORS.includes(leafNode.statement)) {
+			if (!TruthTree.TERMINATORS.includes(leafNode.text)) {
 				// All branches in a correct truth tree must terminate with a terminator
 				return false;
 			}
@@ -205,10 +151,5 @@ class TruthTree {
 	 */
 	isValid(): boolean {
 		throw new Error('TruthTree#isValid() not implemented');
-	}
-
-	parseNodeStatement(nodeId): Statement {
-		// parses the statement at node `nodeId`
-		return this.parser.parse(this.nodes[nodeId].statement);
 	}
 }
