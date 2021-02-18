@@ -236,9 +236,6 @@ class OrStatement extends CommutativeStatement {
 
 class BiconditionalStatement extends CommutativeStatement {
 
-    lhs : Statement;
-    rhs : Statement;
-
     /**
      * Constructs a {@link BiconditionalStatement}, which is composed of exactly two
      * operands.
@@ -248,8 +245,6 @@ class BiconditionalStatement extends CommutativeStatement {
      */
     constructor(lhs, rhs) {
         super(lhs, rhs);
-        this.lhs = lhs;
-        this.rhs = rhs;
     }
 
     /**
@@ -259,10 +254,14 @@ class BiconditionalStatement extends CommutativeStatement {
      * @returns {Statement[][]} the decomposed statements by branch
      */
     decompose() {
-        return [
-            [this.lhs, this.rhs],
-            [new NotStatement(this.lhs), new NotStatement(this.rhs)],
-        ];
+
+        const lst1 = [], lst2 = [];
+        for (const operand in this.operands) {
+            lst1.push(operand);
+            lst2.push(new NotStatement(operand));
+        }
+
+        return [lst1, lst2];
     }
 
     /**
@@ -271,7 +270,7 @@ class BiconditionalStatement extends CommutativeStatement {
      * @returns {string} the string representation of this statement
      */
     toString() {
-        return "(" + this.lhs.toString() + " ↔ " + this.rhs.toString() + ")";
+        return "(" + this.operands.join(" ↔ ") + ")";
     }
 }
 
