@@ -98,7 +98,7 @@ class TruthTreeNode {
 
 	getAncestorBranch(): number[] {
 		const branch: number[] = [this.id];
-		let current: TruthTreeNode = this;
+		let current: TruthTreeNode = this.tree.nodes[this.id];
 		while (current.parent !== null) {
 			branch.push(current.parent);
 			current = this.tree.nodes[current.parent];
