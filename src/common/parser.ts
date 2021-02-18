@@ -1,4 +1,12 @@
-import {Statement, AtomicStatement, NotStatement, ConditionalStatement, BiconditionalStatement, AndStatement, OrStatement} from './statement';
+import {
+	Statement,
+	AtomicStatement,
+	NotStatement,
+	ConditionalStatement,
+	BiconditionalStatement,
+	AndStatement,
+	OrStatement,
+} from './statement';
 
 class ParseError extends Error {
 	position: number;
@@ -37,7 +45,9 @@ abstract class Parser<T> {
 
 	assertEnd() {
 		if (this.position < this.length) {
-			const txt = `Expected end of string but got ${this.text[this.position + 1]}`;
+			const txt = `Expected end of string but got ${
+				this.text[this.position + 1]
+			}`;
 			throw new ParseError(this.position + 1, txt);
 		}
 	}
@@ -52,9 +62,9 @@ abstract class Parser<T> {
 	}
 
 	splitCharRanges(chars: string): string[] {
-		try {
+		if (chars in this.cache) {
 			return this.cache[chars];
-		} catch (e) {}
+		}
 
 		const rv: string[] = [];
 		let index = 0;
@@ -77,7 +87,7 @@ abstract class Parser<T> {
 		return rv;
 	}
 
-	char(chars: string | null = null) : string {
+	char(chars: string | null = null): string {
 		if (this.position >= this.length) {
 			const txt = `Expected ${chars} but got end of string`;
 			throw new ParseError(this.position + 1, txt);
@@ -133,7 +143,7 @@ abstract class Parser<T> {
 		this.eatWhitespace();
 		let lastErrorPosition = -1;
 		let lastException = undefined;
-		let lastErrorRules : string[] = [];
+		let lastErrorRules: string[] = [];
 
 		for (const rule of rules) {
 			const initialPosition = this.position;
