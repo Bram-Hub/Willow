@@ -104,7 +104,7 @@ class TruthTreeNode {
 
 		// dprint(f"Checking if {parsed_stmt} is an element of a branch of {valid_decomp}")
 
-		if (!parsedStmt.isMemberOfDecomp(parsedSource)) {
+		if (!parsedStmt.inDecompositionOf(parsedSource)) {
 			// print(f"Invalid: {self.node_id} is not a logical consequence of the marked antecedent.")
 			return false;
 		}

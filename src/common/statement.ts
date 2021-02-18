@@ -1,30 +1,8 @@
-class Statement {
+abstract class Statement {
 	/**
-	 * Decomposes this statement into an array of branches, where each branch
-	 * contains the necessary decomposed statements.
-	 *
-	 * @returns {Statement[][]} the decomposed statements by branch
-	 */
-	decompose(): Statement[] | Statement[][] {
-		return [];
-	}
-
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
-	toString() {
-		throw new Error(
-			'toString() not implemented for child instance of Statement'
-		);
-	}
-
-	/**
-	 * Determines if this statement is a literal, which is either an atomic
-	 * statement or the negation of an atomic statement.
-	 *
-	 * @returns {boolean} if this statement is a literal
+	 * Determines whether or not this statement is a literal, which is either an
+	 * atomic statement or the negation of an atomic statement.
+	 * @returns true if this statement is a literal, false otherwise
 	 */
 	isLiteral(): boolean {
 		return (
@@ -33,255 +11,153 @@ class Statement {
 		);
 	}
 
-	isMemberOfDecomp(other: Statement): boolean {
-		const decomp = other.decompose();
-		for (const branch of decomp) {
-			if (Array.isArray(branch)) {
-				if (branch.includes(this)) {
-					return true;
-				}
-			} else {
-				return this === branch;
-			}
-		}
-		return false;
+	/**
+	 * Decomposes this statement into an array of branches, where each branch
+	 * contains the necessary decomposed statements.
+	 * @returns the decomposed statements by branch
+	 */
+	abstract decompose(): Statement[][];
+
+	/**
+	 * Determines whether or not this statement is a logical consequence of the
+	 * antecedent with respect to its decomposition.
+	 * @param antecedent the antecedent of this statement
+	 */
+	inDecompositionOf(antecedent: Statement): boolean {
+		return antecedent.decompose().some(branch => branch.includes(this));
 	}
+
+	/**
+	 * Determines whether or not this statement is equal to another statement.
+	 * @param other the other statement
+	 * @returns true if this statement is equal to `other`, false otherwise
+	 */
+	abstract equals(other: Statement): boolean;
+
+	/**
+	 * Converts this statement to a string.
+	 * @returns the string representation of this statement
+	 */
+	abstract toString(): string;
 }
 
 class Tautology extends Statement {
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
+	decompose(): Statement[][] {
+		return [];
+	}
+
+	equals(other: Statement) {
+		return other instanceof Tautology;
+	}
+
 	toString() {
 		return '⊤';
 	}
 }
 
 class Contradiction extends Statement {
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
+	decompose(): Statement[][] {
+		return [];
+	}
+
+	equals(other: Statement) {
+		return other instanceof Contradiction;
+	}
+
 	toString() {
 		return '⊥';
 	}
 }
 
 class AtomicStatement extends Statement {
-	value: string;
+	identifier: string;
 
 	/**
-	 * Constructs an {@link AtomicStatement}, which is represented by a value.
-	 *
-	 * @param {string} value the value representing this statement
+	 * Constructs a new `AtomicStatement`, which is represented by an identifier.
+	 * @param identifier the identifier representing this statement
 	 */
-	constructor(value) {
+	constructor(identifier: string) {
 		super();
-		this.value = value;
+		this.identifier = identifier;
 	}
 
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
+	decompose(): Statement[][] {
+		return [];
+	}
+
+	equals(other: Statement): boolean {
+		return (
+			other instanceof AtomicStatement && this.identifier === other.identifier
+		);
+	}
+
 	toString() {
-		return this.value;
+		return this.identifier;
 	}
 }
 
-class UnaryStatement extends Statement {
+abstract class UnaryStatement extends Statement {
 	operand: Statement;
 
 	/**
-	 * Constructs a {@link UnaryStatement}, which is composed of a single operand.
-	 *
-	 * @param {Statement} operand the single operand which composes this statement
+	 * Constructs a new `UnaryStatement`, which is composed of exactly one
+	 * operand.
+	 * @param operand the operand which composes this statement
 	 */
-	constructor(operand) {
+	constructor(operand: Statement) {
 		super();
 		this.operand = operand;
 	}
 }
 
 class NotStatement extends UnaryStatement {
-	/**
-	 * Constructs a {@link NotStatement}, which is composed of a single operand.
-	 *
-	 * @param {Statement} operand the single operand which composes this statement
-	 */
-	constructor(operand) {
+	constructor(operand: Statement) {
 		super(operand);
 	}
 
-	/**
-	 * Decomposes this statement into an array of branches, where each branch
-	 * contains the necessary decomposed statements.
-	 *
-	 * @returns {Statement[][]} the decomposed statements by branch
-	 */
-	decompose() {
+	decompose(): Statement[][] {
 		if (this.operand instanceof NotStatement) {
-			return [this.operand.operand];
-		} else if (this.operand instanceof AndStatement) {
+			return [[this.operand.operand]];
+		}
+		if (this.operand instanceof AndStatement) {
 			return this.operand.operands.map(operand => [new NotStatement(operand)]);
-		} else if (this.operand instanceof OrStatement) {
-			return this.operand.operands.map(operand => new NotStatement(operand));
-		} else if (this.operand instanceof ConditionalStatement) {
-			return [this.operand.lhs, new NotStatement(this.operand.rhs)];
-		} else if (this.operand instanceof BiconditionalStatement) {
+		}
+		if (this.operand instanceof OrStatement) {
+			return [this.operand.operands.map(operand => new NotStatement(operand))];
+		}
+		if (this.operand instanceof ConditionalStatement) {
+			return [[this.operand.lhs, new NotStatement(this.operand.rhs)]];
+		}
+		if (this.operand instanceof BiconditionalStatement) {
 			return [
 				[this.operand.lhs, new NotStatement(this.operand.rhs)],
 				[new NotStatement(this.operand.lhs), this.operand.rhs],
 			];
 		}
-		// negation of literal, so no decomposition
+		// Negations of a literal do not have a decomposition
 		return [];
 	}
 
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
+	equals(other: Statement): boolean {
+		return other instanceof NotStatement && this.operand.equals(other.operand);
+	}
+
 	toString() {
-		return '¬' + this.operand.toString();
+		return `¬${this.operand}`;
 	}
 }
 
-class CommutativeStatement extends Statement {
-	operands: Statement[];
-
-	/**
-	 * Constructs a {@link CommutativeStatement}, which is composed of multiple
-	 * operands.
-	 *
-	 * @param {...Statement} operands the operands that compose this statement
-	 */
-	constructor(...operands) {
-		super();
-		this.operands = operands;
-	}
-}
-
-class AndStatement extends CommutativeStatement {
-	/**
-	 * Constructs an {@link AndStatement}, which is composed of multiple operands.
-	 *
-	 * @param {...Statement} operands the operands that compose this statement
-	 */
-	constructor(...operands) {
-		super(...operands);
-	}
-
-	/**
-	 * Decomposes this statement into an array of branches, where each branch
-	 * contains the necessary decomposed statements.
-	 *
-	 * @returns {Statement[][]} the decomposed statements by branch
-	 */
-	decompose() {
-		return this.operands;
-	}
-
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
-	toString() {
-		return (
-			'(' + this.operands.map(operand => operand.toString()).join(' ∧ ') + ')'
-		);
-	}
-}
-
-class OrStatement extends CommutativeStatement {
-	/**
-	 * Constructs an {@link OrStatement}, which is composed of multiple operands.
-	 *
-	 * @param {...Statement} operands the operands that compose this statement
-	 */
-	constructor(...operands) {
-		super(...operands);
-	}
-
-	/**
-	 * Decomposes this statement into an array of branches, where each branch
-	 * contains the necessary decomposed statements.
-	 *
-	 * @returns {Statement[][]} the decomposed statements by branch
-	 */
-	decompose() {
-		return this.operands.map(operand => [operand]);
-	}
-
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
-	toString() {
-		return (
-			'(' + this.operands.map(operand => operand.toString()).join(' ∨ ') + ')'
-		);
-	}
-}
-
-class BiconditionalStatement extends CommutativeStatement {
-	/**
-	 * Constructs a {@link BiconditionalStatement}, which is composed of exactly two
-	 * operands.
-	 *
-	 * @param {Statement} lhs the left-hand side operand
-	 * @param {Statement} rhs the right-hand side operand
-	 */
-	constructor(lhs, rhs) {
-		super(lhs, rhs);
-	}
-
-	/**
-	 * Decomposes this statement into an array of branches, where each branch
-	 * contains the necessary decomposed statements.
-	 *
-	 * @returns {Statement[][]} the decomposed statements by branch
-	 */
-	decompose() {
-		const lst1 = [],
-			lst2 = [];
-		for (const operand in this.operands) {
-			lst1.push(operand);
-			lst2.push(new NotStatement(operand));
-		}
-
-		return [lst1, lst2];
-	}
-
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
-	toString() {
-		return '(' + this.operands.join(' ↔ ') + ')';
-	}
-}
-
-class BinaryStatement extends Statement {
+abstract class BinaryStatement extends Statement {
 	lhs: Statement;
 	rhs: Statement;
 
 	/**
-	 * Constructs a {@link BinaryStatement}, which is composed of exactly two
+	 * Constructs a new `BinaryStatement`, which is composed of exactly two
 	 * operands.
-	 *
-	 * @param {Statement} lhs the left-hand side operand
-	 * @param {Statement} rhs the right-hand side operand
+	 * @param lhs the left-hand side operand
+	 * @param rhs the right-hand side operand
 	 */
-	constructor(lhs, rhs) {
+	constructor(lhs: Statement, rhs: Statement) {
 		super();
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -289,33 +165,110 @@ class BinaryStatement extends Statement {
 }
 
 class ConditionalStatement extends BinaryStatement {
-	/**
-	 * Constructs a {@link ConditionalStatement}, which is composed of exactly two
-	 * operands.
-	 *
-	 * @param {Statement} lhs the left-hand side operand
-	 * @param {Statement} rhs the right-hand side operand
-	 */
-	constructor(lhs, rhs) {
+	constructor(lhs: Statement, rhs: Statement) {
 		super(lhs, rhs);
 	}
 
-	/**
-	 * Decomposes this statement into an array of branches, where each branch
-	 * contains the necessary decomposed statements.
-	 *
-	 * @returns {Statement[][]} the decomposed statements by branch
-	 */
 	decompose() {
 		return [[new NotStatement(this.lhs)], [this.rhs]];
 	}
 
-	/**
-	 * Converts this statement to a string.
-	 *
-	 * @returns {string} the string representation of this statement
-	 */
+	equals(other: Statement) {
+		return (
+			other instanceof ConditionalStatement &&
+			this.lhs.equals(other.lhs) &&
+			this.rhs.equals(other.rhs)
+		);
+	}
+
 	toString() {
-		return '(' + this.lhs.toString() + ' → ' + this.rhs.toString() + ')';
+		return `(${this.lhs} → ${this.rhs})`;
+	}
+}
+
+class BiconditionalStatement extends BinaryStatement {
+	constructor(lhs: Statement, rhs: Statement) {
+		super(lhs, rhs);
+	}
+
+	decompose() {
+		return [
+			[this.lhs, this.rhs],
+			[new NotStatement(this.lhs), new NotStatement(this.rhs)],
+		];
+	}
+
+	equals(other: Statement) {
+		return (
+			other instanceof BiconditionalStatement &&
+			this.lhs.equals(other.lhs) &&
+			this.rhs.equals(other.rhs)
+		);
+	}
+
+	toString() {
+		return `(${this.lhs} ↔ ${this.rhs})`;
+	}
+}
+
+abstract class CommutativeStatement extends Statement {
+	operands: Statement[];
+
+	/**
+	 * Constructs a new `CommutativeStatement`, which is composed of multiple
+	 * operands.
+	 * @param operands the operands that compose this statement
+	 */
+	constructor(...operands: Statement[]) {
+		super();
+		this.operands = operands;
+	}
+}
+
+class AndStatement extends CommutativeStatement {
+	constructor(...operands: Statement[]) {
+		super(...operands);
+	}
+
+	decompose() {
+		return [this.operands];
+	}
+
+	equals(other: Statement) {
+		return (
+			other instanceof AndStatement &&
+			this.operands.length === other.operands.length &&
+			this.operands.every((operand, index) =>
+				operand.equals(other.operands[index])
+			)
+		);
+	}
+
+	toString() {
+		return `(${this.operands.join(' ∧ ')})`;
+	}
+}
+
+class OrStatement extends CommutativeStatement {
+	constructor(...operands: Statement[]) {
+		super(...operands);
+	}
+
+	decompose() {
+		return this.operands.map(operand => [operand]);
+	}
+
+	equals(other: Statement) {
+		return (
+			other instanceof OrStatement &&
+			this.operands.length === other.operands.length &&
+			this.operands.every((operand, index) =>
+				operand.equals(other.operands[index])
+			)
+		);
+	}
+
+	toString() {
+		return `(${this.operands.join(' ∨ ')})`;
 	}
 }
