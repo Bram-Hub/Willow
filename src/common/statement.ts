@@ -1,14 +1,4 @@
 class Statement {
-    /**
-     * Evaluates this logical statement.
-     * 
-     * @returns {boolean} the truth value of this statement
-     */
-    evaluate() {
-        throw new Error(
-                "evaluate() not implemented for child instance of Statement"
-        );
-    }
 
     /**
      * Decomposes this statement into an array of branches, where each branch
@@ -16,7 +6,7 @@ class Statement {
      * 
      * @returns {Statement[][]} the decomposed statements by branch
      */
-    decompose() {
+    decompose() : Statement[] | Statement[][] {
         return [];
     }
 
@@ -59,14 +49,6 @@ class Statement {
 }
 
 class Tautology extends Statement {
-    /**
-     * Evaluates this tautology.
-     * 
-     * @returns {boolean} the truth value of this tautology, which is always true
-     */
-    evaluate() {
-        return true;
-    }
 
     /**
      * Converts this statement to a string.
@@ -79,15 +61,6 @@ class Tautology extends Statement {
 }
 
 class Contradiction extends Statement {
-    /**
-     * Evaluates this contradiction.
-     * 
-     * @returns {boolean} the truth value of this contradiction, which is always
-     * false
-     */
-    evaluate() {
-        return false;
-    }
 
     /**
      * Converts this statement to a string.
@@ -146,17 +119,6 @@ class NotStatement extends UnaryStatement {
      */
     constructor(operand) {
         super(operand);
-    }
-
-    /**
-     * Evaluates this statement by applying the "logical NOT" operator on its
-     * only operand.
-     * 
-     * @returns {boolean} the truth value of this statement, which is the negation
-     * of its only operand
-     */
-    evaluate() {
-        return !this.operand.evaluate();
     }
 
     /**
@@ -221,20 +183,6 @@ class AndStatement extends CommutativeStatement {
     }
 
     /**
-     * Evaluates this statement by applying the "logical AND" operator to its
-     * operands.
-     * 
-     * @returns {boolean} the truth value of this statement
-     */
-    evaluate() {
-        let result = true;
-        for (const operand of this.operands) {
-            result = result && operand.evaluate();
-        }
-        return result;
-    }
-
-    /**
      * Decomposes this statement into an array of branches, where each branch
      * contains the necessary decomposed statements.
      * 
@@ -263,20 +211,6 @@ class OrStatement extends CommutativeStatement {
      */
     constructor(...operands) {
         super(...operands);
-    }
-
-    /**
-     * Evaluates this statement by applying the "logical OR" operator to its
-     * operands.
-     * 
-     * @returns {boolean} the truth value of this statement
-     */
-    evaluate() {
-        let result = false;
-        for (const operand of this.operands) {
-            result = result || operand.evaluate();
-        }
-        return result;
     }
 
     /**
@@ -316,16 +250,6 @@ class BiconditionalStatement extends CommutativeStatement {
         super(lhs, rhs);
         this.lhs = lhs;
         this.rhs = rhs;
-    }
-    
-    /**
-     * Evaluates this statement by applying the "BICONDITIONAL" operator on its two
-     * operands.
-     * 
-     * @returns {boolean} the truth value of this statement
-     */
-    evaluate() {
-        return this.lhs.evaluate() == this.rhs.evaluate();
     }
 
     /**
@@ -380,16 +304,6 @@ class ConditionalStatement extends BinaryStatement {
      */
     constructor(lhs, rhs) {
         super(lhs, rhs);
-    }
-    
-    /**
-     * Evaluates this statement by applying the "CONDITIONAL" operator on its two
-     * operands.
-     * 
-     * @returns {boolean} the truth value of this statement
-     */
-    evaluate() {
-        return !this.lhs.evaluate() || this.rhs.evaluate();
     }
 
     /**
