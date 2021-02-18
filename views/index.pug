@@ -1,0 +1,23 @@
+doctype html
+html(lang='en')
+  head
+    title Untitled | Willow
+    include /global/head.pug
+    link(href='/css/index.css' rel='stylesheet' type='text/css')
+  body
+    include /global/header.pug
+    #toolbar
+      .dropdown
+        button File
+        .dropdown-menu(style={display: 'none'})
+          a.menu-option(href='/' target='blank') New
+          hr
+          button.menu-option(onclick='window.close()') Quit
+      .dropdown
+        button Edit
+        .dropdown-menu(style={display: 'none'})
+      .dropdown
+        button Help
+        .dropdown-menu(style={display: 'none'})
+    include /global/footer.pug
+    script(src='/js/index.js' type='text/javascript')

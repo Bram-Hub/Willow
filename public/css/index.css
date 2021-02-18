@@ -1,0 +1,56 @@
+/***************/
+/*** TOOLBAR ***/
+/***************/
+#toolbar {
+  background-color: #f0f0f0;
+}
+
+#toolbar > .dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+#toolbar button {
+  background: none;
+  border: none;
+}
+
+#toolbar > .dropdown > button {
+  padding: 5px 10px;
+}
+
+#toolbar > .dropdown > button:hover {
+  background-color: #e0e0e0;
+}
+
+#toolbar > .dropdown > .dropdown-menu {
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  z-index: 1;
+}
+
+#toolbar > .dropdown > .dropdown-menu > .menu-option {
+  background-color: #f8f8f8;
+  box-sizing: border-box;
+  color: #000000;
+  cursor: default;
+  display: block;
+  font-size: 10pt;
+  min-width: 100px;
+  padding: 5px 10px;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  width: 100%;
+}
+
+#toolbar > .dropdown > .dropdown-menu > .menu-option:hover {
+  background-color: #3399ff;
+  color: #ffffff;
+}
+
+#toolbar > .dropdown > .dropdown-menu > hr {
+  border: none;
+  border-top: 1px solid #c0c0c0;
+  margin: 0px;
+}

@@ -1,0 +1,50 @@
+/********************/
+/*** GLOBAL RULES ***/
+/********************/
+
+* {
+  font-family: Roboto, sans-serif;
+}
+
+code, tt {
+  font-family: 'Roboto Mono', monospace;
+}
+
+body {
+  margin: 0px;
+  min-height: 100vh;
+}
+
+#header {
+  background-color: #c0e0c0;
+}
+
+#header > * {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#header img {
+  margin: 20px;
+  width: 50px;
+}
+
+/**************/
+/*** LAYOUT ***/
+/**************/
+.row, .column {
+  display: flex;
+  justify-content: center;
+}
+
+.row {
+  flex-direction: row;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.row > *, .column > * {
+  flex: 1;
+}

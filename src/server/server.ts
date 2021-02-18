@@ -43,6 +43,7 @@ class Server {
     }
 
     this.configure();
+    this.registerRoutes();
   }
 
   /**
@@ -60,8 +61,24 @@ class Server {
 
     // Use Pug.js as the template engine
     this.app.set('view engine', 'pug');
-    this.app.set('views', 'views');
-    this.app.locals.basedir = path.join(__dirname, '../views');
+    this.app.set('views', 'views/');
+    this.app.locals.basedir = 'views/';
+  }
+
+  private registerRoutes() {
+    // Expose the public/ directory to clients
+    this.app.use(express.static('public/'));
+    // Expose packages in node_modules/ to clients
+    const packagesToExpose = ['bootstrap'];
+    for (const pkg of packagesToExpose) {
+      this.app.use(
+        `/pkg/${pkg}`,
+        express.static(path.join('node_modules/', pkg))
+      );
+    }
+
+    this.app.get('/', (req, res) => res.render('index'));
+    this.app.get('*', (req, res) => res.render('error', {code: 404}));
   }
 
   /**
