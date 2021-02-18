@@ -129,8 +129,8 @@ class TruthTree {
 	 * @returns true if this truth tree is correct, false otherwise
 	 */
 	isCorrect(): boolean {
-		for (const leaf of this.leaves) {
-			const leafNode = this.nodes[leaf];
+		for (const leafId of this.leaves) {
+			const leafNode = this.nodes[leafId];
 			if (!TruthTree.TERMINATORS.includes(leafNode.text)) {
 				// All branches in a correct truth tree must terminate with a terminator
 				return false;
