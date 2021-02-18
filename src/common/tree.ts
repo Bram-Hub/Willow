@@ -155,8 +155,8 @@ class TruthTreeNode {
     }
 
     getAncestorBranch() : number[] {
-        let branch = [this.nodeId];
-        let current = this;
+        let branch : number[] = [this.nodeId];
+        let current : TruthTreeNode = this;
         while (current.parent !== null) {
             branch.push(current.parent);
             current = this.tree.adjList[current.parent];
