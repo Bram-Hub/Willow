@@ -383,13 +383,11 @@ export class PL_Parser extends Parser<Statement> {
 		const acceptableChars = '0-9A-Za-z';
 		const chars = [this.char(acceptableChars)];
 
-		while (true) {
-			const char = this.maybeChar(acceptableChars);
-			if (char === null) {
-				break;
-			}
+		let char: string | null = this.maybeChar(acceptableChars);
 
+		while (char !== null) {
 			chars.push(char);
+			char = this.maybeChar(acceptableChars);
 		}
 
 		return chars.join('');
