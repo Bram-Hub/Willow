@@ -1,3 +1,5 @@
+import {Statement} from './statement';
+
 class ParseError extends Error {
 	pos: number;
 	msg: string;
@@ -12,7 +14,7 @@ class ParseError extends Error {
 	}
 }
 
-class Parser {
+export abstract class Parser {
 	cache: {};
 	text: string;
 	pos: number;
@@ -31,9 +33,7 @@ class Parser {
 		return rv;
 	}
 
-	start() {
-		throw new Error('Not Implemented');
-	}
+	abstract start(): never;
 
 	assertEnd() {
 		if (this.pos < this.len) {
@@ -200,7 +200,7 @@ class Parser {
  * and_expr        -> "and" not_expr and_expr      | eps
  * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
  */
-class PL_Parser extends Parser {
+export class PL_Parser extends Parser {
 	operators = {
 		iff: ['↔', '<->', '%', 'iff', 'equiv'],
 		implies: ['→', '->', '$', 'implies', 'only if'],

@@ -1,4 +1,4 @@
-abstract class Statement {
+export abstract class Statement {
 	/**
 	 * Determines whether or not this statement is a literal, which is either an
 	 * atomic statement or the negation of an atomic statement.
@@ -98,7 +98,7 @@ export class AtomicStatement extends Statement {
 	}
 }
 
-abstract class UnaryStatement extends Statement {
+export abstract class UnaryStatement extends Statement {
 	operand: Statement;
 
 	/**
@@ -149,7 +149,7 @@ export class NotStatement extends UnaryStatement {
 	}
 }
 
-abstract class BinaryStatement extends Statement {
+export abstract class BinaryStatement extends Statement {
 	lhs: Statement;
 	rhs: Statement;
 
@@ -213,7 +213,7 @@ export class BiconditionalStatement extends BinaryStatement {
 	}
 }
 
-abstract class CommutativeStatement extends Statement {
+export abstract class CommutativeStatement extends Statement {
 	operands: Statement[];
 
 	/**

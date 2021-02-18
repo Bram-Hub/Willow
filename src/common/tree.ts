@@ -1,9 +1,10 @@
+import {PL_Parser} from './parser';
 import {Statement} from './statement';
 
 class TruthTreeNode {
 	id: number;
 
-	text = '';
+	private _text = '';
 	statement: Statement | null = null;
 	premise = false;
 
@@ -16,12 +17,26 @@ class TruthTreeNode {
 	decomposition: number[] = [];
 
 	constructor(id: number, tree: TruthTree) {
+		this.id = id;
 		this.tree = tree;
+	}
+
+	get text() {
+		return this._text;
+	}
+
+	set text(newText: string) {
+		this.text = newText;
+		try {
+			this.statement = this.tree.parser.parse(this.text);
+		} catch (err) {
+			this.statement = null;
+		}
 	}
 
 	isValid(): boolean {
 		if (this.premise) {
-			// premises are assumed true
+			// Premises are always valid
 			return true;
 		}
 
