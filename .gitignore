@@ -3,6 +3,8 @@ config.yml
 logs/*
 !logs/.keep
 
+public/js/index.js
+
 ###############
 ### Node.js ###
 ###############

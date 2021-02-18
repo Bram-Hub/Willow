@@ -1,238 +1,246 @@
-
 class ParseError extends Error {
-    pos : number;
-    msg : string;
+	pos: number;
+	msg: string;
 
-    constructor(pos, msg) {
-        super(`${msg} at position ${pos}`);
-        this.pos = pos;
-        this.msg = msg;
+	constructor(pos, msg) {
+		super(`${msg} at position ${pos}`);
+		this.pos = pos;
+		this.msg = msg;
 
-        // set it to be a ParseError instead of an Error, thanks TS!
-        Object.setPrototypeOf(this, ParseError.prototype);
-    }
-    
+		// set it to be a ParseError instead of an Error, thanks TS!
+		Object.setPrototypeOf(this, ParseError.prototype);
+	}
 }
 
 class Parser {
-    cache : {};
-    text : string;
-    pos : number;
-    len : number;
+	cache: {};
+	text: string;
+	pos: number;
+	len: number;
 
-    constructor() {
-        this.cache = {};
-    }
+	constructor() {
+		this.cache = {};
+	}
 
-    parse(text: string) {
-        this.text = text;
-        this.pos = -1;
-        this.len = text.length - 1;
-        let rv = this.start();
-        this.assertEnd();
-        return rv;
-    }
+	parse(text: string) {
+		this.text = text;
+		this.pos = -1;
+		this.len = text.length - 1;
+		const rv = this.start();
+		this.assertEnd();
+		return rv;
+	}
 
-    start() {
-        throw new Error("Not Implemented");
-    }
+	start() {
+		throw new Error('Not Implemented');
+	}
 
-    assertEnd() {
-        if (this.pos < this.len) {
-            const txt = `Expected end of string but got ${this.text[this.pos + 1]}`;
-            throw new ParseError(this.pos + 1, txt);
-        }
-    }
+	assertEnd() {
+		if (this.pos < this.len) {
+			const txt = `Expected end of string but got ${this.text[this.pos + 1]}`;
+			throw new ParseError(this.pos + 1, txt);
+		}
+	}
 
-    eatWhitespace() {
-        while (this.pos < this.len && " \f\v\r\t\n".includes(this.text[this.pos + 1])) {
-            this.pos++;
-        }
-    }
+	eatWhitespace() {
+		while (
+			this.pos < this.len &&
+			' \f\v\r\t\n'.includes(this.text[this.pos + 1])
+		) {
+			this.pos++;
+		}
+	}
 
-    splitCharRanges(chars : string) : string[] {
-        try {
-            return this.cache[chars];
-        } catch (e) {}
+	splitCharRanges(chars: string): string[] {
+		try {
+			return this.cache[chars];
+		} catch (e) {}
 
-        let rv : string[] = [];
-        let index = 0;
+		const rv: string[] = [];
+		let index = 0;
 
-        while (index < chars.length) {
-            if (index + 2 < chars.length && chars[index + 1] === '-') {
-                if (chars[index] >= chars[index + 2]) {
-                    throw new Error('Bad character range');
-                }
+		while (index < chars.length) {
+			if (index + 2 < chars.length && chars[index + 1] === '-') {
+				if (chars[index] >= chars[index + 2]) {
+					throw new Error('Bad character range');
+				}
 
-                rv.push( chars.slice(index, index + 3) );
-                index += 3;
-            } else {
-                rv.push( chars[index] );
-                index++;
-            }
-        }
+				rv.push(chars.slice(index, index + 3));
+				index += 3;
+			} else {
+				rv.push(chars[index]);
+				index++;
+			}
+		}
 
-        this.cache[chars] = rv;
-        return rv;
-    }
+		this.cache[chars] = rv;
+		return rv;
+	}
 
-    char(chars : string = null) {
-        if (this.pos >= this.len) {
-            const txt = `Expected ${chars} but got end of string`;
-            throw new ParseError(this.pos + 1, txt);
-        }
+	char(chars: string = null) {
+		if (this.pos >= this.len) {
+			const txt = `Expected ${chars} but got end of string`;
+			throw new ParseError(this.pos + 1, txt);
+		}
 
-        const nextChar = this.text[this.pos + 1];
-        if (chars === null) {
-            this.pos++;
-            return nextChar;
-        }
-        
-        for (const charRange of this.splitCharRanges(chars)) {
-            if (charRange.length === 1) {
-                if (nextChar === charRange) {
-                    this.pos++;
-                    return nextChar;
-                }
-            } else if (charRange[0] <= nextChar && nextChar <= charRange[2]) {
-                this.pos++;
-                return nextChar;
-            }
-        }
+		const nextChar = this.text[this.pos + 1];
+		if (chars === null) {
+			this.pos++;
+			return nextChar;
+		}
 
-        const txt = `Expected ${chars} but got ${nextChar}`;
-        throw new ParseError(this.pos + 1, txt);
-    }
+		for (const charRange of this.splitCharRanges(chars)) {
+			if (charRange.length === 1) {
+				if (nextChar === charRange) {
+					this.pos++;
+					return nextChar;
+				}
+			} else if (charRange[0] <= nextChar && nextChar <= charRange[2]) {
+				this.pos++;
+				return nextChar;
+			}
+		}
 
-    keyword(...keywords : string[]) {
-        this.eatWhitespace();
-        if (this.pos >= this.len) {
-            const txt = `Expected ${keywords.join(',')} but got end of string`;
-            throw new ParseError(this.pos + 1, txt);
-        }
+		const txt = `Expected ${chars} but got ${nextChar}`;
+		throw new ParseError(this.pos + 1, txt);
+	}
 
-        for (const keyword of keywords) {
-            const low = this.pos + 1;
-            const high = low + keyword.length;
+	keyword(...keywords: string[]) {
+		this.eatWhitespace();
+		if (this.pos >= this.len) {
+			const txt = `Expected ${keywords.join(',')} but got end of string`;
+			throw new ParseError(this.pos + 1, txt);
+		}
 
-            if (this.text.slice(low, high) === keyword) {
-                this.pos += keyword.length;
-                this.eatWhitespace();
-                return keyword;
-            }
-        }
+		for (const keyword of keywords) {
+			const low = this.pos + 1;
+			const high = low + keyword.length;
 
-        const txt = `Expected ${keywords.join(',')} but got ${this.text[this.pos+1]}`;
-        throw new ParseError(this.pos + 1, txt);
-    }
+			if (this.text.slice(low, high) === keyword) {
+				this.pos += keyword.length;
+				this.eatWhitespace();
+				return keyword;
+			}
+		}
 
-    match(...rules : string[]) {
-        this.eatWhitespace();
-        let lastErrorPos = -1;
-        let lastException = undefined;
-        let lastErrorRules = [];
+		const txt = `Expected ${keywords.join(',')} but got ${
+			this.text[this.pos + 1]
+		}`;
+		throw new ParseError(this.pos + 1, txt);
+	}
 
-        for (const rule of rules) {
-            const initialPos = this.pos;
-            try {
-                const rv = this[rule]();
-                this.eatWhitespace();
-                return rv;
-            } catch (e) {
-                this.pos = initialPos;
-                if (e.pos > lastErrorPos) {
-                    lastException = e;
-                    lastErrorPos = e.pos;
-                    lastErrorRules = [rule];
-                } else if (e.pos === lastErrorPos) {
-                    lastErrorRules.push(rule);
-                }
-            }
-        }
+	match(...rules: string[]) {
+		this.eatWhitespace();
+		let lastErrorPos = -1;
+		let lastException = undefined;
+		let lastErrorRules = [];
 
-        if (lastErrorRules.length === 1) {
-            throw lastException;
-        }
-        // else
+		for (const rule of rules) {
+			const initialPos = this.pos;
+			try {
+				const rv = this[rule]();
+				this.eatWhitespace();
+				return rv;
+			} catch (e) {
+				this.pos = initialPos;
+				if (e.pos > lastErrorPos) {
+					lastException = e;
+					lastErrorPos = e.pos;
+					lastErrorRules = [rule];
+				} else if (e.pos === lastErrorPos) {
+					lastErrorRules.push(rule);
+				}
+			}
+		}
 
-        const txt = `Expected ${lastErrorRules.join(',')} but got ${this.text[lastErrorPos]}`;
-        throw new ParseError(lastErrorPos, txt);
-    }
+		if (lastErrorRules.length === 1) {
+			throw lastException;
+		}
+		// else
 
-    maybeChar(chars=null) {
-        try {
-            return this.char(chars);
-        } catch(e) {
-            return null;
-        }
-    }
+		const txt = `Expected ${lastErrorRules.join(',')} but got ${
+			this.text[lastErrorPos]
+		}`;
+		throw new ParseError(lastErrorPos, txt);
+	}
 
-    maybeMatch(...rules) {
-        try {
-            return this.match(...rules);
-        } catch (e) {
-            return null;
-        }
-    }
+	maybeChar(chars = null) {
+		try {
+			return this.char(chars);
+		} catch (e) {
+			return null;
+		}
+	}
 
-    maybeKeyword(...keywords) {
-        try {
-            return this.keyword(...keywords);
-        } catch (e) {
-            return null;
-        }
-    }
+	maybeMatch(...rules) {
+		try {
+			return this.match(...rules);
+		} catch (e) {
+			return null;
+		}
+	}
 
+	maybeKeyword(...keywords) {
+		try {
+			return this.keyword(...keywords);
+		} catch (e) {
+			return null;
+		}
+	}
 }
 
+/**
+ * Provides a parser for the following LL(1) Propositional Logic Grammar:
+ * start           -> expr_gen
+ * expr_gen        -> or_expr_gen expr
+ * expr            -> "iff" or_expr_gen expr       | "implies" or_expr_gen expr    | eps
+ * or_expr_gen     -> and_expr_gen or_expr
+ * or_expr         -> "or" and_expr_gen or_expr                                    | eps
+ * and_expr_gen    -> not_expr and_expr
+ * and_expr        -> "and" not_expr and_expr      | eps
+ * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
+ */
 class PL_Parser extends Parser {
-    operators = {
-        'iff': [
-            '↔', '<->', '%', 'iff', 'equiv'
-        ],
-        'implies': [
-            '→', '->', '$', 'implies', 'only if'
-        ],
-        'and': [
-            '∧', '&', 'and',
-        ],
-        'or': [
-            '∨', '|', 'or'
-        ],
-        'not': [
-            '¬', '!', '~', 'not'
-        ]
-    };
+	operators = {
+		iff: ['↔', '<->', '%', 'iff', 'equiv'],
+		implies: ['→', '->', '$', 'implies', 'only if'],
+		and: ['∧', '&', 'and'],
+		or: ['∨', '|', 'or'],
+		not: ['¬', '!', '~', 'not'],
+	};
 
-    start() : Statement {
-        const result = this.exprGen();
-        reduceStatement(result);
-        return result;
-    }
+	start(): Statement {
+		const result = this.exprGen();
+		reduceStatement(result);
+		return result;
+	}
 
-    exprGen() : Statement {
-        const e2 = this.match('orExprGen');
-        const f1 = this.match('expr');
-        if (f1 === null) {
-            // epsilon
-            return e2;
-        }
+	exprGen(): Statement {
+		const e2 = this.match('orExprGen');
+		const f1 = this.match('expr');
+		if (f1 === null) {
+			// epsilon
+			return e2;
+		}
 
-        const op = f1[0], stmt = f1[1];
+		const op = f1[0],
+			stmt = f1[1];
 
-        if (this.operators['iff'].includes(op)) {
-            return new BiconditionalStatement(e2, stmt);
-        } else if (this.operators['implies'].includes(op)) {
-            return new ConditionalStatement(e2, stmt);
-        }
-        throw new ParseError(
-            this.pos+1,
-            `Expected biconditional/conditional operator but got ${this.text[this.pos+1]}`
-        );
-    }
+		if (this.operators['iff'].includes(op)) {
+			return new BiconditionalStatement(e2, stmt);
+		} else if (this.operators['implies'].includes(op)) {
+			return new ConditionalStatement(e2, stmt);
+		}
+		throw new ParseError(
+			this.pos + 1,
+			`Expected biconditional/conditional operator but got ${
+				this.text[this.pos + 1]
+			}`
+		);
+	}
 
-    expr() {
-        /*
+	expr() {
+		/*
         returns one of:
             - BiconditionalStatement
             - ConditionalStatement
@@ -240,143 +248,146 @@ class PL_Parser extends Parser {
             - null
         */
 
-        const op = this.maybeKeyword(
-            ...this.operators['iff'],
-            ...this.operators['implies']
-        );
-        if (op === null) {
-            // epsilon
-            return null;
-        }
+		const op = this.maybeKeyword(
+			...this.operators['iff'],
+			...this.operators['implies']
+		);
+		if (op === null) {
+			// epsilon
+			return null;
+		}
 
-        const e2 = this.match('orExprGen');
-        const f1 = this.match('expr');
-        if (f1 === null) {
-            // epsilon
-            return [op, e2];
-        }
+		const e2 = this.match('orExprGen');
+		const f1 = this.match('expr');
+		if (f1 === null) {
+			// epsilon
+			return [op, e2];
+		}
 
-        const nestedOp = f1[0], stmt = f1[1];
+		const nestedOp = f1[0],
+			stmt = f1[1];
 
-        if (this.operators['iff'].includes(nestedOp)) {
-            return new BiconditionalStatement(e2, stmt);
-        } else if (this.operators['implies'].includes(nestedOp)) {
-            return new ConditionalStatement(e2, stmt);
-        }
-        throw new ParseError(
-            this.pos+1,
-            `Expected biconditional/conditional operator but got ${this.text[this.pos+1]}`
-        );
-    }
+		if (this.operators['iff'].includes(nestedOp)) {
+			return new BiconditionalStatement(e2, stmt);
+		} else if (this.operators['implies'].includes(nestedOp)) {
+			return new ConditionalStatement(e2, stmt);
+		}
+		throw new ParseError(
+			this.pos + 1,
+			`Expected biconditional/conditional operator but got ${
+				this.text[this.pos + 1]
+			}`
+		);
+	}
 
-    orExprGen() : Statement {
-        const e3 = this.match('andExprGen');
-        const f2 = this.match('orExpr');
-        if (f2 === null) {
-            return e3;
-        }
+	orExprGen(): Statement {
+		const e3 = this.match('andExprGen');
+		const f2 = this.match('orExpr');
+		if (f2 === null) {
+			return e3;
+		}
 
-        return new OrStatement(e3, f2);
-    }
+		return new OrStatement(e3, f2);
+	}
 
-    orExpr() : OrStatement | null {
-        const op = this.maybeKeyword(...this.operators['or']);
-        if (op === null) {
-            // epsilon
-            return null;
-        }
-        
-        const e3 = this.match('andExprGen');
-        const f2 = this.match('orExpr');
-        if (f2 === null) {
-            return e3;
-        }
+	orExpr(): OrStatement | null {
+		const op = this.maybeKeyword(...this.operators['or']);
+		if (op === null) {
+			// epsilon
+			return null;
+		}
 
-        return new OrStatement(e3, f2);
-    }
+		const e3 = this.match('andExprGen');
+		const f2 = this.match('orExpr');
+		if (f2 === null) {
+			return e3;
+		}
 
-    andExprGen() : Statement {
+		return new OrStatement(e3, f2);
+	}
 
-        const e4 = this.match('notExpr');
-        const f3 = this.match('andExpr');
-        if (f3 === null) {
-            // eps
-            return e4;
-        }
+	andExprGen(): Statement {
+		const e4 = this.match('notExpr');
+		const f3 = this.match('andExpr');
+		if (f3 === null) {
+			// eps
+			return e4;
+		}
 
-        return new AndStatement(e4, f3);
-    }
-    
-    andExpr() : AndStatement | null {
-        const op = this.maybeKeyword(...this.operators['and']);
-        if (op === null) {
-            // eps
-            return null;
-        }
-        
-        const e4 = this.match('notExpr');
-        const f3 = this.match('andExpr');
-        if (f3 === null) {
-            // eps
-            return e4;
-        }
+		return new AndStatement(e4, f3);
+	}
 
-        return new AndStatement(e4, f3);
-    }
-        
-    notExpr() : Statement {
-        
-        if (this.maybeKeyword(...this.operators['not'])) {
-            // not statement
-            const notStmt = this.match('notExpr');
+	andExpr(): AndStatement | null {
+		const op = this.maybeKeyword(...this.operators['and']);
+		if (op === null) {
+			// eps
+			return null;
+		}
 
-            return new NotStatement(notStmt);
+		const e4 = this.match('notExpr');
+		const f3 = this.match('andExpr');
+		if (f3 === null) {
+			// eps
+			return e4;
+		}
 
-        } else if (this.maybeKeyword('(')) {
-            // parenthesized statement
-            const parensStmt = this.match('exprGen');
-            this.keyword(')');
+		return new AndStatement(e4, f3);
+	}
 
-            return parensStmt;
-        }
+	notExpr(): Statement {
+		if (this.maybeKeyword(...this.operators['not'])) {
+			// not statement
+			const notStmt = this.match('notExpr');
 
-        return new AtomicStatement(this.match('identifier'));
-    }
+			return new NotStatement(notStmt);
+		} else if (this.maybeKeyword('(')) {
+			// parenthesized statement
+			const parensStmt = this.match('exprGen');
+			this.keyword(')');
 
-    identifier() : string {
-        const acceptableChars = '0-9A-Za-z';
-        const chars = [this.char(acceptableChars)];
+			return parensStmt;
+		}
 
-        while (true) {
-            const char = this.maybeChar(acceptableChars);
-            if (char === null) {
-                break;
-            }
-            
-            chars.push(char);
-        }
-        
-        return chars.join('');
-    }
+		return new AtomicStatement(this.match('identifier'));
+	}
+
+	identifier(): string {
+		const acceptableChars = '0-9A-Za-z';
+		const chars = [this.char(acceptableChars)];
+
+		while (true) {
+			const char = this.maybeChar(acceptableChars);
+			if (char === null) {
+				break;
+			}
+
+			chars.push(char);
+		}
+
+		return chars.join('');
+	}
 }
 
-function reduceStatement(statement : Statement) {
-    if (statement instanceof UnaryStatement) {
-        reduceStatement(statement.operand);
-    } else if (statement instanceof BinaryStatement) {
-        reduceStatement(statement.lhs);
-        reduceStatement(statement.rhs);
-    } else if (statement instanceof CommutativeStatement) {
-        for (const child of statement.operands) {
-            reduceStatement(child);
-            if (child instanceof CommutativeStatement && typeof(statement) === typeof(child)) {
-                // absorb the child's children
-                statement.operands = statement.operands.concat(child.operands);
-                // remove the child
-                const index = statement.operands.indexOf(child);
-                statement.operands.splice(index, 1);
-            }
-        }
-    }
-    // otherwise it's a literal in which case there is no reduction
+function reduceStatement(statement: Statement) {
+	if (statement instanceof UnaryStatement) {
+		reduceStatement(statement.operand);
+	} else if (statement instanceof BinaryStatement) {
+		reduceStatement(statement.lhs);
+		reduceStatement(statement.rhs);
+	} else if (statement instanceof CommutativeStatement) {
+		for (const child of statement.operands) {
+			reduceStatement(child);
+			if (
+				child instanceof CommutativeStatement &&
+				typeof statement === typeof child
+			) {
+				// absorb the child's children
+				statement.operands = statement.operands.concat(child.operands);
+				// remove the child
+				const index = statement.operands.indexOf(child);
+				statement.operands.splice(index, 1);
+			}
+		}
+	}
+	// otherwise it's a literal in which case there is no reduction
 }
