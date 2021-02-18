@@ -1,3 +1,4 @@
+import {PL_Parser} from './parser';
 import {Statement} from './statement';
 
 class TruthTreeNode {

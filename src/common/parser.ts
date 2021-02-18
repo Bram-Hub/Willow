@@ -1,22 +1,24 @@
-class ParseError extends Error {
-	pos: number;
-	msg: string;
+import {Statement, AtomicStatement, UnaryStatement, NotStatement, BinaryStatement, ConditionalStatement, BiconditionalStatement, CommutativeStatement, AndStatement, OrStatement} from './statement';
 
-	constructor(pos, msg) {
-		super(`${msg} at position ${pos}`);
-		this.pos = pos;
-		this.msg = msg;
+class ParseError extends Error {
+	position: number;
+	message: string;
+
+	constructor(position, message) {
+		super(`${message} at position ${position}`);
+		this.position = position;
+		this.message = message;
 
 		// set it to be a ParseError instead of an Error, thanks TS!
 		Object.setPrototypeOf(this, ParseError.prototype);
 	}
 }
 
-class Parser {
-	cache: {};
+abstract class Parser {
+	cache: {[chars: string]: string[]};
 	text: string;
-	pos: number;
-	len: number;
+	position: number;
+	length: number;
 
 	constructor() {
 		this.cache = {};
@@ -24,30 +26,28 @@ class Parser {
 
 	parse(text: string) {
 		this.text = text;
-		this.pos = -1;
-		this.len = text.length - 1;
+		this.position = -1;
+		this.length = text.length - 1;
 		const rv = this.start();
 		this.assertEnd();
 		return rv;
 	}
 
-	start() {
-		throw new Error('Not Implemented');
-	}
+	abstract start();
 
 	assertEnd() {
-		if (this.pos < this.len) {
-			const txt = `Expected end of string but got ${this.text[this.pos + 1]}`;
-			throw new ParseError(this.pos + 1, txt);
+		if (this.position < this.length) {
+			const txt = `Expected end of string but got ${this.text[this.position + 1]}`;
+			throw new ParseError(this.position + 1, txt);
 		}
 	}
 
 	eatWhitespace() {
 		while (
-			this.pos < this.len &&
-			' \f\v\r\t\n'.includes(this.text[this.pos + 1])
+			this.position < this.length &&
+			' \f\v\r\t\n'.includes(this.text[this.position + 1])
 		) {
-			this.pos++;
+			this.position++;
 		}
 	}
 
@@ -77,77 +77,77 @@ class Parser {
 		return rv;
 	}
 
-	char(chars: string = null) {
-		if (this.pos >= this.len) {
+	char(chars: string | null = null) : string {
+		if (this.position >= this.length) {
 			const txt = `Expected ${chars} but got end of string`;
-			throw new ParseError(this.pos + 1, txt);
+			throw new ParseError(this.position + 1, txt);
 		}
 
-		const nextChar = this.text[this.pos + 1];
+		const nextChar = this.text[this.position + 1];
 		if (chars === null) {
-			this.pos++;
+			this.position++;
 			return nextChar;
 		}
 
 		for (const charRange of this.splitCharRanges(chars)) {
 			if (charRange.length === 1) {
 				if (nextChar === charRange) {
-					this.pos++;
+					this.position++;
 					return nextChar;
 				}
 			} else if (charRange[0] <= nextChar && nextChar <= charRange[2]) {
-				this.pos++;
+				this.position++;
 				return nextChar;
 			}
 		}
 
 		const txt = `Expected ${chars} but got ${nextChar}`;
-		throw new ParseError(this.pos + 1, txt);
+		throw new ParseError(this.position + 1, txt);
 	}
 
-	keyword(...keywords: string[]) {
+	keyword(...keywords: string[]): string {
 		this.eatWhitespace();
-		if (this.pos >= this.len) {
+		if (this.position >= this.length) {
 			const txt = `Expected ${keywords.join(',')} but got end of string`;
-			throw new ParseError(this.pos + 1, txt);
+			throw new ParseError(this.position + 1, txt);
 		}
 
 		for (const keyword of keywords) {
-			const low = this.pos + 1;
+			const low = this.position + 1;
 			const high = low + keyword.length;
 
 			if (this.text.slice(low, high) === keyword) {
-				this.pos += keyword.length;
+				this.position += keyword.length;
 				this.eatWhitespace();
 				return keyword;
 			}
 		}
 
 		const txt = `Expected ${keywords.join(',')} but got ${
-			this.text[this.pos + 1]
+			this.text[this.position + 1]
 		}`;
-		throw new ParseError(this.pos + 1, txt);
+		throw new ParseError(this.position + 1, txt);
 	}
 
 	match(...rules: string[]) {
 		this.eatWhitespace();
-		let lastErrorPos = -1;
+		let lastErrorPosition = -1;
 		let lastException = undefined;
-		let lastErrorRules = [];
+		let lastErrorRules : string[] = [];
 
 		for (const rule of rules) {
-			const initialPos = this.pos;
+			const initialPosition = this.position;
 			try {
 				const rv = this[rule]();
 				this.eatWhitespace();
 				return rv;
 			} catch (e) {
-				this.pos = initialPos;
-				if (e.pos > lastErrorPos) {
+				this.position = initialPosition;
+				if (e.position > lastErrorPosition) {
 					lastException = e;
-					lastErrorPos = e.pos;
+					lastErrorPosition = e.position;
 					lastErrorRules = [rule];
-				} else if (e.pos === lastErrorPos) {
+				} else if (e.position === lastErrorPosition) {
 					lastErrorRules.push(rule);
 				}
 			}
@@ -159,12 +159,12 @@ class Parser {
 		// else
 
 		const txt = `Expected ${lastErrorRules.join(',')} but got ${
-			this.text[lastErrorPos]
+			this.text[lastErrorPosition]
 		}`;
-		throw new ParseError(lastErrorPos, txt);
+		throw new ParseError(lastErrorPosition, txt);
 	}
 
-	maybeChar(chars = null) {
+	maybeChar(chars: string | null = null) {
 		try {
 			return this.char(chars);
 		} catch (e) {
@@ -172,7 +172,7 @@ class Parser {
 		}
 	}
 
-	maybeMatch(...rules) {
+	maybeMatch(...rules: string[]) {
 		try {
 			return this.match(...rules);
 		} catch (e) {
@@ -180,7 +180,7 @@ class Parser {
 		}
 	}
 
-	maybeKeyword(...keywords) {
+	maybeKeyword(...keywords: string[]) {
 		try {
 			return this.keyword(...keywords);
 		} catch (e) {
@@ -200,7 +200,7 @@ class Parser {
  * and_expr        -> "and" not_expr and_expr      | eps
  * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
  */
-class PL_Parser extends Parser {
+export class PL_Parser extends Parser {
 	operators = {
 		iff: ['↔', '<->', '%', 'iff', 'equiv'],
 		implies: ['→', '->', '$', 'implies', 'only if'],
@@ -232,9 +232,9 @@ class PL_Parser extends Parser {
 			return new ConditionalStatement(e2, stmt);
 		}
 		throw new ParseError(
-			this.pos + 1,
+			this.position + 1,
 			`Expected biconditional/conditional operator but got ${
-				this.text[this.pos + 1]
+				this.text[this.position + 1]
 			}`
 		);
 	}
@@ -273,9 +273,9 @@ class PL_Parser extends Parser {
 			return new ConditionalStatement(e2, stmt);
 		}
 		throw new ParseError(
-			this.pos + 1,
+			this.position + 1,
 			`Expected biconditional/conditional operator but got ${
-				this.text[this.pos + 1]
+				this.text[this.position + 1]
 			}`
 		);
 	}
