@@ -24,7 +24,7 @@ class Parser {
         this.cache = {};
     }
 
-    parse(text: string) : Statement {
+    parse(text: string) {
         this.text = text;
         this.pos = -1;
         this.len = text.length - 1;
