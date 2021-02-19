@@ -1,16 +1,5 @@
 import {PL_Parser} from './parser';
-import {
-	Statement,
-	AtomicStatement,
-	UnaryStatement,
-	NotStatement,
-	BinaryStatement,
-	ConditionalStatement,
-	BiconditionalStatement,
-	CommutativeStatement,
-	AndStatement,
-	OrStatement,
-} from './statement';
+import {Statement, AtomicStatement, NotStatement} from './statement';
 
 class TruthTreeNode {
 	id: number;
@@ -56,12 +45,6 @@ class TruthTreeNode {
 	 * @returns true if this statement is valid, false otherwise
 	 */
 	isValid(): boolean {
-		if (this.statement === null) {
-			// If the text could not be parsed into a statement, then the statement is
-			// valid if and only if the text is empty
-			return this.text.trim().length === 0;
-		}
-
 		if (this.premise) {
 			// Premises are always valid
 			return true;
@@ -75,6 +58,12 @@ class TruthTreeNode {
 			return this.isClosedTerminatorValid();
 		}
 
+		if (this.statement === null) {
+			// If the text could not be parsed into a statement, then the statement is
+			// valid if and only if the text is empty
+			return this.text.trim().length === 0;
+		}
+
 		// Non-premises must have an antecedent for this statement to be valid
 		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
 			return false;
@@ -84,7 +73,13 @@ class TruthTreeNode {
 		if (antecedentNode.statement === null) {
 			return false;
 		}
-		return this.statement.inDecompositionOf(antecedentNode.statement);
+
+		if (!this.getAncestorBranch().includes(this.antecedent)) {
+			// The antecedent must be in the ancestor branch
+			return false;
+		}
+
+		return antecedentNode.getCorrectDecomposition().has(this.id);
 	}
 
 	/**
@@ -94,11 +89,39 @@ class TruthTreeNode {
 	 * @returns true if this open terminator is valid, false otherwise
 	 */
 	private isOpenTerminatorValid(): boolean {
-		return this.getAncestorBranch()
-			.map(id => this.tree.nodes[id])
-			.every(
-				ancestorNode => ancestorNode.isValid() && ancestorNode.isDecomposed()
-			);
+		// Keep track of every Atomic and negation of an Atomic
+		const contradictionMap: Set<string> = new Set();
+
+		for (const ancestorId of this.getAncestorBranch()) {
+			const ancestorNode = this.tree.nodes[ancestorId];
+			const ancestorStatement = ancestorNode.statement;
+
+			// Check for contradictions in the branch
+			if (
+				ancestorStatement instanceof AtomicStatement ||
+				(ancestorStatement instanceof NotStatement &&
+					ancestorStatement.operand instanceof AtomicStatement)
+			) {
+				// If there is a contradiction, it's invalid
+				if (contradictionMap.has(ancestorStatement.toString())) {
+					return false;
+				}
+
+				// Otherwise, store this statement for possible future contradictions
+				if (ancestorStatement instanceof AtomicStatement) {
+					contradictionMap.add(new NotStatement(ancestorStatement).toString());
+				} else {
+					contradictionMap.add(ancestorStatement.operand.toString());
+				}
+			}
+
+			// Check if each ancestor is valid and decomposed
+			if (!ancestorNode.isValid() || !ancestorNode.isDecomposed()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -161,21 +184,42 @@ class TruthTreeNode {
 			return true;
 		}
 
-		// Check if this statement is decomposed in every open branch
+		// Check if every decomposed node is in a child branch of this node.
+		for (const decomposedId of this.decomposition) {
+			if (!this.isAncestorOf(decomposedId)) {
+				return false;
+			}
+		}
+
+		// Check if this statement is decomposed in every open branch that contains it
 		for (const openTerminatorId of this.tree.leaves) {
 			const openTerminatorNode = this.tree.nodes[openTerminatorId];
 			if (openTerminatorNode.text !== TruthTree.OPEN_TERMINATOR) {
 				continue;
 			}
 
+			// Check if this statement is contained in the open branch.
+			if (!this.isAncestorOf(openTerminatorId)) {
+				continue;
+			}
+
 			// Get the branch ending with this terminator
 			const branch = openTerminatorNode.getAncestorBranch();
+			const correctDecomposition = this.getCorrectDecomposition();
+
+			for (const node of this.decomposition) {
+				if (correctDecomposition.has(node) && branch.includes(node)) {
+					return true;
+				}
+			}
+
+			return false;
 
 			// If this (open) branch does not contain any of the nodes in the
 			// decomposition, then this statement is not fully decomposed
-			if (!this.decomposition.some(id => branch.includes(id))) {
-				return false;
-			}
+			// if (!this.decomposition.some(id => branch.includes(id))) {
+			// 	return false;
+			// }
 		}
 
 		return true;
@@ -187,7 +231,7 @@ class TruthTreeNode {
 	 * most distant ancestor).
 	 * @returns an array of ids corresponding to this node's ancestors
 	 */
-	getAncestorBranch(): number[] {
+	private getAncestorBranch(): number[] {
 		const branch: number[] = [];
 		let node: TruthTreeNode = this.tree.nodes[this.id];
 		while (node.parent !== null) {
@@ -196,6 +240,116 @@ class TruthTreeNode {
 			node = this.tree.nodes[node.parent];
 		}
 		return branch;
+	}
+
+	/**
+	 * Traverses up the tree starting at other, returning true if this node
+	 * appears in the traversal to the root otherwise returning false.
+	 * @param otherId the id of the node to start at
+	 * @returns whether or not this node is an ancestor of the given node.
+	 */
+	private isAncestorOf(otherId: number): boolean {
+		let node: TruthTreeNode = this.tree.nodes[otherId];
+
+		while (node.parent !== null) {
+			node = this.tree.nodes[node.parent];
+			if (node.id === this.id) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private getCorrectDecomposition(): Set<number> {
+		const correctDecomposition: Set<number> = new Set();
+		const visited: Set<number> = new Set();
+
+		if (this.statement === null) {
+			return visited;
+		}
+
+		for (const nodeId of this.decomposition) {
+			// Don't pass over the same node twice
+			if (visited.has(nodeId)) {
+				continue;
+			}
+
+			// Only perform traversal on nodes whose parents are not in the decomposition.
+			const node = this.tree.nodes[nodeId];
+			if (node.parent === null) {
+				throw new Error(
+					`The result of a decomposition has no parent. See node ${nodeId}`
+				);
+			}
+
+			// Can change this later to be more flexible wrt where the decomposition can occur
+			// within the branch itself
+			if (this.decomposition.includes(node.parent)) {
+				visited.add(nodeId);
+				continue;
+			}
+
+			// Otherwise the decomposition does not include parent
+
+			// Collect the branches that make up the decomposition including this node.
+			const branches: Statement[][] = [];
+			const branchIds: number[] = [];
+			let isCorrect = true;
+
+			for (const childId of this.tree.nodes[node.parent].children) {
+				// If this child has already been visited, then this branch is already explored
+				// but this should never happen
+				if (visited.has(childId)) {
+					throw new Error('Reached an already visited node in child branch.');
+				}
+				const thisBranch: Statement[] = [];
+				// Collect nodes in this branch, descending
+				let current: TruthTreeNode = this.tree.nodes[childId];
+				let isLastBeforeSplit = current.children.length !== 1;
+
+				while (current.children.length === 1 || isLastBeforeSplit) {
+					// Only add nodes that are marked as part of the decomposition.
+					if (this.decomposition.includes(current.id)) {
+						// This node has now been visited
+						visited.add(current.id);
+
+						// Invalid/empty statements cannot form part of a correct decomposition
+						if (current.statement === null) {
+							isCorrect = false;
+						} else if (isCorrect) {
+							// This is a part of the decomposition, so add them
+							thisBranch.push(current.statement);
+							branchIds.push(current.id);
+						}
+					}
+
+					if (isLastBeforeSplit) {
+						break;
+					}
+
+					current = this.tree.nodes[current.children[0]];
+					isLastBeforeSplit = current.children.length !== 1;
+				}
+				if (!isCorrect) {
+					continue;
+				}
+
+				branches.push(thisBranch);
+			}
+			if (!isCorrect) {
+				continue;
+			}
+
+			// Validate if the branches form a correct decomposition
+			if (this.statement.hasDecomposition(branches)) {
+				for (const id of branchIds) {
+					correctDecomposition.add(id);
+				}
+			}
+		}
+
+		return correctDecomposition;
 	}
 }
 
@@ -217,13 +371,8 @@ class TruthTree {
 	 * @returns true if this truth tree is correct, false otherwise
 	 */
 	isCorrect(): boolean {
-		for (const leafId of this.leaves) {
-			const leafNode = this.nodes[leafId];
-			if (!TruthTree.TERMINATORS.includes(leafNode.text)) {
-				// All branches in a correct truth tree must terminate with a terminator
-				return false;
-			}
-			if (!leafNode.isValid()) {
+		for (const node of Object.values(this.nodes)) {
+			if (!node.isValid()) {
 				// All terminators in a correct truth tree must be valid
 				return false;
 			}

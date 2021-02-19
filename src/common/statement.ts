@@ -1,3 +1,5 @@
+import {stat} from 'fs';
+
 export abstract class Statement {
 	/**
 	 * Determines whether or not this statement is a literal, which is either an
@@ -19,14 +21,50 @@ export abstract class Statement {
 	abstract decompose(): Statement[][];
 
 	/**
-	 * Determines whether or not this statement is a logical consequence of the
-	 * antecedent with respect to its decomposition.
-	 * @param antecedent the antecedent of this statement
+	 * Determines whether or not the given list of branches is a correct
+	 * decomposition of this statement.
+	 * @param branches the antecedent of this statement
 	 */
-	inDecompositionOf(antecedent: Statement): boolean {
-		return antecedent
-			.decompose()
-			.some(branch => branch.some(statement => this.equals(statement)));
+	hasDecomposition(branches: Statement[][]): boolean {
+		const statementDecomposition = this.decompose();
+
+		if (branches.length !== statementDecomposition.length) {
+			return false;
+		}
+
+		// Generate set of Strings
+		const expectedDecomposition: Set<String>[] = [];
+		for (const branch of statementDecomposition) {
+			const branchSet: Set<String> = new Set();
+			branch.forEach(statement => branchSet.add(statement.toString()));
+			expectedDecomposition.push(branchSet);
+		}
+
+		// Generate set of strings and compare
+		for (let i = 0; i < branches.length; i++) {
+			const givenBranchSet: Set<String> = new Set();
+			branches[i].forEach(statement =>
+				givenBranchSet.add(statement.toString())
+			);
+
+			// Compare each set of strings in expected to each set from given
+			for (let j = 0; j < expectedDecomposition.length; j++) {
+				let match = true;
+				for (const statement of givenBranchSet) {
+					if (!expectedDecomposition[j].has(statement)) {
+						match = false;
+						break;
+					}
+				}
+				if (match) {
+					branches.splice(i--, 1);
+					expectedDecomposition.splice(j, 1);
+					break;
+				}
+			}
+		}
+
+		return branches.length === 0;
 	}
 
 	/**
