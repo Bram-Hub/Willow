@@ -1,5 +1,16 @@
 import {PL_Parser} from './parser';
-import {Statement, AtomicStatement, UnaryStatement, NotStatement, BinaryStatement, ConditionalStatement, BiconditionalStatement, CommutativeStatement, AndStatement, OrStatement} from './statement';
+import {
+	Statement,
+	AtomicStatement,
+	UnaryStatement,
+	NotStatement,
+	BinaryStatement,
+	ConditionalStatement,
+	BiconditionalStatement,
+	CommutativeStatement,
+	AndStatement,
+	OrStatement,
+} from './statement';
 
 class TruthTreeNode {
 	id: number;
@@ -16,6 +27,11 @@ class TruthTreeNode {
 	antecedent: number | null = null;
 	decomposition: number[] = [];
 
+	/**
+	 * Constructs a new `TruthTreeNode` in a `TruthTree`.
+	 * @param id the id of this node
+	 * @param tree the tree that contains this node
+	 */
 	constructor(id: number, tree: TruthTree) {
 		this.id = id;
 		this.tree = tree;
@@ -34,9 +50,16 @@ class TruthTreeNode {
 		}
 	}
 
+	/**
+	 * Determines whether or not this statement is valid; i.e., it is a logical
+	 * consequence of some other statement in the truth tree.
+	 * @returns true if this statement is valid, false otherwise
+	 */
 	isValid(): boolean {
 		if (this.statement === null) {
-			return this.text.trim() === "";
+			// If the text could not be parsed into a statement, then the statement is
+			// valid if and only if the text is empty
+			return this.text.trim().length === 0;
 		}
 
 		if (this.premise) {
@@ -44,51 +67,113 @@ class TruthTreeNode {
 			return true;
 		}
 
-		// terminators are a special case
 		if (TruthTree.TERMINATORS.includes(this.text)) {
 			if (this.text === TruthTree.OPEN_TERMINATOR) {
-				// connor code here
+				return this.isOpenTerminatorValid();
 			}
-			// closed branch
-
-			// connor code here
+			// this.text === TruthTree.CLOSED_TERMINATOR
+			return this.isClosedTerminatorValid();
 		}
 
-		// connor code here
+		// Non-premises must have an antecedent for this statement to be valid
+		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
+			return false;
+		}
+		const antecedentNode = this.tree.nodes[this.antecedent];
+		// The antecedent must have been successfully parsed into a statement
+		if (antecedentNode.statement === null) {
+			return false;
+		}
+		return this.statement.inDecompositionOf(antecedentNode.statement);
 	}
 
+	/**
+	 * Determines whether or not this node is valid assuming it is an open
+	 * terminator. An open terminator is valid if and only if every statement from
+	 * the root of the tree to the terminator is both valid and decomposed.
+	 * @returns true if this open terminator is valid, false otherwise
+	 */
+	private isOpenTerminatorValid(): boolean {
+		return this.getAncestorBranch()
+			.map(id => this.tree.nodes[id])
+			.every(
+				ancestorNode => ancestorNode.isValid() && ancestorNode.isDecomposed()
+			);
+	}
+
+	/**
+	 * Determines whether or not this node is valid assuming it is a closed
+	 * terminator. A closed terminator is valid if and only if the two statements
+	 * that it references are a literal and its negation and are both valid.
+	 * @returns true if this closed terminator is valid, false otherwise
+	 */
+	private isClosedTerminatorValid(): boolean {
+		// Closed terminators must reference exactly two statements
+		if (this.decomposition.length !== 2) {
+			return false;
+		}
+
+		for (let i = 0; i < 2; ++i) {
+			const first = this.tree.nodes[this.decomposition[i]].statement;
+			const second = this.tree.nodes[this.decomposition[1 - i]].statement;
+			if (first === null || second === null) {
+				return false;
+			}
+
+			// The referenced statements must be an atomic and its negation
+			if (first instanceof NotStatement && first.operand.equals(second)) {
+				if (!(second instanceof AtomicStatement)) {
+					return false;
+				}
+
+				// The referenced statements must also be ancestors of the closed
+				// terminator and valid
+				const ancestorBranch = this.getAncestorBranch();
+				for (const id of this.decomposition) {
+					if (!ancestorBranch.includes(id)) {
+						return false;
+					}
+					if (!this.tree.nodes[id].isValid()) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Determines whether or not this statement is fully decomposed in every open
+	 * branch.
+	 * @returns true if this statement is decomposed, false otherwise
+	 */
 	isDecomposed(): boolean {
 		if (this.statement === null) {
-			return this.text === '';
+			// If the text could not be parsed into a statement, then the statement is
+			// decomposed if and only if the text is empty
+			return this.text.trim().length === 0;
 		}
 
 		const expectedDecomposition = this.statement.decompose();
-
 		if (expectedDecomposition.length === 0) {
-			// no decomposition means it is vacuously decomposed
+			// A statement with no decomposition is vacuously decomposed
 			return true;
 		}
 
-		// ensure the decomposition is in every open branch
-		for (const openTermId of this.tree.leaves) {
-			const openTerm = this.tree.nodes[openTermId];
-
-			// only check open branches
-			if (openTerm.text !== TruthTree.OPEN_TERMINATOR) {
+		// Check if this statement is decomposed in every open branch
+		for (const openTerminatorId of this.tree.leaves) {
+			const openTerminatorNode = this.tree.nodes[openTerminatorId];
+			if (openTerminatorNode.text !== TruthTree.OPEN_TERMINATOR) {
 				continue;
 			}
 
-			// get the branch ending with this terminator
-			const branch = openTerm.getAncestorBranch();
+			// Get the branch ending with this terminator
+			const branch = openTerminatorNode.getAncestorBranch();
 
-			// if any of the nodes from the decomposition are in this branch, it's decomposed
-			let decomposed = false;
-			for (const nodeId of this.decomposition) {
-				decomposed ||= branch.includes(nodeId);
-			}
-
-			if (!decomposed) {
-				// print(f"Invalid: node {self.node_id} not decomposed for node {open_term_id}.")
+			// If this (open) branch does not contain any of the nodes in the
+			// decomposition, then this statement is not fully decomposed
+			if (!this.decomposition.some(id => branch.includes(id))) {
 				return false;
 			}
 		}
@@ -96,12 +181,19 @@ class TruthTreeNode {
 		return true;
 	}
 
+	/**
+	 * Traverses up the tree starting at this node's parent, returning a list of
+	 * the ancestors of this node (starting with the parent and ending with the
+	 * most distant ancestor).
+	 * @returns an array of ids corresponding to this node's ancestors
+	 */
 	getAncestorBranch(): number[] {
-		const branch: number[] = [this.id];
-		let current: TruthTreeNode = this.tree.nodes[this.id];
-		while (current.parent !== null) {
-			branch.push(current.parent);
-			current = this.tree.nodes[current.parent];
+		const branch: number[] = [];
+		let node: TruthTreeNode = this.tree.nodes[this.id];
+		while (node.parent !== null) {
+			branch.push(node.parent);
+			// Traverse up the tree
+			node = this.tree.nodes[node.parent];
 		}
 		return branch;
 	}
@@ -119,10 +211,6 @@ class TruthTree {
 	leaves: Set<number> = new Set();
 
 	parser: PL_Parser = new PL_Parser();
-
-	fromWillowFile() {
-		// for loading a truth tree...
-	}
 
 	/**
 	 * Determines whether or not this truth tree is correct.
