@@ -12,7 +12,7 @@ class ParseError extends Error {
 	position: number;
 	message: string;
 
-	constructor(position, message) {
+	constructor(position: number, message: string) {
 		super(`${message} at position ${position}`);
 		this.position = position;
 		this.message = message;
@@ -24,15 +24,15 @@ class ParseError extends Error {
 
 abstract class Parser<T> {
 	cache: {[chars: string]: string[]};
-	text: string;
-	position: number;
-	length: number;
+	text = '';
+	position = -1;
+	length = -1;
 
 	constructor() {
 		this.cache = {};
 	}
 
-	parse(text: string): T {
+	parse(text: string) {
 		this.text = text;
 		this.position = -1;
 		this.length = text.length - 1;
@@ -41,7 +41,7 @@ abstract class Parser<T> {
 		return rv;
 	}
 
-	abstract start();
+	abstract start(): T;
 
 	assertEnd() {
 		if (this.position < this.length) {

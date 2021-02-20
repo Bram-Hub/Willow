@@ -397,6 +397,13 @@ class TruthTree {
 
 	parser: PL_Parser = new PL_Parser();
 
+	static fromWillowFile(): TruthTree {
+		// throw new Error('TruthTree#fromWillowFile() not implemented');
+		const newTree = new TruthTree();
+
+		return newTree;
+	}
+
 	/**
 	 * Determines whether or not this truth tree is correct.
 	 * @returns true if this truth tree is correct, false otherwise
