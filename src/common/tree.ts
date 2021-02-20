@@ -5,7 +5,7 @@ class TruthTreeNode {
 	id: number;
 
 	private _text = '';
-	statement: Statement | null = null;
+	private _statement: Statement | null = null;
 	premise = false;
 
 	tree: TruthTree;
@@ -14,7 +14,8 @@ class TruthTreeNode {
 	children: number[] = [];
 
 	antecedent: number | null = null;
-	decomposition: number[] = [];
+	decomposition: Set<number> = new Set();
+	private _correctDecomposition: Set<number> | null = null;
 
 	/**
 	 * Constructs a new `TruthTreeNode` in a `TruthTree`.
@@ -37,6 +38,127 @@ class TruthTreeNode {
 		} catch (err) {
 			this.statement = null;
 		}
+	}
+
+	get statement() {
+		return this._statement;
+	}
+
+	set statement(newStatement: Statement | null) {
+		this.statement = newStatement;
+		this.correctDecomposition = null;
+	}
+
+	/**
+	 * Calculates the set of nodes which create the branch(es)
+	 * required to correctly decompose this statement.
+	 *
+	 * Note that this function guarantees a Set<number>,
+	 * but Typescript requires that getters and setters
+	 * have the same type.
+	 *
+	 * @returns the set of node IDs that form a complete
+	 * decomposition of this node.
+	 */
+	get correctDecomposition(): Set<number> | null {
+		if (this.statement === null) {
+			return new Set<number>();
+		}
+
+		// Return the cached version if it exists
+		if (this._correctDecomposition !== null) {
+			return this._correctDecomposition;
+		}
+
+		// Otherwise generate a new set
+		this._correctDecomposition = new Set<number>();
+		const visited: Set<number> = new Set();
+
+		for (const nodeId of this.decomposition) {
+			// Don't pass over the same node twice
+			if (visited.has(nodeId)) {
+				continue;
+			}
+
+			// Only perform traversal on nodes whose parents are not in the decomposition.
+			const node = this.tree.nodes[nodeId];
+			if (node.parent === null) {
+				throw new Error(
+					`The result of a decomposition has no parent. See node ${nodeId}`
+				);
+			}
+
+			// Can change this later to be more flexible wrt where the decomposition can occur
+			// within the branch itself
+			if (this.decomposition.has(node.parent)) {
+				visited.add(nodeId);
+				continue;
+			}
+
+			// Otherwise the decomposition does not include parent
+
+			// Collect the branches that make up the decomposition including this node.
+			const branches: Statement[][] = [];
+			const branchIds: number[] = [];
+			let isCorrect = true;
+
+			for (const childId of this.tree.nodes[node.parent].children) {
+				// If this child has already been visited, then this branch is already explored
+				// but this should never happen
+				if (visited.has(childId)) {
+					throw new Error('Reached an already visited node in child branch.');
+				}
+				const thisBranch: Statement[] = [];
+				// Collect nodes in this branch, descending
+				let current: TruthTreeNode = this.tree.nodes[childId];
+				let isLastBeforeSplit = current.children.length !== 1;
+
+				while (current.children.length === 1 || isLastBeforeSplit) {
+					// Only add nodes that are marked as part of the decomposition.
+					if (this.decomposition.has(current.id)) {
+						// This node has now been visited
+						visited.add(current.id);
+
+						// Invalid/empty statements cannot form part of a correct decomposition
+						if (current.statement === null) {
+							isCorrect = false;
+						} else if (isCorrect) {
+							// This is a part of the decomposition, so add them
+							thisBranch.push(current.statement);
+							branchIds.push(current.id);
+						}
+					}
+
+					if (isLastBeforeSplit) {
+						break;
+					}
+
+					current = this.tree.nodes[current.children[0]];
+					isLastBeforeSplit = current.children.length !== 1;
+				}
+				if (!isCorrect) {
+					continue;
+				}
+
+				branches.push(thisBranch);
+			}
+			if (!isCorrect) {
+				continue;
+			}
+
+			// Validate if the branches form a correct decomposition
+			if (this.statement.hasDecomposition(branches)) {
+				for (const id of branchIds) {
+					this._correctDecomposition.add(id);
+				}
+			}
+		}
+
+		return this._correctDecomposition;
+	}
+
+	set correctDecomposition(newCorrectDecomposition: Set<number> | null) {
+		this._correctDecomposition = newCorrectDecomposition;
 	}
 
 	/**
@@ -74,12 +196,12 @@ class TruthTreeNode {
 			return false;
 		}
 
-		if (!this.getAncestorBranch().includes(this.antecedent)) {
+		if (!this.getAncestorBranch().has(this.antecedent)) {
 			// The antecedent must be in the ancestor branch
 			return false;
 		}
 
-		return antecedentNode.getCorrectDecomposition().has(this.id);
+		return antecedentNode.correctDecomposition!.has(this.id);
 	}
 
 	/**
@@ -132,13 +254,18 @@ class TruthTreeNode {
 	 */
 	private isClosedTerminatorValid(): boolean {
 		// Closed terminators must reference exactly two statements
-		if (this.decomposition.length !== 2) {
+		if (this.decomposition.size !== 2) {
 			return false;
 		}
 
+		const decomposed_statements = [...this.decomposition].map(
+			id => this.tree.nodes[id].statement
+		);
+
 		for (let i = 0; i < 2; ++i) {
-			const first = this.tree.nodes[this.decomposition[i]].statement;
-			const second = this.tree.nodes[this.decomposition[1 - i]].statement;
+			const first = decomposed_statements[i];
+			const second = decomposed_statements[1 - i];
+
 			if (first === null || second === null) {
 				return false;
 			}
@@ -153,7 +280,7 @@ class TruthTreeNode {
 				// terminator and valid
 				const ancestorBranch = this.getAncestorBranch();
 				for (const id of this.decomposition) {
-					if (!ancestorBranch.includes(id)) {
+					if (!ancestorBranch.has(id)) {
 						return false;
 					}
 					if (!this.tree.nodes[id].isValid()) {
@@ -204,38 +331,33 @@ class TruthTreeNode {
 			}
 
 			// Get the branch ending with this terminator
-			const branch = openTerminatorNode.getAncestorBranch();
-			const correctDecomposition = this.getCorrectDecomposition();
+			const openBranch = openTerminatorNode.getAncestorBranch();
 
-			for (const node of this.decomposition) {
-				if (correctDecomposition.has(node) && branch.includes(node)) {
-					return true;
+			// Check if a node from the correct decomposition is in the
+			let containedInBranch = false;
+			for (const correctlyDecomposedNode of this.correctDecomposition!) {
+				if (openBranch.has(correctlyDecomposedNode)) {
+					containedInBranch = true;
 				}
 			}
-
-			return false;
-
-			// If this (open) branch does not contain any of the nodes in the
-			// decomposition, then this statement is not fully decomposed
-			// if (!this.decomposition.some(id => branch.includes(id))) {
-			// 	return false;
-			// }
+			if (!containedInBranch) {
+				return false;
+			}
 		}
 
 		return true;
 	}
 
 	/**
-	 * Traverses up the tree starting at this node's parent, returning a list of
-	 * the ancestors of this node (starting with the parent and ending with the
-	 * most distant ancestor).
-	 * @returns an array of ids corresponding to this node's ancestors
+	 * Traverses up the tree starting at this node's parent, returning a set of
+	 * the ancestors of this node.
+	 * @returns a set of ids corresponding to this node's ancestors
 	 */
-	private getAncestorBranch(): number[] {
-		const branch: number[] = [];
+	private getAncestorBranch(): Set<number> {
+		const branch = new Set<number>();
 		let node: TruthTreeNode = this.tree.nodes[this.id];
 		while (node.parent !== null) {
-			branch.push(node.parent);
+			branch.add(node.parent);
 			// Traverse up the tree
 			node = this.tree.nodes[node.parent];
 		}
@@ -259,97 +381,6 @@ class TruthTreeNode {
 		}
 
 		return false;
-	}
-
-	private getCorrectDecomposition(): Set<number> {
-		const correctDecomposition: Set<number> = new Set();
-		const visited: Set<number> = new Set();
-
-		if (this.statement === null) {
-			return visited;
-		}
-
-		for (const nodeId of this.decomposition) {
-			// Don't pass over the same node twice
-			if (visited.has(nodeId)) {
-				continue;
-			}
-
-			// Only perform traversal on nodes whose parents are not in the decomposition.
-			const node = this.tree.nodes[nodeId];
-			if (node.parent === null) {
-				throw new Error(
-					`The result of a decomposition has no parent. See node ${nodeId}`
-				);
-			}
-
-			// Can change this later to be more flexible wrt where the decomposition can occur
-			// within the branch itself
-			if (this.decomposition.includes(node.parent)) {
-				visited.add(nodeId);
-				continue;
-			}
-
-			// Otherwise the decomposition does not include parent
-
-			// Collect the branches that make up the decomposition including this node.
-			const branches: Statement[][] = [];
-			const branchIds: number[] = [];
-			let isCorrect = true;
-
-			for (const childId of this.tree.nodes[node.parent].children) {
-				// If this child has already been visited, then this branch is already explored
-				// but this should never happen
-				if (visited.has(childId)) {
-					throw new Error('Reached an already visited node in child branch.');
-				}
-				const thisBranch: Statement[] = [];
-				// Collect nodes in this branch, descending
-				let current: TruthTreeNode = this.tree.nodes[childId];
-				let isLastBeforeSplit = current.children.length !== 1;
-
-				while (current.children.length === 1 || isLastBeforeSplit) {
-					// Only add nodes that are marked as part of the decomposition.
-					if (this.decomposition.includes(current.id)) {
-						// This node has now been visited
-						visited.add(current.id);
-
-						// Invalid/empty statements cannot form part of a correct decomposition
-						if (current.statement === null) {
-							isCorrect = false;
-						} else if (isCorrect) {
-							// This is a part of the decomposition, so add them
-							thisBranch.push(current.statement);
-							branchIds.push(current.id);
-						}
-					}
-
-					if (isLastBeforeSplit) {
-						break;
-					}
-
-					current = this.tree.nodes[current.children[0]];
-					isLastBeforeSplit = current.children.length !== 1;
-				}
-				if (!isCorrect) {
-					continue;
-				}
-
-				branches.push(thisBranch);
-			}
-			if (!isCorrect) {
-				continue;
-			}
-
-			// Validate if the branches form a correct decomposition
-			if (this.statement.hasDecomposition(branches)) {
-				for (const id of branchIds) {
-					correctDecomposition.add(id);
-				}
-			}
-		}
-
-		return correctDecomposition;
 	}
 }
 
