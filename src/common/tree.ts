@@ -27,6 +27,64 @@ class TruthTreeNode {
 		this.tree = tree;
 	}
 
+	static fromJSON(
+		tree: TruthTree,
+		jsonObject: {[key: string]: string | boolean | number | number[]}
+	): TruthTreeNode {
+		// Check for necessary properties
+		if (!('id' in jsonObject && typeof jsonObject.id === 'number')) {
+			throw new Error('TruthTreeNode#fromJSON: id not found.');
+		}
+
+		const newNode = new TruthTreeNode(jsonObject.id, tree);
+
+		if (!('text' in jsonObject && typeof jsonObject.text === 'string')) {
+			throw new Error('TruthTreeNode#fromJSON: text not found.');
+		}
+		newNode.text = jsonObject.text;
+
+		if (
+			!(
+				'children' in jsonObject &&
+				typeof jsonObject.children === 'object' &&
+				Array.isArray(jsonObject.children)
+			)
+		) {
+			throw new Error('TruthTreeNode#fromJSON: children not found.');
+		}
+		newNode.children = jsonObject.children;
+
+		if (
+			!(
+				'decomposition' in jsonObject &&
+				typeof jsonObject.decomposition === 'object' &&
+				Array.isArray(jsonObject.decomposition) &&
+				jsonObject.decomposition.every(element => typeof element === 'number')
+			)
+		) {
+			throw new Error('TruthTreeNode#fromJSON: decomposition not found.');
+		}
+		newNode.decomposition = new Set(jsonObject.decomposition);
+
+		// Check for optional properties
+		if ('premise' in jsonObject && typeof jsonObject.premise === 'boolean') {
+			newNode.premise = jsonObject.premise;
+		}
+
+		if ('parent' in jsonObject && typeof jsonObject.parent === 'number') {
+			newNode.parent = jsonObject.parent;
+		}
+
+		if (
+			'antecedent' in jsonObject &&
+			typeof jsonObject.antecedent === 'number'
+		) {
+			newNode.antecedent = jsonObject.antecedent;
+		}
+
+		return newNode;
+	}
+
 	get text() {
 		return this._text;
 	}
@@ -397,11 +455,60 @@ class TruthTree {
 
 	parser: PL_Parser = new PL_Parser();
 
-	static fromWillowFile(): TruthTree {
-		// throw new Error('TruthTree#fromWillowFile() not implemented');
+	static deserialize(jsonText: string): TruthTree {
+		// throw new Error('TruthTree#deserialize() not implemented');
 		const newTree = new TruthTree();
 
+		const parsed = JSON.parse(jsonText);
+		try {
+			for (const jsonNode of parsed) {
+				const node = TruthTreeNode.fromJSON(newTree, jsonNode);
+				if (node.children.length === 0) {
+					newTree.leaves.add(node.id);
+				}
+				newTree.nodes[node.id] = node;
+			}
+		} catch (e) {
+			throw new Error(
+				`TruthTree#deserialize: The file does not match the format: ${e.message}`
+			);
+		}
+
 		return newTree;
+	}
+
+	serialize(): string {
+		// throw new Error('TruthTree#serialize() not implemented');
+		const serializedNodes: {
+			[key: string]: string | boolean | number | number[];
+		}[] = [];
+
+		for (const node of Object.values(this.nodes)) {
+			const serializedNode: {
+				[key: string]: string | boolean | number | number[];
+			} = {
+				id: node.id,
+				text: node.text,
+				children: node.children,
+				decomposition: [...node.decomposition],
+			};
+
+			if (node.premise) {
+				serializedNode.premise = node.premise;
+			}
+
+			if (node.parent) {
+				serializedNode.parent = node.parent;
+			}
+
+			if (node.antecedent !== null) {
+				serializedNode.antecedent = node.antecedent;
+			}
+
+			serializedNodes.push(serializedNode);
+		}
+
+		return JSON.stringify(serializedNodes);
 	}
 
 	/**
