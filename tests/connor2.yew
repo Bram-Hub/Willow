@@ -1,0 +1,51 @@
+[
+    {
+        "id": 2,
+        "text": "A",
+        "children": [
+            3
+        ],
+        "decomposition": [],
+        "parent": 1,
+        "antecedent": 1
+    },
+    {
+        "id": 3,
+        "text": "B",
+        "children": [
+            4
+        ],
+        "decomposition": [],
+        "parent": 2,
+        "antecedent": 1
+    },
+    {
+        "id": 4,
+        "text": "\u25ef",
+        "children": [],
+        "decomposition": [],
+        "parent": 3
+    },
+    {
+        "id": 0,
+        "text": "A",
+        "children": [
+            1
+        ],
+        "decomposition": [],
+        "premise": true
+    },
+    {
+        "id": 1,
+        "text": "A \u2194 B",
+        "children": [
+            2
+        ],
+        "decomposition": [
+            2,
+            3
+        ],
+        "premise": true,
+        "parent": 0
+    }
+]

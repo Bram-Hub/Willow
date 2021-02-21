@@ -1,0 +1,41 @@
+[
+    {
+        "id": 0,
+        "text": "A\u2228B",
+        "children": [
+            1
+        ],
+        "decomposition": [
+            1,
+            2
+        ],
+        "premise": true
+    },
+    {
+        "id": 1,
+        "text": "A",
+        "children": [
+            2
+        ],
+        "decomposition": [],
+        "parent": 0,
+        "antecedent": 0
+    },
+    {
+        "id": 2,
+        "text": "B",
+        "children": [
+            3
+        ],
+        "decomposition": [],
+        "parent": 1,
+        "antecedent": 0
+    },
+    {
+        "id": 3,
+        "text": "\u25ef",
+        "children": [],
+        "decomposition": [],
+        "parent": 2
+    }
+]

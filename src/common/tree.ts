@@ -90,7 +90,7 @@ class TruthTreeNode {
 	}
 
 	set text(newText: string) {
-		this.text = newText;
+		this._text = newText;
 		try {
 			this.statement = this.tree.parser.parse(this.text);
 		} catch (err) {
@@ -103,7 +103,7 @@ class TruthTreeNode {
 	}
 
 	set statement(newStatement: Statement | null) {
-		this.statement = newStatement;
+		this._statement = newStatement;
 		this.correctDecomposition = null;
 	}
 
@@ -442,7 +442,7 @@ class TruthTreeNode {
 	}
 }
 
-class TruthTree {
+export class TruthTree {
 	static readonly OPEN_TERMINATOR = '◯';
 	static readonly CLOSED_TERMINATOR = '×';
 	static readonly TERMINATORS = [
@@ -460,6 +460,15 @@ class TruthTree {
 		const newTree = new TruthTree();
 
 		const parsed = JSON.parse(jsonText);
+		if (
+			!(
+				typeof parsed === 'object' &&
+				Array.isArray(parsed) &&
+				parsed.length > 0
+			)
+		) {
+			throw new Error('TruthTree#deserialize: The tree is empty.');
+		}
 		try {
 			for (const jsonNode of parsed) {
 				const node = TruthTreeNode.fromJSON(newTree, jsonNode);
@@ -533,5 +542,36 @@ class TruthTree {
 	 */
 	isValid(): boolean {
 		throw new Error('TruthTree#isValid() not implemented');
+	}
+
+	printTree() {
+		this.printTreeHelper(0, 0);
+	}
+
+	private printTreeHelper(currentId: number, depth: number) {
+		const current = this.nodes[currentId];
+
+		let output = '';
+		for (let i = 0; i < depth; i++) {
+			output += '    ';
+		}
+		output += `(${currentId}) ${current.text}`;
+		if (current.premise) {
+			output += '\t(premise)';
+		}
+
+		console.log(output);
+
+		if (current.children.length === 0) {
+			console.log();
+			return;
+		}
+		if (current.children.length === 1) {
+			this.printTreeHelper(current.children[0], depth);
+			return;
+		}
+		for (const childId of current.children) {
+			this.printTreeHelper(childId, depth + 1);
+		}
 	}
 }

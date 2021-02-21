@@ -148,7 +148,8 @@ abstract class Parser<T> {
 		for (const rule of rules) {
 			const initialPosition = this.position;
 			try {
-				const rv = this[rule]();
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const rv = (this as any)[rule]();
 				this.eatWhitespace();
 				return rv;
 			} catch (e) {
