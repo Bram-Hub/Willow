@@ -1,5 +1,3 @@
-import {stat} from 'fs';
-
 export abstract class Statement {
 	/**
 	 * Determines whether or not this statement is a literal, which is either an

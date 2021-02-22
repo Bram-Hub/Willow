@@ -534,16 +534,6 @@ export class TruthTree {
 		return true;
 	}
 
-	/**
-	 * Determines whether or not this truth tree is valid; i.e., it satisfies the
-	 * representation invariant. For example, the decomposition of every node's
-	 * antecedent must contain the node itself.
-	 * @return true if this truth tree is valid, false otherwise
-	 */
-	isValid(): boolean {
-		throw new Error('TruthTree#isValid() not implemented');
-	}
-
 	printTree() {
 		this.printTreeHelper(0, 0);
 	}
