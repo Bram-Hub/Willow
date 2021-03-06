@@ -73,8 +73,9 @@ abstract class Parser<T> {
 	}
 
 	/**
-	 * Splits a special format of string into discrete ASCII ranges to parse.
+	 * Splits a special format of string into discrete ASCII ranges to match to.
 	 * @param chars a regex-type characterset to expect.
+	 * @returns the array of ASCII character ranges to match.
 	 */
 	splitCharRanges(chars: string): string[] {
 		if (chars in this.cache) {
@@ -106,6 +107,7 @@ abstract class Parser<T> {
 	 * Attempts to match the character at the current READ position with a character from the given
 	 * range. If no range is provided, it will match any character.
 	 * @param chars the characterset to read from
+	 * @returns the character that was matched
 	 */
 	char(chars: string | null = null): string {
 		if (this.position >= this.text.length) {
@@ -143,6 +145,7 @@ abstract class Parser<T> {
 	 * Attempts to match with any of the given keywords by slicing the text at the lengths of the
 	 * keywords and comparing.
 	 * @param keywords the keywords to match with
+	 * @returns the keyword string that was matched
 	 */
 	keyword(...keywords: string[]): string {
 		this.consumeWhitespace();
@@ -175,6 +178,7 @@ abstract class Parser<T> {
 	 * The rules are then tested sequentially via recursive descent by calling the function
 	 * named the same as those given in the argument.
 	 * @param keywords the keywords to match with
+	 * @returns the text that was matched with one of the rules.
 	 */
 	match(...rules: string[]) {
 		this.consumeWhitespace();
@@ -214,6 +218,11 @@ abstract class Parser<T> {
 		);
 	}
 
+	/**
+	 * Tries to match a character from the given range.
+	 * @param chars the ASCII character range to match to
+	 * @returns the matched character or null if no match
+	 */
 	maybeChar(chars: string | null = null): string | null {
 		try {
 			return this.char(chars);
@@ -222,6 +231,11 @@ abstract class Parser<T> {
 		}
 	}
 
+	/**
+	 * Tries to match the text following the READ position with one of the keywords from the list.
+	 * @param keywords the list of keywords to match to
+	 * @returns the matched keyword or null if no match
+	 */
 	maybeKeyword(...keywords: string[]): string | null {
 		try {
 			return this.keyword(...keywords);
@@ -230,6 +244,11 @@ abstract class Parser<T> {
 		}
 	}
 
+	/**
+	 * Tries to match the text according to the pattern defined by one of the rules from the list.
+	 * @param rules the list of rules to match to
+	 * @returns the text matched or null if no match
+	 */
 	maybeMatch(...rules: string[]): T | null {
 		try {
 			return this.match(...rules);
