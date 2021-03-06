@@ -106,7 +106,11 @@ function runTest(testName: string) {
 	const start = performance.now();
 	const isCorrect = testTree.isCorrect();
 	const elapsed = (performance.now() - start) / 1000;
-	console.log(`${testName}: ${isCorrect} (took ${elapsed.toFixed(5)} seconds)`);
+	console.log(
+		`${testName}: ${
+			Object.keys(isCorrect).length === 0
+		} (took ${elapsed.toFixed(5)} seconds)`
+	);
 	return elapsed;
 }
 

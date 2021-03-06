@@ -247,10 +247,11 @@ class TruthTreeNode {
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// valid if and only if the text is empty
-			if (this.text.trim().length === 0) {
+			if (this.text.length === 0) {
 				return response;
 			}
-			response[this.id] = 'Not a parsable statement.';
+
+			response[this.id] = 'isValid: Not a parsable statement.';
 			return response;
 		}
 
@@ -412,10 +413,16 @@ class TruthTreeNode {
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// decomposed if and only if the text is empty
-			if (this.text.trim().length === 0) {
+			if (this.text.length === 0) {
 				return response;
 			}
-			response[this.id] = 'Not a parsable statement.';
+
+			// Terminators are all decomposed.
+			if (TruthTree.TERMINATORS.includes(this.text)) {
+				return response;
+			}
+
+			response[this.id] = 'isDecomposed: Not a parsable statement.';
 			return response;
 			// return false;
 		}
@@ -459,8 +466,9 @@ class TruthTreeNode {
 				}
 			}
 			if (!containedInBranch) {
-				response[this.id] =
-					'Must be contained in every open branch that contains it.';
+				response[
+					this.id
+				] = `Must be decomposed in open branch ending with node ${openTerminatorId}`;
 				return response;
 			}
 		}
