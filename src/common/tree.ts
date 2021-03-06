@@ -451,12 +451,23 @@ export class TruthTree {
 	];
 
 	nodes: {[id: number]: TruthTreeNode} = {};
+	private _root: number | undefined;
 	leaves: Set<number> = new Set();
 
 	parser: PropositionalLogicParser = new PropositionalLogicParser();
 
+	get root(): number {
+		if (this._root === undefined) {
+			throw new Error('Undefined root');
+		}
+		return this._root;
+	}
+
+	set root(newRoot) {
+		this._root = newRoot;
+	}
+
 	static deserialize(jsonText: string): TruthTree {
-		// throw new Error('TruthTree#deserialize() not implemented');
 		const newTree = new TruthTree();
 
 		const parsed = JSON.parse(jsonText);
@@ -470,16 +481,33 @@ export class TruthTree {
 			throw new Error('TruthTree#deserialize: The tree is empty.');
 		}
 		try {
+			// Read in each node individually
 			for (const jsonNode of parsed) {
 				const node = TruthTreeNode.fromJSON(newTree, jsonNode);
 				if (node.children.length === 0) {
 					newTree.leaves.add(node.id);
 				}
+
+				// Nodes only have no parent if they are roots
+				if (node.parent === null) {
+					if (newTree._root === undefined) {
+						newTree._root = node.id;
+					} else {
+						// Cannot have two roots, so throw an error
+						throw new Error('Tree has multiple roots.');
+					}
+				}
+
 				newTree.nodes[node.id] = node;
+			}
+
+			// Tree must have exactly one root
+			if (newTree._root === undefined) {
+				throw new Error('Tree has no root.');
 			}
 		} catch (e) {
 			throw new Error(
-				`TruthTree#deserialize: The file does not match the format: ${e.message}`
+				`TruthTree#deserialize: The tree does not match the format: ${e.message}`
 			);
 		}
 
@@ -487,7 +515,6 @@ export class TruthTree {
 	}
 
 	serialize(): string {
-		// throw new Error('TruthTree#serialize() not implemented');
 		const serializedNodes: {
 			[key: string]: string | boolean | number | number[];
 		}[] = [];
