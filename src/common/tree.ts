@@ -94,9 +94,9 @@ class TruthTreeNode {
 	}
 
 	set text(newText: string) {
-		this._text = newText;
+		this._text = newText.trim();
 		try {
-			this.statement = this.tree.parser.parse(this.text);
+			this.statement = new PropositionalLogicParser().parse(this.text);
 		} catch (err) {
 			this.statement = null;
 		}
@@ -515,8 +515,6 @@ export class TruthTree {
 	nodes: {[id: number]: TruthTreeNode} = {};
 	private _root: number | undefined;
 	leaves: Set<number> = new Set();
-
-	parser: PropositionalLogicParser = new PropositionalLogicParser();
 
 	get root(): number {
 		if (this._root === undefined) {

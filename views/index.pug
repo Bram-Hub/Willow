@@ -19,5 +19,9 @@ html(lang='en')
       .dropdown
         button Help
         .dropdown-menu(style={display: 'none'})
+    .container.center#content
+      h2 {{ name }}
+      .truth-tree.left
+        truth-tree
     include /global/footer.pug
     script(src='/js/index.js' type='text/javascript')

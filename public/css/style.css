@@ -15,6 +15,9 @@ body {
   min-height: 100vh;
 }
 
+/**************/
+/*** HEADER ***/
+/**************/
 #header {
   background-color: #c0e0c0;
 }
@@ -32,6 +35,10 @@ body {
 /**************/
 /*** LAYOUT ***/
 /**************/
+.container {
+  margin: 30px 100px;
+}
+
 .row, .column {
   display: flex;
   justify-content: center;
@@ -47,4 +54,27 @@ body {
 
 .row > *, .column > * {
   flex: 1;
+}
+
+.left {
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+a.hidden {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button.hidden {
+  background: none;  
+  border: none;
+  cursor: pointer;
 }
