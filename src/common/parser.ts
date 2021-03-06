@@ -27,7 +27,7 @@ class ParseError extends Error {
 abstract class Parser<T> {
 	cache: {[chars: string]: string[]} = {};
 	text = '';
-	position = 0;
+	position = -1;
 
 	parse(text: string) {
 		this.text = text;
@@ -40,9 +40,9 @@ abstract class Parser<T> {
 	abstract start(): T;
 
 	assertEnd() {
-		if (this.position < this.text.length) {
+		if (this.position + 1 < this.text.length) {
 			throw new ParseError(
-				this.position,
+				this.position + 1,
 				`Expected end of string but got ${this.text[this.position + 1]}`
 			);
 		}
@@ -50,8 +50,8 @@ abstract class Parser<T> {
 
 	consumeWhitespace() {
 		while (
-			this.position < this.text.length &&
-			' \f\v\r\t\n'.includes(this.text[this.position])
+			this.position + 1 < this.text.length &&
+			' \f\v\r\t\n'.includes(this.text[this.position + 1])
 		) {
 			++this.position;
 		}
@@ -84,14 +84,14 @@ abstract class Parser<T> {
 	}
 
 	char(chars: string | null = null): string {
-		if (this.position >= this.text.length) {
+		if (this.position + 1 >= this.text.length) {
 			throw new ParseError(
-				this.position,
+				this.position + 1,
 				`Expected ${chars} but got end of string`
 			);
 		}
 
-		const nextChar = this.text[this.position];
+		const nextChar = this.text[this.position + 1];
 		if (chars === null) {
 			++this.position;
 			return nextChar;
@@ -110,16 +110,18 @@ abstract class Parser<T> {
 		}
 
 		throw new ParseError(
-			this.position,
+			this.position + 1,
 			`Expected ${chars} but got end of string`
 		);
 	}
 
 	keyword(...keywords: string[]): string {
 		this.consumeWhitespace();
-		if (this.position >= this.length) {
-			const txt = `Expected ${keywords.join(',')} but got end of string`;
-			throw new ParseError(this.position + 1, txt);
+		if (this.position + 1 >= this.text.length) {
+			throw new ParseError(
+				this.position + 1,
+				`Expected ${keywords.join(',')} but got end of string`
+			);
 		}
 
 		for (const keyword of keywords) {
@@ -133,10 +135,10 @@ abstract class Parser<T> {
 			}
 		}
 
-		const txt = `Expected ${keywords.join(',')} but got ${
-			this.text[this.position + 1]
-		}`;
-		throw new ParseError(this.position + 1, txt);
+		throw new ParseError(
+			this.position + 1,
+			`Expected ${keywords.join(',')} but got ${this.text[this.position + 1]}`
+		);
 	}
 
 	match(...rules: string[]) {
@@ -169,10 +171,12 @@ abstract class Parser<T> {
 		}
 		// else
 
-		const txt = `Expected ${lastErrorRules.join(',')} but got ${
-			this.text[lastErrorPosition]
-		}`;
-		throw new ParseError(lastErrorPosition, txt);
+		throw new ParseError(
+			lastErrorPosition,
+			`Expected ${lastErrorRules.join(',')} but got ${
+				this.text[lastErrorPosition]
+			}`
+		);
 	}
 
 	maybeChar(chars: string | null = null): string | null {
