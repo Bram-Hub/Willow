@@ -27,8 +27,12 @@ class ParseError extends Error {
 abstract class Parser<T> {
 	cache: {[chars: string]: string[]} = {};
 	text = '';
-	position = -1;
+	position = 0;
 
+	/**
+	 * Parses a string of text according to the ruleset defined by the derived class.
+	 * @param text the text to parse
+	 */
 	parse(text: string) {
 		this.text = text;
 
@@ -37,26 +41,41 @@ abstract class Parser<T> {
 		return rv;
 	}
 
+	/**
+	 * Defined by the derived class to represent the starting term in any CFG.
+	 */
 	abstract start(): T;
 
+	/**
+	 * Ensures that the given string completely matched the pattern as provided by the CFG. If the
+	 * text does not completely match any pattern, it is not within the generated language of the
+	 * CFG.
+	 */
 	assertEnd() {
-		if (this.position + 1 < this.text.length) {
+		if (this.position < this.text.length) {
 			throw new ParseError(
-				this.position + 1,
-				`Expected end of string but got ${this.text[this.position + 1]}`
+				this.position,
+				`Expected end of string but got ${this.text[this.position]}`
 			);
 		}
 	}
 
+	/**
+	 * Pushes the READ position forward until it is not on a whitespace character.
+	 */
 	consumeWhitespace() {
 		while (
-			this.position + 1 < this.text.length &&
-			' \f\v\r\t\n'.includes(this.text[this.position + 1])
+			this.position < this.text.length &&
+			' \f\v\r\t\n'.includes(this.text[this.position])
 		) {
 			++this.position;
 		}
 	}
 
+	/**
+	 * Splits a special format of string into discrete ASCII ranges to parse.
+	 * @param chars a regex-type characterset to expect.
+	 */
 	splitCharRanges(chars: string): string[] {
 		if (chars in this.cache) {
 			return this.cache[chars];
@@ -83,15 +102,20 @@ abstract class Parser<T> {
 		return rv;
 	}
 
+	/**
+	 * Attempts to match the character at the current READ position with a character from the given
+	 * range. If no range is provided, it will match any character.
+	 * @param chars the characterset to read from
+	 */
 	char(chars: string | null = null): string {
-		if (this.position + 1 >= this.text.length) {
+		if (this.position >= this.text.length) {
 			throw new ParseError(
-				this.position + 1,
+				this.position,
 				`Expected ${chars} but got end of string`
 			);
 		}
 
-		const nextChar = this.text[this.position + 1];
+		const nextChar = this.text[this.position];
 		if (chars === null) {
 			++this.position;
 			return nextChar;
@@ -110,22 +134,27 @@ abstract class Parser<T> {
 		}
 
 		throw new ParseError(
-			this.position + 1,
+			this.position,
 			`Expected ${chars} but got end of string`
 		);
 	}
 
+	/**
+	 * Attempts to match with any of the given keywords by slicing the text at the lengths of the
+	 * keywords and comparing.
+	 * @param keywords the keywords to match with
+	 */
 	keyword(...keywords: string[]): string {
 		this.consumeWhitespace();
-		if (this.position + 1 >= this.text.length) {
+		if (this.position >= this.text.length) {
 			throw new ParseError(
-				this.position + 1,
+				this.position,
 				`Expected ${keywords.join(',')} but got end of string`
 			);
 		}
 
 		for (const keyword of keywords) {
-			const low = this.position + 1;
+			const low = this.position;
 			const high = low + keyword.length;
 
 			if (this.text.slice(low, high) === keyword) {
@@ -136,11 +165,17 @@ abstract class Parser<T> {
 		}
 
 		throw new ParseError(
-			this.position + 1,
-			`Expected ${keywords.join(',')} but got ${this.text[this.position + 1]}`
+			this.position,
+			`Expected ${keywords.join(',')} but got ${this.text[this.position]}`
 		);
 	}
 
+	/**
+	 * Attempts to match characters at and after the READ position with the provided rule names.
+	 * The rules are then tested sequentially via recursive descent by calling the function
+	 * named the same as those given in the argument.
+	 * @param keywords the keywords to match with
+	 */
 	match(...rules: string[]) {
 		this.consumeWhitespace();
 		let lastErrorPosition = -1;
@@ -245,9 +280,9 @@ export class PropositionalLogicParser extends Parser<Statement> {
 			return new ConditionalStatement(e2, stmt);
 		}
 		throw new ParseError(
-			this.position + 1,
+			this.position,
 			`Expected biconditional/conditional operator but got ${
-				this.text[this.position + 1]
+				this.text[this.position]
 			}`
 		);
 	}
@@ -287,10 +322,11 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		) {
 			return new ConditionalStatement(e2, stmt);
 		}
+
 		throw new ParseError(
-			this.position + 1,
+			this.position,
 			`Expected biconditional/conditional operator but got ${
-				this.text[this.position + 1]
+				this.text[this.position]
 			}`
 		);
 	}
