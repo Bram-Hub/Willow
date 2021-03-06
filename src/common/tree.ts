@@ -1,4 +1,4 @@
-import {PL_Parser} from './parser';
+import {PropositionalLogicParser} from './parser';
 import {Statement, AtomicStatement, NotStatement} from './statement';
 
 class TruthTreeNode {
@@ -453,7 +453,7 @@ export class TruthTree {
 	nodes: {[id: number]: TruthTreeNode} = {};
 	leaves: Set<number> = new Set();
 
-	parser: PL_Parser = new PL_Parser();
+	parser: PropositionalLogicParser = new PropositionalLogicParser();
 
 	static deserialize(jsonText: string): TruthTree {
 		// throw new Error('TruthTree#deserialize() not implemented');

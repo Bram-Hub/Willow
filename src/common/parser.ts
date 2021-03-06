@@ -17,25 +17,21 @@ class ParseError extends Error {
 		this.position = position;
 		this.message = message;
 
-		// set it to be a ParseError instead of an Error, thanks TS!
+		// Set it to be a ParseError instead of an Error, thanks TypeScript!
+		// Without this, throwing an instance of ParseError appears as an Error in
+		// the console.
 		Object.setPrototypeOf(this, ParseError.prototype);
 	}
 }
 
 abstract class Parser<T> {
-	cache: {[chars: string]: string[]};
+	cache: {[chars: string]: string[]} = {};
 	text = '';
-	position = -1;
-	length = -1;
-
-	constructor() {
-		this.cache = {};
-	}
+	position = 0;
 
 	parse(text: string) {
 		this.text = text;
-		this.position = -1;
-		this.length = text.length - 1;
+
 		const rv = this.start();
 		this.assertEnd();
 		return rv;
@@ -44,20 +40,20 @@ abstract class Parser<T> {
 	abstract start(): T;
 
 	assertEnd() {
-		if (this.position < this.length) {
-			const txt = `Expected end of string but got ${
-				this.text[this.position + 1]
-			}`;
-			throw new ParseError(this.position + 1, txt);
+		if (this.position < this.text.length) {
+			throw new ParseError(
+				this.position,
+				`Expected end of string but got ${this.text[this.position + 1]}`
+			);
 		}
 	}
 
-	eatWhitespace() {
+	consumeWhitespace() {
 		while (
-			this.position < this.length &&
-			' \f\v\r\t\n'.includes(this.text[this.position + 1])
+			this.position < this.text.length &&
+			' \f\v\r\t\n'.includes(this.text[this.position])
 		) {
-			this.position++;
+			++this.position;
 		}
 	}
 
@@ -88,35 +84,39 @@ abstract class Parser<T> {
 	}
 
 	char(chars: string | null = null): string {
-		if (this.position >= this.length) {
-			const txt = `Expected ${chars} but got end of string`;
-			throw new ParseError(this.position + 1, txt);
+		if (this.position >= this.text.length) {
+			throw new ParseError(
+				this.position,
+				`Expected ${chars} but got end of string`
+			);
 		}
 
-		const nextChar = this.text[this.position + 1];
+		const nextChar = this.text[this.position];
 		if (chars === null) {
-			this.position++;
+			++this.position;
 			return nextChar;
 		}
 
 		for (const charRange of this.splitCharRanges(chars)) {
 			if (charRange.length === 1) {
 				if (nextChar === charRange) {
-					this.position++;
+					++this.position;
 					return nextChar;
 				}
 			} else if (charRange[0] <= nextChar && nextChar <= charRange[2]) {
-				this.position++;
+				++this.position;
 				return nextChar;
 			}
 		}
 
-		const txt = `Expected ${chars} but got ${nextChar}`;
-		throw new ParseError(this.position + 1, txt);
+		throw new ParseError(
+			this.position,
+			`Expected ${chars} but got end of string`
+		);
 	}
 
 	keyword(...keywords: string[]): string {
-		this.eatWhitespace();
+		this.consumeWhitespace();
 		if (this.position >= this.length) {
 			const txt = `Expected ${keywords.join(',')} but got end of string`;
 			throw new ParseError(this.position + 1, txt);
@@ -128,7 +128,7 @@ abstract class Parser<T> {
 
 			if (this.text.slice(low, high) === keyword) {
 				this.position += keyword.length;
-				this.eatWhitespace();
+				this.consumeWhitespace();
 				return keyword;
 			}
 		}
@@ -140,7 +140,7 @@ abstract class Parser<T> {
 	}
 
 	match(...rules: string[]) {
-		this.eatWhitespace();
+		this.consumeWhitespace();
 		let lastErrorPosition = -1;
 		let lastException = undefined;
 		let lastErrorRules: string[] = [];
@@ -150,7 +150,7 @@ abstract class Parser<T> {
 			try {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const rv = (this as any)[rule]();
-				this.eatWhitespace();
+				this.consumeWhitespace();
 				return rv;
 			} catch (e) {
 				this.position = initialPosition;
@@ -211,8 +211,8 @@ abstract class Parser<T> {
  * and_expr        -> "and" not_expr and_expr      | eps
  * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
  */
-export class PL_Parser extends Parser<Statement> {
-	operators = {
+export class PropositionalLogicParser extends Parser<Statement> {
+	static readonly OPERATORS = {
 		iff: ['↔', '<->', '%', 'iff', 'equiv'],
 		implies: ['→', '->', '$', 'implies', 'only if'],
 		and: ['∧', '&', 'and'],
@@ -235,9 +235,9 @@ export class PL_Parser extends Parser<Statement> {
 		const op = f1[0],
 			stmt = f1[1];
 
-		if (this.operators['iff'].includes(op)) {
+		if (PropositionalLogicParser.OPERATORS['iff'].includes(op)) {
 			return new BiconditionalStatement(e2, stmt);
-		} else if (this.operators['implies'].includes(op)) {
+		} else if (PropositionalLogicParser.OPERATORS['implies'].includes(op)) {
 			return new ConditionalStatement(e2, stmt);
 		}
 		throw new ParseError(
@@ -258,8 +258,8 @@ export class PL_Parser extends Parser<Statement> {
         */
 
 		const op = this.maybeKeyword(
-			...this.operators['iff'],
-			...this.operators['implies']
+			...PropositionalLogicParser.OPERATORS['iff'],
+			...PropositionalLogicParser.OPERATORS['implies']
 		);
 		if (op === null) {
 			// epsilon
@@ -276,9 +276,11 @@ export class PL_Parser extends Parser<Statement> {
 		const nestedOp = f1[0],
 			stmt = f1[1];
 
-		if (this.operators['iff'].includes(nestedOp)) {
+		if (PropositionalLogicParser.OPERATORS['iff'].includes(nestedOp)) {
 			return new BiconditionalStatement(e2, stmt);
-		} else if (this.operators['implies'].includes(nestedOp)) {
+		} else if (
+			PropositionalLogicParser.OPERATORS['implies'].includes(nestedOp)
+		) {
 			return new ConditionalStatement(e2, stmt);
 		}
 		throw new ParseError(
@@ -305,7 +307,7 @@ export class PL_Parser extends Parser<Statement> {
 	}
 
 	orExpr(): OrStatement | null {
-		const op = this.maybeKeyword(...this.operators['or']);
+		const op = this.maybeKeyword(...PropositionalLogicParser.OPERATORS['or']);
 		if (op === null) {
 			// epsilon
 			return null;
@@ -342,7 +344,7 @@ export class PL_Parser extends Parser<Statement> {
 	}
 
 	andExpr(): AndStatement | null {
-		const op = this.maybeKeyword(...this.operators['and']);
+		const op = this.maybeKeyword(...PropositionalLogicParser.OPERATORS['and']);
 		if (op === null) {
 			// eps
 			return null;
@@ -364,7 +366,7 @@ export class PL_Parser extends Parser<Statement> {
 	}
 
 	notExpr(): Statement {
-		if (this.maybeKeyword(...this.operators['not'])) {
+		if (this.maybeKeyword(...PropositionalLogicParser.OPERATORS['not'])) {
 			// not statement
 			const notStmt = this.match('notExpr');
 
