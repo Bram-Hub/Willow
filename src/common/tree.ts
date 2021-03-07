@@ -106,6 +106,14 @@ class TruthTreeNode {
 		return this._statement;
 	}
 
+	/**
+	 * Sets the statement of this node equal to the new statement.
+	 * 
+	 * Since it's a new statement, the correct decomposition calculated for this node is
+	 * invalidated. The antecedent (the node that possibly contains this node in its correct
+	 * decomposition) also has its correct decomposition invalidated since the change to this node
+	 * could make or break that "correct decomposition."
+	 */
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
 		this.correctDecomposition = null;
