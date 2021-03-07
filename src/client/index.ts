@@ -1,10 +1,7 @@
 import * as vue from 'vue';
 import * as vuex from 'vuex';
-import {PropositionalLogicParser} from '../common/parser';
 import {TruthTree} from '../common/tree';
 import {TruthTreeComponent} from './component/truth-tree';
-
-console.log(new PropositionalLogicParser().parse('L ∨ M'));
 
 document.querySelectorAll('#toolbar > .dropdown > button').forEach(button => {
 	button.addEventListener('click', () => {

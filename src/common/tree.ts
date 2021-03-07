@@ -233,6 +233,9 @@ class TruthTreeNode {
 
 	set correctDecomposition(newCorrectDecomposition: Set<number> | null) {
 		this._correctDecomposition = newCorrectDecomposition;
+		if (newCorrectDecomposition === null) {
+			console.log(`Invalidating correct decomposition on node ${this.id}`);
+		}
 	}
 
 	/**
@@ -287,9 +290,6 @@ class TruthTreeNode {
 		}
 
 		if (antecedentNode.correctDecomposition!.has(this.id)) {
-			console.log(`${this.id}: ${this.statement}`);
-			console.log(`${this.antecedent}'s correct decomp:`);
-			console.log(antecedentNode.correctDecomposition!);
 			return response;
 		}
 
