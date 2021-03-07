@@ -109,6 +109,10 @@ class TruthTreeNode {
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
 		this.correctDecomposition = null;
+		// Anything that references this is also invalid.
+		if (this.antecedent !== null) {
+			this.tree.nodes[this.antecedent].correctDecomposition = null;
+		}
 	}
 
 	/**
@@ -251,7 +255,7 @@ class TruthTreeNode {
 				return response;
 			}
 
-			response[this.id] = 'isValid: Not a parsable statement.';
+			response[this.id] = `isValid: '${this.text}' is not a parsable statement.`;
 			return response;
 		}
 
@@ -260,20 +264,24 @@ class TruthTreeNode {
 			response[this.id] = 'Non-premise does not have an antecedent.';
 			return response;
 		}
-		const antecedentNode = this.tree.nodes[this.antecedent];
+		
 		// The antecedent must have been successfully parsed into a statement
+		const antecedentNode = this.tree.nodes[this.antecedent];		
 		if (antecedentNode.statement === null) {
 			response[this.id] = 'Antecedent is not a parsable statement.';
 			return response;
 		}
 
+		// The antecedent must be in the ancestor branch
 		if (!this.getAncestorBranch().has(this.antecedent)) {
-			// The antecedent must be in the ancestor branch
 			response[this.id] = 'Antecedent is not an ancestor.';
 			return response;
 		}
 
 		if (antecedentNode.correctDecomposition!.has(this.id)) {
+			console.log(`${this.id}: ${this.statement}`);
+			console.log(`${this.antecedent}'s correct decomp:`);
+			console.log(antecedentNode.correctDecomposition!);
 			return response;
 		}
 
@@ -422,7 +430,7 @@ class TruthTreeNode {
 				return response;
 			}
 
-			response[this.id] = 'isDecomposed: Not a parsable statement.';
+			response[this.id] = `isDecomposed: '${this.text}' is not a parsable statement.`;
 			return response;
 			// return false;
 		}
