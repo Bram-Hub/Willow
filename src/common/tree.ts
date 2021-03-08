@@ -621,8 +621,7 @@ export class TruthTree {
 				serializedNode.premise = node.premise;
 			}
 
-			if (node.parent) {
-				console.log(node.parent);
+			if (node.parent !== null) {
 				serializedNode.parent = node.parent;
 			}
 
