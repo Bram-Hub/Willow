@@ -9,7 +9,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "node/no-unpublished-require": ["none"],
-    "@typescript-eslint/no-explicit-any": ["none"]
+    "node/no-unpublished-require": 0,
+    "@typescript-eslint/no-explicit-any": 0
   }
 }

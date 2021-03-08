@@ -108,7 +108,7 @@ class TruthTreeNode {
 
 	/**
 	 * Sets the statement of this node equal to the new statement.
-	 * 
+	 *
 	 * Since it's a new statement, the correct decomposition calculated for this node is
 	 * invalidated. The antecedent (the node that possibly contains this node in its correct
 	 * decomposition) also has its correct decomposition invalidated since the change to this node
@@ -266,7 +266,9 @@ class TruthTreeNode {
 				return response;
 			}
 
-			response[this.id] = `isValid: '${this.text}' is not a parsable statement.`;
+			response[
+				this.id
+			] = `isValid: '${this.text}' is not a parsable statement.`;
 			return response;
 		}
 
@@ -275,9 +277,9 @@ class TruthTreeNode {
 			response[this.id] = 'Non-premise does not have an antecedent.';
 			return response;
 		}
-		
+
 		// The antecedent must have been successfully parsed into a statement
-		const antecedentNode = this.tree.nodes[this.antecedent];		
+		const antecedentNode = this.tree.nodes[this.antecedent];
 		if (antecedentNode.statement === null) {
 			response[this.id] = 'Antecedent is not a parsable statement.';
 			return response;
@@ -438,7 +440,9 @@ class TruthTreeNode {
 				return response;
 			}
 
-			response[this.id] = `isDecomposed: '${this.text}' is not a parsable statement.`;
+			response[
+				this.id
+			] = `isDecomposed: '${this.text}' is not a parsable statement.`;
 			return response;
 			// return false;
 		}

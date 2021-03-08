@@ -4,13 +4,12 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import * as bodyParser from 'body-parser';
+import {execSync} from 'child_process';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as morgan from 'morgan';
 import * as path from 'path';
-
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 import {performance} from 'perf_hooks';
 
 import {logger} from './logger';
@@ -81,7 +80,11 @@ class Server {
 			);
 		}
 
-		this.app.get('/', (req, res) => res.render('index'));
+		this.app.get('/', (req, res) =>
+			res.render('index', {
+				commit: execSync('git rev-parse HEAD').toString().trim(),
+			})
+		);
 		this.app.get('*', (req, res) => res.render('error', {code: 404}));
 	}
 

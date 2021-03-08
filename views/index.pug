@@ -6,22 +6,40 @@ html(lang='en')
     link(href='/css/index.css' rel='stylesheet' type='text/css')
   body
     include /global/header.pug
-    #toolbar
-      .dropdown
-        button File
-        .dropdown-menu(style={display: 'none'})
-          a.menu-option(href='/' target='blank') New
-          hr
-          button.menu-option(onclick='window.close()') Quit
-      .dropdown
-        button Edit
-        .dropdown-menu(style={display: 'none'})
-      .dropdown
-        button Help
-        .dropdown-menu(style={display: 'none'})
-    .container.center#content
-      h2 {{ name }}
-      .truth-tree.left
-        truth-tree
+    #content
+      #toolbar
+        .dropdown
+          button File
+          .dropdown-menu(style={display: 'none'})
+            a.menu-option(href='/' target='blank') New
+            hr
+            button.menu-option(@click='openFile') Open
+            .hidden
+              input#open-file(type='file' @change='loadFile($event)')
+            hr
+            button.menu-option(@click='saveFile') Save
+            button.menu-option(@click='saveFileAs') Save as...
+            hr
+            button.menu-option(onclick='window.close()') Quit
+        .dropdown
+          button Edit
+          .dropdown-menu(style={display: 'none'})
+        .dropdown
+          button Help
+          .dropdown-menu(style={display: 'none'})
+            button.menu-option(onclick='document.querySelector("#about-modal").style.display = "initial"') About
+            hr
+            a.menu-option(href='https://github.com/connorjayr/Willow/issues' target='_blank') Report a bug
+      .container.center
+        h2 {{ name }}
+        .truth-tree.left
+          truth-tree
+    #about-modal.modal.card(style={display: 'none'})
+      i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+      .row
+        img(src='/img/logo.png' width='100')
+        div
+          h2 About Willow
+          p Commit #{commit}
     include /global/footer.pug
     script(src='/js/index.js' type='text/javascript')
