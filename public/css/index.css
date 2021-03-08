@@ -51,8 +51,17 @@
 
 #toolbar > .dropdown > .dropdown-menu > hr {
   border: none;
-  border-top: 1px solid #c0c0c0;
+  border-top: 1px solid #d0d0d0;
   margin: 0px;
+}
+
+#about-modal {
+  width: 600px;
+}
+
+#about-modal img {
+  flex: 0 100px;
+  margin-right: 30px;
 }
 
 .branch-line {
@@ -80,11 +89,11 @@
 }
 
 .truth-tree i.fas.fa-check {
-  color: #c0e0c0;
+  color: #80c080;
 }
 
 .truth-tree i.fas.fa-times {
-  color: #e0c0c0;
+  color: #c08080;
 }
 
 .statement {
