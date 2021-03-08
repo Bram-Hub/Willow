@@ -618,6 +618,7 @@ export class TruthTree {
 			}
 
 			if (node.parent) {
+				console.log(node.parent);
 				serializedNode.parent = node.parent;
 			}
 
