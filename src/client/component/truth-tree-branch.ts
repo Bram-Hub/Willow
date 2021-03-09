@@ -31,10 +31,17 @@ export const TruthTreeBranchComponent: vue.Component = {
 	template: `
     <ul class="branch">
       <template v-for="id, index in branch">
-        <li v-if="index === 0 || expanded">
+        <li v-if="index === 0 || expanded" @click="$store.commit('select', id)"
+						:class="{
+							selected: $store.state.selected === id,
+							antecedent: $store.getters.selectedNode !== null
+									&& $store.getters.selectedNode.antecedent === id,
+							decomposition: $store.getters.selectedNode !== null
+									&& $store.getters.selectedNode.decomposition.has(id),
+						}">
           <truth-tree-node :id="id"></truth-tree-node>
           <button v-if="index === 0 && headNode.children.length > 0"
-              class="hidden" @click="expanded = !expanded">
+              class="expand-btn hidden" @click="expanded = !expanded">
             <i :class="[
               'fas',
               expanded ? 'fa-chevron-down' : 'fa-chevron-right',

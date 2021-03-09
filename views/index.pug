@@ -24,12 +24,15 @@ html(lang='en')
         .dropdown
           button Edit
           .dropdown-menu(style={display: 'none'})
+            button.menu-option(@click='addStatementBefore') Add statement before
+            button.menu-option(@click='addStatementAfter') Add statement after
         .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})
             button.menu-option(onclick='document.querySelector("#about-modal").style.display = "initial"') About
             hr
             a.menu-option(href='https://github.com/connorjayr/Willow/issues' target='_blank') Report a bug
+            button.menu-option(@click='toggleDeveloperMode') Toggle developer mode
       .container.center
         h2 {{ name }}
         .truth-tree.left

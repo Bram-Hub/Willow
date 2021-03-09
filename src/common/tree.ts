@@ -5,7 +5,7 @@ interface Response {
 	[id: number]: string;
 }
 
-class TruthTreeNode {
+export class TruthTreeNode {
 	id: number;
 
 	private _text = '';
@@ -555,6 +555,18 @@ export class TruthTree {
 		this._root = newRoot;
 	}
 
+	/**
+	 * Returns an empty truth tree, which contains a single (empty) node.
+	 * @return the empty truth tree
+	 */
+	static empty(): TruthTree {
+		const tree = new TruthTree();
+		tree.nodes[0] = new TruthTreeNode(0, tree);
+		tree.root = 0;
+		tree.leaves.add(0);
+		return tree;
+	}
+
 	static deserialize(jsonText: string): TruthTree {
 		const newTree = new TruthTree();
 
@@ -633,6 +645,17 @@ export class TruthTree {
 		}
 
 		return JSON.stringify(serializedNodes);
+	}
+
+	/**
+	 * Returns a node with the given id, or null if no such node exists.
+	 * @param id the node id
+	 * @returns a node whose id is `id`, or null if no such node exists
+	 */
+	getNode(id: number | null | undefined): TruthTreeNode | null {
+		return id !== null && id !== undefined && id in this.nodes
+			? this.nodes[id]
+			: null;
 	}
 
 	/**

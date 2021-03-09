@@ -96,6 +96,36 @@
   color: #c08080;
 }
 
+.selected {
+  background-color: rgba(51, 153, 255, 0.5);
+}
+
+.antecedent {
+  background-color: rgba(128, 192, 128, 0.5);
+}
+
+.antecedent::after {
+  content: 'logical consequence of';
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+.decomposition {
+  background-color: rgba(192, 128, 128, 0.5);
+}
+
+.decomposition::after {
+  content: 'decomposes into';
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
 .statement {
   margin: 2px;
 }
@@ -103,8 +133,13 @@
 .premise-label {
   color: #808080;
   display: inline-block;
+  font-size: 10pt;
   font-style: italic;
   margin: 0px 0px 0px 10px;
+}
+
+.expand-btn {
+  margin-left: 10px;
 }
 
 .open-terminator, .closed-terminator {
