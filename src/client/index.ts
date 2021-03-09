@@ -49,7 +49,7 @@ vue
 						);
 					}
 					try {
-						this.$store.state.tree = TruthTree.deserialize(fileContents);
+						this.$store.commit('setTree', TruthTree.deserialize(fileContents));
 					} catch (err) {
 						alert(
 							'The selected file does not contain a truth tree. Perhaps you selected the wrong file, or the file has been corrupted.'
@@ -356,6 +356,11 @@ vue
 								"antecedent": 4
 						}
 				]`),
+			},
+			mutations: {
+				setTree(state, tree) {
+					state.tree = tree;
+				},
 			},
 		})
 	)
