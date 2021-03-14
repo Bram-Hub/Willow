@@ -310,3 +310,64 @@ export class OrStatement extends CommutativeStatement {
 		return `(${this.operands.join(' ∨ ')})`;
 	}
 }
+
+export abstract class QuantifierStatement extends Statement {
+	variables: AtomicStatement[];
+	formula: Statement;
+
+	constructor(variables: AtomicStatement[], formula: Statement) {
+		super();
+		this.variables = variables;
+		this.formula = formula;
+	}
+}
+
+export class ExistenceStatement extends QuantifierStatement {
+	constructor(variables: AtomicStatement[], formula: Statement) {
+		super(variables, formula);
+	}
+
+	decompose() {
+		throw new Error('ExistenceStatement#decompose: Not implemented.');
+		return [];
+	}
+
+	equals(other: Statement): boolean {
+		return (
+			other instanceof ExistenceStatement &&
+			this.variables.every((variable, index) =>
+				other.variables[index].equals(variable)
+			) &&
+			this.formula.equals(other.formula)
+		);
+	}
+
+	toString() {
+		return `∃${this.variables.join(',')} ${this.formula}`;
+	}
+}
+
+export class UniversalStatement extends QuantifierStatement {
+	constructor(variables: AtomicStatement[], formula: Statement) {
+		super(variables, formula);
+	}
+
+	decompose() {
+		throw new Error('UniversalStatement#decompose: Not implemented.');
+		return [];
+	}
+
+	equals(other: Statement): boolean {
+		return (
+			other instanceof UniversalStatement &&
+			this.variables.every((variable, index) =>
+				other.variables[index].equals(variable)
+			) &&
+			this.formula.equals(other.formula)
+		);
+	}
+
+	toString() {
+		return `∀${this.variables.join(',')} ${this.formula}`;
+	}
+}

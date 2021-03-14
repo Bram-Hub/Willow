@@ -6,6 +6,9 @@ import {
 	BiconditionalStatement,
 	AndStatement,
 	OrStatement,
+	UniversalStatement,
+	ExistenceStatement,
+	QuantifierStatement,
 } from './statement';
 
 class ParseError extends Error {
@@ -278,12 +281,12 @@ export class PropositionalLogicParser extends Parser<Statement> {
 	};
 
 	start(): Statement {
-		return this.exprGen();
+		return this.propositionalLogicExpressionGenerator();
 	}
 
-	exprGen(): Statement {
-		const e2 = this.match('orExprGen');
-		const f1 = this.match('expr');
+	propositionalLogicExpressionGenerator(): Statement {
+		const e2 = this.match('orExprGenerator');
+		const f1 = this.match('propositionalLogicExpression');
 		if (f1 === null) {
 			// epsilon
 			return e2;
@@ -305,7 +308,7 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		);
 	}
 
-	expr() {
+	propositionalLogicExpression() {
 		/*
         returns one of:
             - BiconditionalStatement
@@ -323,8 +326,8 @@ export class PropositionalLogicParser extends Parser<Statement> {
 			return null;
 		}
 
-		const e2 = this.match('orExprGen');
-		const f1 = this.match('expr');
+		const e2 = this.match('orExprGenerator');
+		const f1 = this.match('propositionalLogicExpression');
 		if (f1 === null) {
 			// epsilon
 			return [op, e2];
@@ -349,9 +352,9 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		);
 	}
 
-	orExprGen(): Statement {
-		const e3 = this.match('andExprGen');
-		const f2 = this.match('orExpr');
+	orExprGenerator(): Statement {
+		const e3 = this.match('andExpressionGenerator');
+		const f2 = this.match('orExpression');
 		if (f2 === null) {
 			return e3;
 		}
@@ -364,15 +367,15 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		return new OrStatement(e3, f2);
 	}
 
-	orExpr(): OrStatement | null {
+	orExpression(): OrStatement | null {
 		const op = this.maybeKeyword(...PropositionalLogicParser.OPERATORS['or']);
 		if (op === null) {
 			// epsilon
 			return null;
 		}
 
-		const e3 = this.match('andExprGen');
-		const f2 = this.match('orExpr');
+		const e3 = this.match('andExpressionGenerator');
+		const f2 = this.match('orExpression');
 		if (f2 === null) {
 			return e3;
 		}
@@ -385,9 +388,9 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		return new OrStatement(e3, f2);
 	}
 
-	andExprGen(): Statement {
-		const e4 = this.match('notExpr');
-		const f3 = this.match('andExpr');
+	andExpressionGenerator(): Statement {
+		const e4 = this.match('unaryExpression');
+		const f3 = this.match('andExpression');
 		if (f3 === null) {
 			// eps
 			return e4;
@@ -401,15 +404,15 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		return new AndStatement(e4, f3);
 	}
 
-	andExpr(): AndStatement | null {
+	andExpression(): AndStatement | null {
 		const op = this.maybeKeyword(...PropositionalLogicParser.OPERATORS['and']);
 		if (op === null) {
 			// eps
 			return null;
 		}
 
-		const e4 = this.match('notExpr');
-		const f3 = this.match('andExpr');
+		const e4 = this.match('unaryExpression');
+		const f3 = this.match('andExpression');
 		if (f3 === null) {
 			// eps
 			return e4;
@@ -423,21 +426,126 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		return new AndStatement(e4, f3);
 	}
 
-	notExpr(): Statement {
+	unaryExpression(): Statement {
 		if (this.maybeKeyword(...PropositionalLogicParser.OPERATORS['not'])) {
 			// not statement
-			const notStmt = this.match('notExpr');
+			const notStmt = this.match('unaryExpression');
 
 			return new NotStatement(notStmt);
 		} else if (this.maybeKeyword('(')) {
 			// parenthesized statement
-			const parensStmt = this.match('exprGen');
+			const parensStmt = this.match('expressionGenerator');
 			this.keyword(')');
 
 			return parensStmt;
 		}
 
 		return new AtomicStatement(this.match('identifier'));
+	}
+
+	identifier(): string {
+		const acceptableChars = '0-9A-Za-z';
+		const chars = [this.char(acceptableChars)];
+
+		let char: string | null = this.maybeChar(acceptableChars);
+
+		while (char !== null) {
+			chars.push(char);
+			char = this.maybeChar(acceptableChars);
+		}
+
+		return chars.join('');
+	}
+}
+
+/**
+ * Provides a parser for the following LL(1) Propositional Logic Grammar:
+ * start           -> expr_gen
+ * expr_gen        -> or_expr_gen expr
+ * expr            -> "iff" or_expr_gen expr       | "implies" or_expr_gen expr    | eps
+ * or_expr_gen     -> and_expr_gen or_expr
+ * or_expr         -> "or" and_expr_gen or_expr                                    | eps
+ * and_expr_gen    -> not_expr and_expr
+ * and_expr        -> "and" not_expr and_expr      | eps
+ * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
+ */
+export class FirstOrderLogicParser extends PropositionalLogicParser {
+	static readonly OPERATORS = {
+		forall: ['∀', 'forall'],
+		exists: ['∃', 'exists'],
+		iff: ['↔', '<->', '%', 'iff', 'equiv'],
+		implies: ['→', '->', '$', 'implies', 'only if'],
+		and: ['∧', '&', 'and'],
+		or: ['∨', '|', 'or'],
+		not: ['¬', '!', '~', 'not'],
+	};
+
+	unaryExpression(): Statement {
+		if (this.maybeKeyword(...FirstOrderLogicParser.OPERATORS['not'])) {
+			// not statement
+			const notStatement = this.match('unaryExpression');
+
+			return new NotStatement(notStatement);
+		} else if (
+			this.maybeKeyword(...FirstOrderLogicParser.OPERATORS['forall'])
+		) {
+			// universal statement
+			const variables = this.match('identifierList');
+			const formula = this.match('unaryExpression');
+
+			return new UniversalStatement(variables, formula);
+		} else if (
+			this.maybeKeyword(...FirstOrderLogicParser.OPERATORS['exists'])
+		) {
+			// existence statement
+			const variables = this.match('identifierList');
+			const formula = this.match('unaryExpression');
+
+			return new ExistenceStatement(variables, formula);
+		} else if (this.maybeKeyword('(')) {
+			// parenthesized statement
+			const parensStmt = this.match('expressionGenerator');
+			this.keyword(')');
+
+			return parensStmt;
+		}
+
+		return new AtomicStatement(this.match('predicate'));
+	}
+
+	predicate(): string {
+		const functionSymbol = this.match('identifier');
+
+		// If there is no open parenthesis, then it must be the innermost identifier
+		if (this.maybeChar('(') === null) {
+			return functionSymbol;
+		}
+		// Otherwise, it is a function definition i.e. f( ? )
+		const innerIdentifier = this.match('predicate');
+
+		// Make sure to consume the closing parenthesis
+		this.char(')');
+
+		return `${functionSymbol}(${innerIdentifier})`;
+	}
+
+	identifierList(): AtomicStatement[] {
+		const head = this.match('identifier');
+		const tail = this.match('identifierListTail');
+
+		return [head, ...tail];
+	}
+
+	identifierListTail(): AtomicStatement[] {
+		// Must start with a ','
+		if (this.maybeChar(',') === null) {
+			return [];
+		}
+
+		const head = this.match('identifier');
+		const tail = this.match('identifierListTail');
+
+		return [head, ...tail];
 	}
 
 	identifier(): string {
