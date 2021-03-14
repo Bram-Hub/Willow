@@ -8,8 +8,8 @@ import {
 	OrStatement,
 	UniversalStatement,
 	ExistenceStatement,
-	QuantifierStatement,
 } from './statement';
+import {Formula} from '../common/formula';
 
 class ParseError extends Error {
 	position: number;
@@ -475,9 +475,9 @@ export class PropositionalLogicParser extends Parser<Statement> {
  * 					 | "forall" id_list unary_expr
  * 					 | "exists" id_list unary_expr
  * 					 | "(" expr_gen ")"
- * 					 | predicate
- * predicate		-> id predicate_tail
- * predicate_tail	-> ( predicate )
+ * 					 | formula
+ * formula			-> id formula_tail
+ * formula_tail		-> ( formula )
  * 					 | eps
  */
 export class FirstOrderLogicParser extends PropositionalLogicParser {
@@ -502,17 +502,17 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 		) {
 			// universal statement
 			const variables = this.match('identifierList');
-			const formula = this.match('unaryExpression');
+			const statement = this.match('unaryExpression');
 
-			return new UniversalStatement(variables, formula);
+			return new UniversalStatement(variables, statement);
 		} else if (
 			this.maybeKeyword(...FirstOrderLogicParser.OPERATORS['exists'])
 		) {
 			// existence statement
 			const variables = this.match('identifierList');
-			const formula = this.match('unaryExpression');
+			const statement = this.match('unaryExpression');
 
-			return new ExistenceStatement(variables, formula);
+			return new ExistenceStatement(variables, statement);
 		} else if (this.maybeKeyword('(')) {
 			// parenthesized statement
 			const parensStmt = this.match('expressionGenerator');
@@ -521,59 +521,56 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 			return parensStmt;
 		}
 
-		return new AtomicStatement(this.match('predicate'));
+		return new AtomicStatement(this.match('formula'));
 	}
 
-	predicate(): string {
+	formula(): Formula {
 		const functionSymbol = this.match('identifier');
-		const innerIdentifier = this.match('predicateTail');
-		if (innerIdentifier === null) {
-			return functionSymbol;
-		}
+		const innerIdentifier = this.match('formulaTail');
 
-		return `${functionSymbol}(${innerIdentifier})`;
+		return new Formula(functionSymbol, innerIdentifier);
 	}
 
-	predicateTail(): string | null {
+	formulaTail(): Formula[] | null {
 		// If there is no open parenthesis, then it must be the innermost identifier
 		if (this.maybeKeyword('(') === null) {
 			return null;
 		}
 		// Otherwise, it is a function definition i.e. f( ? )
-		const innerIdentifier = this.match('predicateList');
+		const innerIdentifier = this.match('formulaList');
 
 		// Make sure to consume the closing parenthesis
 		this.keyword(')');
 		return innerIdentifier;
 	}
 
-	predicateList(): AtomicStatement[] {
-		const head = this.match('predicate');
-		const tail = this.match('predicateListTail');
+	formulaList(): Formula[] {
+		const head = this.match('formula');
+		const tail = this.match('formulaListTail');
 
 		return [head, ...tail];
 	}
 
-	predicateListTail(): AtomicStatement[] {
+	formulaListTail(): Formula[] {
 		// Must start with a ','
 		if (this.maybeKeyword(',') === null) {
 			return [];
 		}
 
-		const head = this.match('predicate');
-		const tail = this.match('predicateListTail');
+		const head = this.match('formula');
+		const tail = this.match('formulaListTail');
 
 		return [head, ...tail];
 	}
 
-	identifierList(): AtomicStatement[] {
+	identifierList(): Formula[] {
 		const head = this.match('identifier');
 		const tail = this.match('identifierListTail');
 
-		return [head, ...tail];
+		return [new Formula(head), ...tail];
 	}
 
-	identifierListTail(): AtomicStatement[] {
+	identifierListTail(): Formula[] {
 		// Must start with a ','
 		if (this.maybeKeyword(',') === null) {
 			return [];
@@ -582,6 +579,6 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 		const head = this.match('identifier');
 		const tail = this.match('identifierListTail');
 
-		return [head, ...tail];
+		return [new Formula(head), ...tail];
 	}
 }

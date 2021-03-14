@@ -1,3 +1,9 @@
+import {
+	Formula,
+	UNIVERSAL_REPLACEMENT_SYMBOL,
+	EXISTENTIAL_REPLACEMENT_SYMBOL,
+} from '../common/formula';
+
 export abstract class Statement {
 	/**
 	 * Determines whether or not this statement is a literal, which is either an
@@ -17,6 +23,15 @@ export abstract class Statement {
 	 * @returns the decomposed statements by branch
 	 */
 	abstract decompose(): Statement[][];
+
+	/**
+	 * Determines whether or not this statement is equal to another statement.
+	 * @param other the other statement
+	 * @returns true if this statement is equal to `other`, false otherwise
+	 */
+	equals(other: Statement): boolean {
+		return new StatementEquivalenceEvaluator(this, other).checkEquivalence();
+	}
 
 	/**
 	 * Determines whether or not the given list of branches is a correct
@@ -66,11 +81,12 @@ export abstract class Statement {
 	}
 
 	/**
-	 * Determines whether or not this statement is equal to another statement.
-	 * @param other the other statement
-	 * @returns true if this statement is equal to `other`, false otherwise
+	 * Replaces the given variables from the argument within the statement to a symbolized version
+	 * as specified by the other argument.
+	 * @param variables the variables to symbolize
+	 * @param symbol the special symbol to modify the variables
 	 */
-	abstract equals(other: Statement): boolean;
+	abstract symbolized(variables: Formula[], symbol: string): Statement;
 
 	/**
 	 * Converts this statement to a string.
@@ -88,6 +104,10 @@ export class Tautology extends Statement {
 		return other instanceof Tautology;
 	}
 
+	symbolized() {
+		return this;
+	}
+
 	toString() {
 		return '⊤';
 	}
@@ -102,35 +122,43 @@ export class Contradiction extends Statement {
 		return other instanceof Contradiction;
 	}
 
+	symbolized() {
+		return this;
+	}
+
 	toString() {
 		return '⊥';
 	}
 }
 
 export class AtomicStatement extends Statement {
-	identifier: string;
+	formula: Formula;
 
 	/**
-	 * Constructs a new `AtomicStatement`, which is represented by an identifier.
-	 * @param identifier the identifier representing this statement
+	 * Constructs a new `AtomicStatement`, which is represented by a formula.
+	 * @param formula the formula representing this statement
 	 */
-	constructor(identifier: string) {
+	constructor(formula: Formula) {
 		super();
-		this.identifier = identifier;
+		this.formula = formula;
 	}
 
 	decompose(): Statement[][] {
 		return [];
 	}
 
-	equals(other: Statement): boolean {
-		return (
-			other instanceof AtomicStatement && this.identifier === other.identifier
-		);
+	// equals(other: Statement): boolean {
+	// 	return (
+	// 		other instanceof AtomicStatement && this.formula.equals(other.formula)
+	// 	);
+	// }
+
+	symbolized(variables: Formula[], symbol: string) {
+		return new AtomicStatement(this.formula.symbolized(variables, symbol));
 	}
 
 	toString() {
-		return this.identifier;
+		return this.formula.toString();
 	}
 }
 
@@ -196,8 +224,12 @@ export class NotStatement extends UnaryStatement {
 		return [];
 	}
 
-	equals(other: Statement): boolean {
-		return other instanceof NotStatement && this.operand.equals(other.operand);
+	// equals(other: Statement): boolean {
+	// 	return other instanceof NotStatement && this.operand.equals(other.operand);
+	// }
+
+	symbolized(variables: Formula[], symbol: string) {
+		return new NotStatement(this.operand.symbolized(variables, symbol));
 	}
 
 	toString() {
@@ -231,11 +263,18 @@ export class ConditionalStatement extends BinaryStatement {
 		return [[new NotStatement(this.lhs)], [this.rhs]];
 	}
 
-	equals(other: Statement) {
-		return (
-			other instanceof ConditionalStatement &&
-			this.lhs.equals(other.lhs) &&
-			this.rhs.equals(other.rhs)
+	// equals(other: Statement) {
+	// 	return (
+	// 		other instanceof ConditionalStatement &&
+	// 		this.lhs.equals(other.lhs) &&
+	// 		this.rhs.equals(other.rhs)
+	// 	);
+	// }
+
+	symbolized(variables: Formula[], symbol: string) {
+		return new ConditionalStatement(
+			this.lhs.symbolized(variables, symbol),
+			this.rhs.symbolized(variables, symbol)
 		);
 	}
 
@@ -256,11 +295,18 @@ export class BiconditionalStatement extends BinaryStatement {
 		];
 	}
 
-	equals(other: Statement) {
-		return (
-			other instanceof BiconditionalStatement &&
-			this.lhs.equals(other.lhs) &&
-			this.rhs.equals(other.rhs)
+	// equals(other: Statement) {
+	// 	return (
+	// 		other instanceof BiconditionalStatement &&
+	// 		this.lhs.equals(other.lhs) &&
+	// 		this.rhs.equals(other.rhs)
+	// 	);
+	// }
+
+	symbolized(variables: Formula[], symbol: string) {
+		return new BiconditionalStatement(
+			this.lhs.symbolized(variables, symbol),
+			this.rhs.symbolized(variables, symbol)
 		);
 	}
 
@@ -292,13 +338,19 @@ export class AndStatement extends CommutativeStatement {
 		return [this.operands];
 	}
 
-	equals(other: Statement) {
-		return (
-			other instanceof AndStatement &&
-			this.operands.length === other.operands.length &&
-			this.operands.every((operand, index) =>
-				operand.equals(other.operands[index])
-			)
+	// equals(other: Statement) {
+	// 	return (
+	// 		other instanceof AndStatement &&
+	// 		this.operands.length === other.operands.length &&
+	// 		this.operands.every((operand, index) =>
+	// 			operand.equals(other.operands[index])
+	// 		)
+	// 	);
+	// }
+
+	symbolized(variables: Formula[], symbol: string) {
+		return new AndStatement(
+			...this.operands.map(operand => operand.symbolized(variables, symbol))
 		);
 	}
 
@@ -316,13 +368,19 @@ export class OrStatement extends CommutativeStatement {
 		return this.operands.map(operand => [operand]);
 	}
 
-	equals(other: Statement) {
-		return (
-			other instanceof OrStatement &&
-			this.operands.length === other.operands.length &&
-			this.operands.every((operand, index) =>
-				operand.equals(other.operands[index])
-			)
+	// equals(other: Statement) {
+	// 	return (
+	// 		other instanceof OrStatement &&
+	// 		this.operands.length === other.operands.length &&
+	// 		this.operands.every((operand, index) =>
+	// 			operand.equals(other.operands[index])
+	// 		)
+	// 	);
+	// }
+
+	symbolized(variables: Formula[], symbol: string) {
+		return new OrStatement(
+			...this.operands.map(operand => operand.symbolized(variables, symbol))
 		);
 	}
 
@@ -332,10 +390,10 @@ export class OrStatement extends CommutativeStatement {
 }
 
 export abstract class QuantifierStatement extends Statement {
-	variables: AtomicStatement[];
+	variables: Formula[];
 	formula: Statement;
 
-	constructor(variables: AtomicStatement[], formula: Statement) {
+	constructor(variables: Formula[], formula: Statement) {
 		super();
 		this.variables = variables;
 		this.formula = formula;
@@ -343,21 +401,28 @@ export abstract class QuantifierStatement extends Statement {
 }
 
 export class ExistenceStatement extends QuantifierStatement {
-	constructor(variables: AtomicStatement[], formula: Statement) {
+	constructor(variables: Formula[], formula: Statement) {
 		super(variables, formula);
 	}
 
 	decompose() {
-		return [];
+		return [[this.symbolized()]];
 	}
 
-	equals(other: Statement): boolean {
-		return (
-			other instanceof ExistenceStatement &&
-			this.variables.every((variable, index) =>
-				other.variables[index].equals(variable)
-			) &&
-			this.formula.equals(other.formula)
+	// equals(other: Statement): boolean {
+	// 	return (
+	// 		other instanceof ExistenceStatement &&
+	// 		this.variables.every((variable, index) =>
+	// 			other.variables[index].equals(variable)
+	// 		) &&
+	// 		this.formula.equals(other.formula)
+	// 	);
+	// }
+
+	symbolized(): Statement {
+		return this.formula.symbolized(
+			this.variables,
+			EXISTENTIAL_REPLACEMENT_SYMBOL
 		);
 	}
 
@@ -367,26 +432,120 @@ export class ExistenceStatement extends QuantifierStatement {
 }
 
 export class UniversalStatement extends QuantifierStatement {
-	constructor(variables: AtomicStatement[], formula: Statement) {
+	constructor(variables: Formula[], formula: Statement) {
 		super(variables, formula);
 	}
 
 	decompose() {
-		// throw new Error('UniversalStatement#decompose: Not implemented.');
-		return [];
+		return [[this.symbolized()]];
 	}
 
-	equals(other: Statement): boolean {
-		return (
-			other instanceof UniversalStatement &&
-			this.variables.every((variable, index) =>
-				other.variables[index].equals(variable)
-			) &&
-			this.formula.equals(other.formula)
+	// equals(other: Statement): boolean {
+	// 	return (
+	// 		other instanceof UniversalStatement &&
+	// 		this.variables.every((variable, index) =>
+	// 			other.variables[index].equals(variable)
+	// 		) &&
+	// 		this.formula.equals(other.formula)
+	// 	);
+	// }
+
+	symbolized(): Statement {
+		return this.formula.symbolized(
+			this.variables,
+			UNIVERSAL_REPLACEMENT_SYMBOL
 		);
 	}
 
 	toString() {
 		return `(∀${this.variables.join(',')} ${this.formula})`;
+	}
+}
+
+class StatementEquivalenceEvaluator {
+	lhs: Statement;
+	rhs: Statement;
+	replacementMap: {[variable: string]: string} = {};
+
+	constructor(lhs: Statement, rhs: Statement) {
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+
+	checkEquivalence(): boolean {
+		return this.checkEquivalenceHelper(this.lhs, this.rhs);
+	}
+
+	private checkEquivalenceHelper(lhs: Statement, rhs: Statement): boolean {
+		if (lhs instanceof AtomicStatement && rhs instanceof AtomicStatement) {
+			const answer = lhs.formula.isMappedEquals(
+				rhs.formula,
+				this.replacementMap
+			);
+
+			return answer;
+		}
+
+		// Unary Statements
+		if (lhs instanceof NotStatement && rhs instanceof NotStatement) {
+			return this.checkEquivalenceHelper(lhs.operand, rhs.operand);
+		}
+
+		// Binary Statements
+		if (
+			lhs instanceof ConditionalStatement &&
+			rhs instanceof ConditionalStatement
+		) {
+			return (
+				this.checkEquivalenceHelper(lhs.lhs, rhs.lhs) &&
+				this.checkEquivalenceHelper(lhs.rhs, rhs.rhs)
+			);
+		}
+		if (
+			lhs instanceof BiconditionalStatement &&
+			rhs instanceof BiconditionalStatement
+		) {
+			return (
+				this.checkEquivalenceHelper(lhs.lhs, rhs.lhs) &&
+				this.checkEquivalenceHelper(lhs.rhs, rhs.rhs)
+			);
+		}
+
+		// Commutative Statements
+		if (lhs instanceof AndStatement && rhs instanceof AndStatement) {
+			return lhs.operands.every((operand, index) =>
+				this.checkEquivalenceHelper(operand, rhs.operands[index])
+			);
+		}
+		if (lhs instanceof OrStatement && rhs instanceof OrStatement) {
+			return lhs.operands.every((operand, index) =>
+				this.checkEquivalenceHelper(operand, rhs.operands[index])
+			);
+		}
+
+		// Quantifier Statements
+		if (
+			lhs instanceof ExistenceStatement &&
+			rhs instanceof ExistenceStatement
+		) {
+			return (
+				lhs.variables.every((variable, index) =>
+					variable.equals(rhs.variables[index])
+				) && this.checkEquivalenceHelper(lhs.formula, rhs.formula)
+			);
+		}
+		if (
+			lhs instanceof UniversalStatement &&
+			rhs instanceof UniversalStatement
+		) {
+			return (
+				lhs.variables.every((variable, index) =>
+					variable.equals(rhs.variables[index])
+				) && this.checkEquivalenceHelper(lhs.formula, rhs.formula)
+			);
+		}
+
+		// This means they had not matching types, which are clearly not equivalent
+		return false;
 	}
 }
