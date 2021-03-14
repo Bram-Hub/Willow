@@ -97,9 +97,6 @@ export class TruthTreeNode {
 		this._text = newText;
 		try {
 			this.statement = new FirstOrderLogicParser().parse(this.text);
-			console.log(this.statement);
-			console.log(this.statement.toString());
-			console.log(this.statement.decompose());
 		} catch (err) {
 			this.statement = null;
 		}
