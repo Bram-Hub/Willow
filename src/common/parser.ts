@@ -185,7 +185,7 @@ abstract class Parser<T> {
 	 */
 	match(...rules: string[]) {
 		this.consumeWhitespace();
-		let lastErrorPosition = -1;
+		let lastErrorPosition = 0;
 		let lastException = undefined;
 		let lastErrorRules: string[] = [];
 
@@ -267,9 +267,9 @@ abstract class Parser<T> {
  * expr            -> "iff" or_expr_gen expr       | "implies" or_expr_gen expr    | eps
  * or_expr_gen     -> and_expr_gen or_expr
  * or_expr         -> "or" and_expr_gen or_expr                                    | eps
- * and_expr_gen    -> not_expr and_expr
- * and_expr        -> "and" not_expr and_expr      | eps
- * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
+ * and_expr_gen    -> unary_expr and_expr
+ * and_expr        -> "and" unary_expr and_expr      | eps
+ * unary_expr        -> "not" unary_expr               | "(" expr_gen ")"              | id
  */
 export class PropositionalLogicParser extends Parser<Statement> {
 	static readonly OPERATORS = {
@@ -281,12 +281,12 @@ export class PropositionalLogicParser extends Parser<Statement> {
 	};
 
 	start(): Statement {
-		return this.propositionalLogicExpressionGenerator();
+		return this.expressionGenerator();
 	}
 
-	propositionalLogicExpressionGenerator(): Statement {
+	expressionGenerator(): Statement {
 		const e2 = this.match('orExprGenerator');
-		const f1 = this.match('propositionalLogicExpression');
+		const f1 = this.match('expression');
 		if (f1 === null) {
 			// epsilon
 			return e2;
@@ -308,7 +308,7 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		);
 	}
 
-	propositionalLogicExpression() {
+	expression() {
 		/*
         returns one of:
             - BiconditionalStatement
@@ -327,7 +327,7 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		}
 
 		const e2 = this.match('orExprGenerator');
-		const f1 = this.match('propositionalLogicExpression');
+		const f1 = this.match('expression');
 		if (f1 === null) {
 			// epsilon
 			return [op, e2];
@@ -460,14 +460,25 @@ export class PropositionalLogicParser extends Parser<Statement> {
 
 /**
  * Provides a parser for the following LL(1) Propositional Logic Grammar:
- * start           -> expr_gen
- * expr_gen        -> or_expr_gen expr
- * expr            -> "iff" or_expr_gen expr       | "implies" or_expr_gen expr    | eps
- * or_expr_gen     -> and_expr_gen or_expr
- * or_expr         -> "or" and_expr_gen or_expr                                    | eps
- * and_expr_gen    -> not_expr and_expr
- * and_expr        -> "and" not_expr and_expr      | eps
- * not_expr        -> "not" not_expr               | "(" expr_gen ")"              | id
+ * start			-> expr_gen
+ * expr_gen			-> or_expr_gen expr
+ * expr				-> "iff" or_expr_gen expr
+ * 					 | "implies" or_expr_gen expr
+ * 					 | eps
+ * or_expr_gen		-> and_expr_gen or_expr
+ * or_expr			-> "or" and_expr_gen or_expr
+ * 					 | eps
+ * and_expr_gen		-> unary_expr and_expr
+ * and_expr			-> "and" unary_expr and_expr
+ *					 | eps
+ * unary_expr		-> "not" unary_expr
+ * 					 | "forall" id_list unary_expr
+ * 					 | "exists" id_list unary_expr
+ * 					 | "(" expr_gen ")"
+ * 					 | predicate
+ * predicate		-> id predicate_tail
+ * predicate_tail	-> ( predicate )
+ * 					 | eps
  */
 export class FirstOrderLogicParser extends PropositionalLogicParser {
 	static readonly OPERATORS = {
@@ -515,18 +526,25 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 
 	predicate(): string {
 		const functionSymbol = this.match('identifier');
-
-		// If there is no open parenthesis, then it must be the innermost identifier
-		if (this.maybeChar('(') === null) {
+		const innerIdentifier = this.match('predicateTail');
+		if (innerIdentifier === null) {
 			return functionSymbol;
+		}
+
+		return `${functionSymbol}(${innerIdentifier})`;
+	}
+
+	predicateTail(): string | null {
+		// If there is no open parenthesis, then it must be the innermost identifier
+		if (this.maybeKeyword('(') === null) {
+			return null;
 		}
 		// Otherwise, it is a function definition i.e. f( ? )
 		const innerIdentifier = this.match('predicate');
 
 		// Make sure to consume the closing parenthesis
-		this.char(')');
-
-		return `${functionSymbol}(${innerIdentifier})`;
+		this.keyword(')');
+		return innerIdentifier;
 	}
 
 	identifierList(): AtomicStatement[] {
@@ -538,7 +556,7 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 
 	identifierListTail(): AtomicStatement[] {
 		// Must start with a ','
-		if (this.maybeChar(',') === null) {
+		if (this.maybeKeyword(',') === null) {
 			return [];
 		}
 
@@ -546,19 +564,5 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 		const tail = this.match('identifierListTail');
 
 		return [head, ...tail];
-	}
-
-	identifier(): string {
-		const acceptableChars = '0-9A-Za-z';
-		const chars = [this.char(acceptableChars)];
-
-		let char: string | null = this.maybeChar(acceptableChars);
-
-		while (char !== null) {
-			chars.push(char);
-			char = this.maybeChar(acceptableChars);
-		}
-
-		return chars.join('');
 	}
 }

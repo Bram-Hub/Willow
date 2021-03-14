@@ -1,4 +1,4 @@
-import {PropositionalLogicParser} from './parser';
+import {FirstOrderLogicParser} from './parser';
 import {Statement, AtomicStatement, NotStatement} from './statement';
 
 interface Response {
@@ -94,9 +94,9 @@ export class TruthTreeNode {
 	}
 
 	set text(newText: string) {
-		this._text = newText.trim();
+		this._text = newText;
 		try {
-			this.statement = new PropositionalLogicParser().parse(this.text);
+			this.statement = new FirstOrderLogicParser().parse(this.text);
 		} catch (err) {
 			this.statement = null;
 		}
@@ -262,7 +262,7 @@ export class TruthTreeNode {
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// valid if and only if the text is empty
-			if (this.text.length === 0) {
+			if (this.text.trim().length === 0) {
 				return response;
 			}
 
@@ -431,7 +431,7 @@ export class TruthTreeNode {
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// decomposed if and only if the text is empty
-			if (this.text.length === 0) {
+			if (this.text.trim().length === 0) {
 				return response;
 			}
 

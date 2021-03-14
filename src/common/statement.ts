@@ -328,7 +328,7 @@ export class ExistenceStatement extends QuantifierStatement {
 	}
 
 	decompose() {
-		throw new Error('ExistenceStatement#decompose: Not implemented.');
+		// throw new Error('ExistenceStatement#decompose: Not implemented.');
 		return [];
 	}
 
@@ -343,7 +343,7 @@ export class ExistenceStatement extends QuantifierStatement {
 	}
 
 	toString() {
-		return `∃${this.variables.join(',')} ${this.formula}`;
+		return `(∃${this.variables.join(',')} ${this.formula})`;
 	}
 }
 
@@ -353,7 +353,7 @@ export class UniversalStatement extends QuantifierStatement {
 	}
 
 	decompose() {
-		throw new Error('UniversalStatement#decompose: Not implemented.');
+		// throw new Error('UniversalStatement#decompose: Not implemented.');
 		return [];
 	}
 
@@ -368,6 +368,6 @@ export class UniversalStatement extends QuantifierStatement {
 	}
 
 	toString() {
-		return `∀${this.variables.join(',')} ${this.formula}`;
+		return `(∀${this.variables.join(',')} ${this.formula})`;
 	}
 }
