@@ -540,11 +540,30 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 			return null;
 		}
 		// Otherwise, it is a function definition i.e. f( ? )
-		const innerIdentifier = this.match('predicate');
+		const innerIdentifier = this.match('predicateList');
 
 		// Make sure to consume the closing parenthesis
 		this.keyword(')');
 		return innerIdentifier;
+	}
+
+	predicateList(): AtomicStatement[] {
+		const head = this.match('predicate');
+		const tail = this.match('predicateListTail');
+
+		return [head, ...tail];
+	}
+
+	predicateListTail(): AtomicStatement[] {
+		// Must start with a ','
+		if (this.maybeKeyword(',') === null) {
+			return [];
+		}
+
+		const head = this.match('predicate');
+		const tail = this.match('predicateListTail');
+
+		return [head, ...tail];
 	}
 
 	identifierList(): AtomicStatement[] {

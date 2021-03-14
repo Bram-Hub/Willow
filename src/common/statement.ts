@@ -172,6 +172,26 @@ export class NotStatement extends UnaryStatement {
 				[new NotStatement(this.operand.lhs), this.operand.rhs],
 			];
 		}
+		if (this.operand instanceof ExistenceStatement) {
+			return [
+				[
+					new UniversalStatement(
+						this.operand.variables,
+						new NotStatement(this.operand.formula)
+					),
+				],
+			];
+		}
+		if (this.operand instanceof UniversalStatement) {
+			return [
+				[
+					new ExistenceStatement(
+						this.operand.variables,
+						new NotStatement(this.operand.formula)
+					),
+				],
+			];
+		}
 		// Negations of a literal do not have a decomposition
 		return [];
 	}
@@ -328,7 +348,6 @@ export class ExistenceStatement extends QuantifierStatement {
 	}
 
 	decompose() {
-		// throw new Error('ExistenceStatement#decompose: Not implemented.');
 		return [];
 	}
 
