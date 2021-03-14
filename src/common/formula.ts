@@ -91,13 +91,6 @@ class FormulaEquivalenceEvaluator {
 		return this.checkEquivalenceHelper(this.lhs, this.rhs);
 	}
 
-	getReplacementIfEquivalent(): {[variable: string]: string} | false {
-		if (!this.checkEquivalenceHelper(this.lhs, this.rhs)) {
-			return false;
-		}
-		return this.replacementMap;
-	}
-
 	private checkEquivalenceHelper(lhs: Formula, rhs: Formula): boolean {
 		// Check if either of the predicates are the universal replacement
 		const hadReplacement = this.getUniversalReplacement(
