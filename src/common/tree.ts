@@ -760,9 +760,87 @@ export class TruthTree {
 		return newId;
 	}
 
-	deleteStatement(id: number) {}
+	/**
+	 * Delete a statement. If the node has multiple children AND is the root of a branch, it will
+	 * not be deleted.
+	 * @param id the node to delete
+	 * @returns whether or not the statement was deleted
+	 */
+	deleteStatement(id: number): boolean {
+		// Ensure the given node exists
+		const node = this.getNode(id);
+		if (node === null) {
+			console.log('TruthTree#deleteStatement: Attempted to delete null node.');
+			return false;
+		}
 
-	deleteBranch(id: number) {}
+		const parentNode = this.getNode(node.parent);
+		if (parentNode === null) {
+			if (node.children.length !== 1) {
+				// This node is the root of the tree and has multiple children, so we don't delete.
+				return false;
+			}
+
+			// There is no parent and exactly one child
+			const childNode = this.getNode(node.children[0]);
+			if (childNode === null) {
+				console.log(
+					'TruthTree#deleteStatement: Referenced child does not exist.'
+				);
+				return false;
+			}
+			childNode.parent = null;
+			this._root = childNode.id;
+		} else {
+			if (parentNode.children.length !== 1) {
+				// This node is the root of a branch
+
+				if (node.children.length > 1) {
+					// The root of a branch with multiple children cannot be deleted.
+					return false;
+				}
+
+				// Root with one or zero children;
+				const index = parentNode.children.indexOf(id);
+				if (index === -1) {
+					console.log(
+						'TruthTree#deleteStatement: Referenced child does not exist.'
+					);
+					return false;
+				}
+
+				if (node.children.length === 1) {
+					parentNode.children[index] = node.children[0];
+				} else {
+					parentNode.children.splice(index, 1);
+				}
+			} else {
+				// The one child of the parent
+				parentNode.children = node.children;
+				for (const childId of node.children) {
+					const childNode = this.getNode(childId);
+					if (childNode === null) {
+						console.log(
+							'TruthTree#deleteStatement: Referenced child does not exist.'
+						);
+						continue;
+					}
+					childNode.parent = node.parent;
+				}
+
+				// Update the leaves
+				if (node.children.length === 0) {
+					this.leaves.delete(id);
+					this.leaves.add(parentNode.id);
+				}
+			}
+		}
+
+		// Delete the node from the dictionary
+		delete this.nodes[id];
+
+		return true;
+	}
 
 	/**
 	 * Determines whether or not this truth tree is correct.
