@@ -663,16 +663,17 @@ export class TruthTree {
 	}
 
 	/**
-	 * Adds a new node directly before the given node, always staying in the same branch.
+	 * Adds a new node directly before the given node, always staying in the
+	 * same branch.
 	 * @param childId the id of the node to add before
 	 * @returns the id of the created node or null if there was an error
 	 */
-	addStatementBefore(childId: number): number | null {
+	addNodeBefore(childId: number): number | null {
 		// Ensure the given node exists
 		const childNode = this.getNode(childId);
 		if (childNode === null) {
 			console.log(
-				'TruthTree#addStatementBefore: Attempted to add statement before null node.'
+				'TruthTree#addNodeBefore: Attempted to add node before null node.'
 			);
 			return null;
 		}
@@ -688,9 +689,7 @@ export class TruthTree {
 		if (parentNode !== null) {
 			const index = parentNode.children.indexOf(childId);
 			if (index === -1) {
-				console.log(
-					'TruthTree#addStatementBefore: Parent does not contain child.'
-				);
+				console.log('TruthTree#addNodeBefore: Parent does not contain child.');
 			} else {
 				parentNode.children[index] = newId;
 			}
@@ -708,18 +707,19 @@ export class TruthTree {
 	}
 
 	/**
-	 * Add a statement after the given node. If newBranch is false, then it is added to the same
-	 * branch. Otherwise, it creates a new branch and places the new node as the root of that branch.
+	 * Add a node after the given node. If newBranch is false, then it is added
+	 * to the same branch. Otherwise, it creates a new branch and places the new
+	 * node as the root of that branch.
 	 * @param parentId the id of the node to add after
 	 * @param newBranch whether or not to create a new branch
 	 * @returns the id of the created node or null if there was an error
 	 */
-	addStatementAfter(parentId: number, newBranch: boolean): number | null {
+	addNodeAfter(parentId: number, newBranch: boolean): number | null {
 		// Ensure the given node exists
 		const parentNode = this.getNode(parentId);
 		if (parentNode === null) {
 			console.log(
-				'TruthTree#addStatementAfter: Attempted to add statement after null node.'
+				'TruthTree#addNodeAfter: Attempted to add node after null node.'
 			);
 			return null;
 		}
@@ -742,9 +742,7 @@ export class TruthTree {
 			if (childNode !== null) {
 				childNode.parent = newId;
 			} else {
-				console.log(
-					'TruthTree#addStatementAfter: Referenced child does not exist.'
-				);
+				console.log('TruthTree#addNodeAfter: Referenced child does not exist.');
 			}
 		}
 
@@ -761,16 +759,16 @@ export class TruthTree {
 	}
 
 	/**
-	 * Delete a statement. If the node has multiple children AND is the root of a branch, it will
-	 * not be deleted.
+	 * Delete a node. If the node has multiple children AND is the root of a
+	 * branch, it will not be deleted.
 	 * @param id the node to delete
-	 * @returns whether or not the statement was deleted
+	 * @returns whether or not the node was deleted
 	 */
-	deleteStatement(id: number): boolean {
+	deleteNode(id: number): boolean {
 		// Ensure the given node exists
 		const node = this.getNode(id);
 		if (node === null) {
-			console.log('TruthTree#deleteStatement: Attempted to delete null node.');
+			console.log('TruthTree#deleteNode: Attempted to delete null node.');
 			return false;
 		}
 
@@ -784,9 +782,7 @@ export class TruthTree {
 			// There is no parent and exactly one child
 			const childNode = this.getNode(node.children[0]);
 			if (childNode === null) {
-				console.log(
-					'TruthTree#deleteStatement: Referenced child does not exist.'
-				);
+				console.log('TruthTree#deleteNode: Referenced child does not exist.');
 				return false;
 			}
 			childNode.parent = null;
@@ -803,9 +799,7 @@ export class TruthTree {
 				// Root with one or zero children;
 				const index = parentNode.children.indexOf(id);
 				if (index === -1) {
-					console.log(
-						'TruthTree#deleteStatement: Referenced child does not exist.'
-					);
+					console.log('TruthTree#deleteNode: Referenced child does not exist.');
 					return false;
 				}
 
@@ -821,7 +815,7 @@ export class TruthTree {
 					const childNode = this.getNode(childId);
 					if (childNode === null) {
 						console.log(
-							'TruthTree#deleteStatement: Referenced child does not exist.'
+							'TruthTree#deleteNode: Referenced child does not exist.'
 						);
 						continue;
 					}
