@@ -658,6 +658,112 @@ export class TruthTree {
 			: null;
 	}
 
+	private getNextId() {
+		return Math.max(...Object.keys(this.nodes).map(id => parseInt(id))) + 1;
+	}
+
+	/**
+	 * Adds a new node directly before the given node, always staying in the same branch.
+	 * @param childId the id of the node to add before
+	 * @returns the id of the created node or null if there was an error
+	 */
+	addStatementBefore(childId: number): number | null {
+		// Ensure the given node exists
+		const childNode = this.getNode(childId);
+		if (childNode === null) {
+			console.log(
+				'TruthTree#addStatementBefore: Attempted to add statement before null node.'
+			);
+			return null;
+		}
+
+		// Create the new node in the tree
+		const newId = this.getNextId();
+		this.nodes[newId] = new TruthTreeNode(newId, this);
+		this.nodes[newId].parent = childNode.parent;
+		this.nodes[newId].children = [childId];
+
+		// Fix parent's children pointer
+		const parentNode = this.getNode(childNode.parent);
+		if (parentNode !== null) {
+			const index = parentNode.children.indexOf(childId);
+			if (index === -1) {
+				console.log(
+					'TruthTree#addStatementBefore: Parent does not contain child.'
+				);
+			} else {
+				parentNode.children[index] = newId;
+			}
+		}
+
+		// Fix child's parent pointer
+		childNode.parent = newId;
+
+		// If the original node was the root, replace it
+		if (this.root === childId) {
+			this.root = newId;
+		}
+
+		return newId;
+	}
+
+	/**
+	 * Add a statement after the given node. If newBranch is false, then it is added to the same
+	 * branch. Otherwise, it creates a new branch and places the new node as the root of that branch.
+	 * @param parentId the id of the node to add after
+	 * @param newBranch whether or not to create a new branch
+	 * @returns the id of the created node or null if there was an error
+	 */
+	addStatementAfter(parentId: number, newBranch: boolean): number | null {
+		// Ensure the given node exists
+		const parentNode = this.getNode(parentId);
+		if (parentNode === null) {
+			console.log(
+				'TruthTree#addStatementAfter: Attempted to add statement after null node.'
+			);
+			return null;
+		}
+
+		// Create the new node in the tree
+		const newId = this.getNextId();
+		this.nodes[newId] = new TruthTreeNode(newId, this);
+		this.nodes[newId].parent = parentId;
+		if (newBranch) {
+			parentNode.children.push(newId);
+			this.leaves.add(newId);
+			return newId;
+		}
+
+		this.nodes[newId].children = parentNode.children;
+
+		// Fix children's parent pointers
+		for (const childId of parentNode.children) {
+			const childNode = this.getNode(childId);
+			if (childNode !== null) {
+				childNode.parent = newId;
+			} else {
+				console.log(
+					'TruthTree#addStatementAfter: Referenced child does not exist.'
+				);
+			}
+		}
+
+		// Fix parent's children array
+		parentNode.children = [newId];
+
+		// Update leaves set
+		if (this.leaves.has(parentId)) {
+			this.leaves.delete(parentId);
+			this.leaves.add(newId);
+		}
+
+		return newId;
+	}
+
+	deleteStatement(id: number) {}
+
+	deleteBranch(id: number) {}
+
 	/**
 	 * Determines whether or not this truth tree is correct.
 	 * @returns true if this truth tree is correct, false otherwise
