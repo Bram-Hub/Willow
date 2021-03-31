@@ -759,70 +759,65 @@ export class TruthTree {
 	}
 
 	/**
-	 * Delete a node. If the node has multiple children AND is the root of a
-	 * branch, it will not be deleted.
-	 * @param id the node to delete
-	 * @returns whether or not the node was deleted
+	 * Deletes a node. A node can only be deleted if it is not the root of a
+	 * branch with multiple children; in other words, this function cannot delete
+	 * the only node in a branch.
+	 * @param id the id of the node to delete
+	 * @returns null if the node could not be deleted; otherwise, if the node has
+	 * one child, returns the id of that child; if the node has multiple children,
+	 * returns the id of the deleted node's parent
 	 */
-	deleteNode(id: number): boolean {
-		// Ensure the given node exists
-		const node = this.getNode(id);
-		if (node === null) {
-			console.log('TruthTree#deleteNode: Attempted to delete null node.');
-			return false;
+	deleteNode(id: number): number | null {
+		if (!(id in this.nodes)) {
+			console.error(
+				'TruthTree#deleteNode: Could not delete a node that does not exist'
+			);
+			return null;
 		}
+		const node = this.nodes[id];
 
-		const parentNode = this.getNode(node.parent);
-		if (parentNode === null) {
+		if (node.parent === null) {
+			// If the node has no parent, then it is the root of the tree
 			if (node.children.length !== 1) {
-				// This node is the root of the tree and has multiple children, so we don't delete.
-				return false;
+				// If the node has multiple children, then don't delete it
+				return null;
 			}
 
-			// There is no parent and exactly one child
-			const childNode = this.getNode(node.children[0]);
-			if (childNode === null) {
-				console.log('TruthTree#deleteNode: Referenced child does not exist.');
-				return false;
-			}
-			childNode.parent = null;
-			this._root = childNode.id;
+			// The node has no parent and exactly one child, so delete this node (and
+			// make its sole child the new root of the tree)
+			this.nodes[node.children[0]].parent = null;
+			this._root = node.children[0];
 		} else {
+			// Otherwise, the node is not the root of the entire tree
+			const parentNode = this.nodes[node.parent];
 			if (parentNode.children.length !== 1) {
-				// This node is the root of a branch
-
+				// If the node's parent has multiple children, then the node is the root
+				// of a branch
 				if (node.children.length > 1) {
-					// The root of a branch with multiple children cannot be deleted.
-					return false;
+					// We cannot delete the root of a branch with multiple children (this
+					// would delete the entire branch)
+					return null;
 				}
 
-				// Root with one or zero children;
+				// The node has at most one child, so delete this node (and make its
+				// sole child, if it exists, a child of its parent node)
 				const index = parentNode.children.indexOf(id);
-				if (index === -1) {
-					console.log('TruthTree#deleteNode: Referenced child does not exist.');
-					return false;
-				}
-
 				if (node.children.length === 1) {
 					parentNode.children[index] = node.children[0];
+					this.nodes[node.children[0]].parent = node.parent;
 				} else {
+					// node.children.length === 0
 					parentNode.children.splice(index, 1);
 				}
 			} else {
-				// The one child of the parent
+				// Otherwise, the node is not the root of a branch
 				parentNode.children = node.children;
-				for (const childId of node.children) {
-					const childNode = this.getNode(childId);
-					if (childNode === null) {
-						console.log(
-							'TruthTree#deleteNode: Referenced child does not exist.'
-						);
-						continue;
-					}
-					childNode.parent = node.parent;
+				for (const child of node.children) {
+					this.nodes[child].parent = node.parent;
 				}
 
-				// Update the leaves
+				// If the deleted node was a leaf node, then its parent is now a leaf
+				// node
 				if (node.children.length === 0) {
 					this.leaves.delete(id);
 					this.leaves.add(parentNode.id);
@@ -830,10 +825,15 @@ export class TruthTree {
 			}
 		}
 
-		// Delete the node from the dictionary
 		delete this.nodes[id];
 
-		return true;
+		if (node.children.length === 1) {
+			// If the deleted node has one child, return the id of that child
+			return node.children[0];
+		} else {
+			// Otherwise, return the id of the deleted node's parent
+			return node.parent;
+		}
 	}
 
 	/**
@@ -851,6 +851,19 @@ export class TruthTree {
 		}
 		return {};
 		// return true;
+	}
+
+	/**
+	 * Returns the id of the last (or bottommost, if visualized) leaf node in this
+	 * tree.
+	 * @returns the id of the last leaf node
+	 */
+	getLastLeaf(): number {
+		let node = this.nodes[this.root];
+		while (node.children.length > 0) {
+			node = this.nodes[node.children[node.children.length - 1]];
+		}
+		return node.id;
 	}
 
 	printTree() {

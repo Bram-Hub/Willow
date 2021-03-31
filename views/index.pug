@@ -26,6 +26,8 @@ html(lang='en')
           .dropdown-menu(style={display: 'none'})
             button.menu-option(@click='addStatementBefore') Add statement before
             button.menu-option(@click='addStatementAfter') Add statement after
+            hr
+            button.menu-option(@click='deleteStatement') Delete statement
         .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})

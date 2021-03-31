@@ -17,16 +17,11 @@ vue
 			tree() {
 				return this.$store.state.tree;
 			},
+			selected() {
+				return this.$store.state.selected;
+			},
 			selectedNode() {
 				return this.$store.getters.selectedNode;
-			},
-			nextId() {
-				if (this.tree.nodes.length === 0) {
-					return 0;
-				}
-				return (
-					Math.max(...Object.keys(this.tree.nodes).map(id => parseInt(id))) + 1
-				);
 			},
 		},
 		methods: {
@@ -77,9 +72,9 @@ vue
 			saveFile() {
 				const a = document.createElement('a');
 				a.href = URL.createObjectURL(
-					new Blob([this.$store.state.tree.serialize()], {type: 'text/plain'})
+					new Blob([(this.tree as TruthTree).serialize()], {type: 'text/plain'})
 				);
-				a.download = `${this.name}.willow`;
+				a.download = `${this.name as string}.willow`;
 				document.body.appendChild(a);
 				a.click();
 				document.body.removeChild(a);
@@ -94,52 +89,31 @@ vue
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
-				const selectedNode: TruthTreeNode =
-					(this.selectedNode as TruthTreeNode | null) ||
-					(tree.getNode(tree.root) as TruthTreeNode);
-
-				const newNode = new TruthTreeNode(this.nextId as number, tree);
-				const parentNode: TruthTreeNode | null = tree.getNode(
-					selectedNode.parent
+				this.$store.commit(
+					'select',
+					tree.addNodeBefore((this.selected as number | null) || tree.root)
 				);
-				if (parentNode !== null) {
-					for (let index = 0; index < parentNode.children.length; ++index) {
-						if (parentNode.children[index] === selectedNode.id) {
-							parentNode.children[index] = newNode.id;
-						}
-					}
-				}
-				newNode.parent = selectedNode.parent;
-				newNode.children = [selectedNode.id];
-				selectedNode.parent = newNode.id;
-
-				tree.nodes[newNode.id] = newNode;
-				if (newNode.parent === null) {
-					tree.root = newNode.id;
-				}
 			},
 			addStatementAfter() {
 				const tree: TruthTree = this.tree;
-				const selectedNode: TruthTreeNode =
-					(this.selectedNode as TruthTreeNode | null) ||
-					(tree.getNode(tree.root) as TruthTreeNode);
-
-				const newNode = new TruthTreeNode(this.nextId as number, tree);
-				newNode.children = selectedNode.children;
-				selectedNode.children = [newNode.id];
-				newNode.parent = selectedNode.id;
-				for (const child of newNode.children) {
-					const childNode = tree.getNode(child);
-					if (childNode !== null) {
-						childNode.parent = newNode.id;
-					}
+				this.$store.commit(
+					'select',
+					tree.addNodeAfter(
+						(this.selected as number | null) || tree.getLastLeaf(),
+						false
+					)
+				);
+			},
+			deleteStatement() {
+				const tree: TruthTree = this.tree;
+				const toSelect = tree.deleteNode(
+					(this.selected as number | null) || tree.getLastLeaf()
+				);
+				if (toSelect === null) {
+					alert('You may not delete the only statement in a branch.');
+					return;
 				}
-
-				tree.nodes[newNode.id] = newNode;
-				if (tree.leaves.has(selectedNode.id)) {
-					tree.leaves.delete(selectedNode.id);
-					tree.leaves.add(newNode.id);
-				}
+				this.$store.commit('select', toSelect);
 			},
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
@@ -156,7 +130,7 @@ vue
 			state: {
 				developerMode: false,
 				tree: TruthTree.empty(),
-				selected: undefined,
+				selected: null,
 			},
 			getters: {
 				selectedNode(state) {
