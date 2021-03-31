@@ -1,6 +1,6 @@
 import * as vue from 'vue';
 import * as vuex from 'vuex';
-import {TruthTree, TruthTreeNode} from '../common/tree';
+import {TruthTree} from '../common/tree';
 import {TruthTreeComponent} from './component/truth-tree';
 
 vue
