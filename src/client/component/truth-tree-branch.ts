@@ -29,7 +29,7 @@ export const TruthTreeBranchComponent: vue.Component = {
 		},
 	},
 	methods: {
-		modifyDecomposition: function (id: number) {
+		modifyDecomposition(id: number) {
 			const selectedNode: TruthTreeNode | null = this.$store.getters
 				.selectedNode;
 
@@ -37,6 +37,7 @@ export const TruthTreeBranchComponent: vue.Component = {
 				return;
 			}
 
+			// NOTE: if `otherNode` is a terminator, then things can get wacky
 			if (selectedNode.isTerminator()) {
 				// Terminators only manage their decomposition
 				if (selectedNode.decomposition.has(id)) {

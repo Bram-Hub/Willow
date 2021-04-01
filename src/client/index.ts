@@ -87,6 +87,14 @@ vue
 				}
 				this.saveFile();
 			},
+			checkCorrectness() {
+				const correctnessResponse = this.$store.state.tree.isCorrect();
+				if (Object.keys(correctnessResponse).length === 0) {
+					alert('This tree is correct!');
+				} else {
+					alert('This tree is invalid.');
+				}
+			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
 				this.$store.commit(

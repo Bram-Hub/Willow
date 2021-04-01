@@ -32,6 +32,10 @@ html(lang='en')
             hr
             button.menu-option(@click='deleteStatement') Delete statement
         .dropdown
+          button Evaluate
+          .dropdown-menu(style={display: 'none'})
+            button.menu-option(@click='checkCorrectness') Check correctness
+        .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})
             button.menu-option(onclick='document.querySelector("#about-modal").style.display = "initial"') About
