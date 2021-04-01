@@ -24,8 +24,11 @@ html(lang='en')
         .dropdown
           button Edit
           .dropdown-menu(style={display: 'none'})
+            button.menu-option(@click='togglePremise') Toggle premise
+            hr
             button.menu-option(@click='addStatementBefore') Add statement before
             button.menu-option(@click='addStatementAfter') Add statement after
+            button.menu-option(@click='createBranch') Create new branch
             hr
             button.menu-option(@click='deleteStatement') Delete statement
         .dropdown

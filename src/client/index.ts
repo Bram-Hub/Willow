@@ -91,7 +91,9 @@ vue
 				const tree: TruthTree = this.tree;
 				this.$store.commit(
 					'select',
-					tree.addNodeBefore((this.selected as number | null) || tree.root)
+					tree.addNodeBefore(
+						typeof this.selected === 'number' ? this.selected : tree.root
+					)
 				);
 			},
 			addStatementAfter() {
@@ -99,8 +101,22 @@ vue
 				this.$store.commit(
 					'select',
 					tree.addNodeAfter(
-						(this.selected as number | null) || tree.getLastLeaf(),
+						typeof this.selected === 'number'
+							? this.selected
+							: tree.getLastLeaf(),
 						false
+					)
+				);
+			},
+			createBranch() {
+				const tree: TruthTree = this.tree;
+				this.$store.commit(
+					'select',
+					tree.addNodeAfter(
+						typeof this.selected === 'number'
+							? this.selected
+							: tree.getLastLeaf(),
+						true
 					)
 				);
 			},
@@ -114,6 +130,18 @@ vue
 					return;
 				}
 				this.$store.commit('select', toSelect);
+			},
+			togglePremise() {
+				const tree: TruthTree = this.tree;
+				const id = typeof this.selected === 'number' ? this.selected : null;
+				if (id === null) {
+					return;
+				}
+				const selectedNode = tree.getNode(id);
+				if (selectedNode === null) {
+					return;
+				}
+				selectedNode.togglePremise();
 			},
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');

@@ -238,6 +238,10 @@ export class TruthTreeNode {
 		}
 	}
 
+	togglePremise() {
+		this.premise = !this.premise;
+	}
+
 	/**
 	 * Determines whether or not this statement is valid; i.e., it is a logical
 	 * consequence of some other statement in the truth tree.
