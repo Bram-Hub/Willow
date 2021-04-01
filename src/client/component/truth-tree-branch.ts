@@ -1,5 +1,5 @@
 import * as vue from 'vue';
-import {TruthTree} from '../../common/tree';
+import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {TruthTreeNodeComponent} from './truth-tree-node';
 
 export const TruthTreeBranchComponent: vue.Component = {
@@ -28,10 +28,52 @@ export const TruthTreeBranchComponent: vue.Component = {
 			return this.$store.state.tree.nodes[this.head];
 		},
 	},
+	methods: {
+		modifyDecomposition: function (id: number) {
+			const selectedNode: TruthTreeNode | null = this.$store.getters
+				.selectedNode;
+
+			if (selectedNode === null || selectedNode.id === id) {
+				return;
+			}
+
+			if (selectedNode.isTerminator()) {
+				// Terminators only manage their decomposition
+				if (selectedNode.decomposition.has(id)) {
+					selectedNode.decomposition.delete(id);
+				} else {
+					selectedNode.decomposition.add(id);
+				}
+			} else if (selectedNode.isAncestorOf(id)) {
+				// When the selected is BEFORE, it becomes decomposition
+				const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id];
+				if (selectedNode.decomposition.has(id)) {
+					selectedNode.decomposition.delete(id);
+					otherNode.antecedent = null;
+				} else {
+					selectedNode.decomposition.add(id);
+					otherNode.antecedent = selectedNode.id;
+				}
+				otherNode.correctDecomposition = null;
+			} else {
+				// When the selected is AFTER, it becomes antecedent
+				const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id];
+				if (selectedNode.antecedent === id) {
+					selectedNode.antecedent = null;
+					otherNode.decomposition.delete(selectedNode.id);
+				} else {
+					selectedNode.antecedent = id;
+					otherNode.decomposition.add(selectedNode.id);
+				}
+				otherNode.correctDecomposition = null;
+			}
+			selectedNode.correctDecomposition = null;
+		},
+	},
 	template: `
     <ul class="branch">
       <template v-for="id, index in branch">
-        <li v-if="index === 0 || expanded" @click="$store.commit('select', id)"
+        <li v-if="index === 0 || expanded" @contextmenu.prevent="modifyDecomposition(id)" @click="$store.commit('select', id)"
 						:class="{
 							selected: $store.state.selected === id,
 							antecedent: $store.getters.selectedNode !== null

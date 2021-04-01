@@ -242,6 +242,10 @@ export class TruthTreeNode {
 		this.premise = !this.premise;
 	}
 
+	isTerminator(): boolean {
+		return TruthTree.TERMINATORS.includes(this.text);
+	}
+
 	/**
 	 * Determines whether or not this statement is valid; i.e., it is a logical
 	 * consequence of some other statement in the truth tree.
@@ -313,6 +317,12 @@ export class TruthTreeNode {
 		// Keep track of every Atomic and negation of an Atomic
 		const contradictionMap: Set<string> = new Set();
 		const response: Response = {};
+
+		if (this.decomposition.size !== 0) {
+			response[this.id] =
+				'Open terminators should not decompose into anything.';
+			return response;
+		}
 
 		for (const ancestorId of this.getAncestorBranch()) {
 			const ancestorNode = this.tree.nodes[ancestorId];
@@ -522,7 +532,7 @@ export class TruthTreeNode {
 	 * @param otherId the id of the node to start at
 	 * @returns whether or not this node is an ancestor of the given node.
 	 */
-	private isAncestorOf(otherId: number): boolean {
+	isAncestorOf(otherId: number): boolean {
 		let node: TruthTreeNode = this.tree.nodes[otherId];
 
 		while (node.parent !== null) {
@@ -735,7 +745,9 @@ export class TruthTree {
 		if (newBranch) {
 			parentNode.children.push(newId);
 			this.leaves.add(newId);
-			return newId;
+			// Jeff - returning parentId allows people adding multiple branches
+			// at once to do so without having to click in between.
+			return parentId;
 		}
 
 		this.nodes[newId].children = parentNode.children;
@@ -827,6 +839,16 @@ export class TruthTree {
 					this.leaves.add(parentNode.id);
 				}
 			}
+		}
+
+		// Make sure nothing else logically references it
+		if (node.antecedent !== null) {
+			const antecedentNode = this.nodes[node.antecedent];
+			antecedentNode.decomposition.delete(node.id);
+		}
+		for (const childId of node.decomposition) {
+			const childNode = this.nodes[childId];
+			childNode.antecedent = null;
 		}
 
 		delete this.nodes[id];
