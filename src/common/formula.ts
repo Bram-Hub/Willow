@@ -97,6 +97,7 @@ class FormulaEquivalenceEvaluator {
 			lhs.predicate,
 			rhs.predicate
 		);
+		console.log(lhs, rhs);
 
 		// Multiple mappings for the same key in the replacement map
 		if (hadReplacement === null) {

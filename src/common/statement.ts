@@ -39,35 +39,32 @@ export abstract class Statement {
 	 * @param branches the antecedent of this statement
 	 */
 	hasDecomposition(branches: Statement[][]): boolean {
-		const statementDecomposition = this.decompose();
+		const expectedDecomposition = this.decompose();
 
-		if (branches.length !== statementDecomposition.length) {
+		if (branches.length !== expectedDecomposition.length) {
 			return false;
 		}
 
-		// Generate set of Strings
-		const expectedDecomposition: Set<String>[] = [];
-		for (const branch of statementDecomposition) {
-			const branchSet: Set<String> = new Set();
-			branch.forEach(statement => branchSet.add(statement.toString()));
-			expectedDecomposition.push(branchSet);
-		}
-
-		// Generate set of strings and compare
+		// Generate set of statements and compare
 		for (let i = 0; i < branches.length; i++) {
-			const givenBranchSet: Set<String> = new Set();
-			branches[i].forEach(statement =>
-				givenBranchSet.add(statement.toString())
-			);
+			const givenBranchSet: Set<Statement> = new Set(branches[i]);
 
-			// Compare each set of strings in expected to each set from given
+			// Compare each set of statements in expected to each set from given
 			for (let j = 0; j < expectedDecomposition.length; j++) {
 				let match = true;
 				for (const statement of givenBranchSet) {
-					if (!expectedDecomposition[j].has(statement)) {
+					if (
+						!expectedDecomposition[j].some(expectedStatement =>
+							expectedStatement.equals(statement)
+						)
+					) {
 						match = false;
 						break;
 					}
+					// if (!expectedDecomposition[j].has(statement)) {
+					// 	match = false;
+					// 	break;
+					// }
 				}
 				if (match) {
 					branches.splice(i--, 1);

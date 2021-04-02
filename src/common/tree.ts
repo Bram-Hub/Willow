@@ -257,7 +257,7 @@ export class TruthTreeNode {
 			return {};
 		}
 
-		if (TruthTree.TERMINATORS.includes(this.text)) {
+		if (this.isTerminator()) {
 			if (this.text === TruthTree.OPEN_TERMINATOR) {
 				return this.isOpenTerminatorValid();
 			}
@@ -867,7 +867,12 @@ export class TruthTree {
 	 * @returns true if this truth tree is correct, false otherwise
 	 */
 	isCorrect(): Response {
+		const response: Response = {};
 		for (const node of Object.values(this.nodes)) {
+			if (this.leaves.has(node.id) && !node.isTerminator()) {
+				response[node.id] = 'All leaves must be terminators.';
+				return response;
+			}
 			const nodeValidity = node.isValid();
 			if (Object.keys(nodeValidity).length > 0) {
 				// All terminators in a correct truth tree must be valid
@@ -875,7 +880,8 @@ export class TruthTree {
 				// return false;
 			}
 		}
-		return {};
+
+		return response;
 		// return true;
 	}
 
