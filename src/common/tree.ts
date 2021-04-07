@@ -800,7 +800,6 @@ export class TruthTree {
 	 * returns the id of the deleted node's parent
 	 */
 	deleteNode(id: number): number | null {
-		console.log(`deleting node ${id}`);
 		if (!(id in this.nodes)) {
 			console.error(
 				'TruthTree#deleteNode: Could not delete a node that does not exist'
