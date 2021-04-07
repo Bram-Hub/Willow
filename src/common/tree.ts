@@ -672,6 +672,22 @@ export class TruthTree {
 			: null;
 	}
 
+	/**
+	 * Returns the id of the node that begins the most recent branch.
+	 * @param id the node id
+	 * @returns the id of the node which begins the newest branch `id` is in.
+	 */
+	getBranchHead(id: number) {
+		let current = this.nodes[id];
+		while (
+			current.parent !== null &&
+			this.nodes[current.parent].children.length === 1
+		) {
+			current = this.nodes[current.parent];
+		}
+		return current.id;
+	}
+
 	private getNextId() {
 		return Math.max(...Object.keys(this.nodes).map(id => parseInt(id))) + 1;
 	}
@@ -742,9 +758,15 @@ export class TruthTree {
 		const newId = this.getNextId();
 		this.nodes[newId] = new TruthTreeNode(newId, this);
 		this.nodes[newId].parent = parentId;
+
+		// Update leaves set
+		if (this.leaves.has(parentId)) {
+			this.leaves.delete(parentId);
+			this.leaves.add(newId);
+		}
+
 		if (newBranch) {
 			parentNode.children.push(newId);
-			this.leaves.add(newId);
 			// Jeff - returning parentId allows people adding multiple branches
 			// at once to do so without having to click in between.
 			return parentId;
@@ -765,12 +787,6 @@ export class TruthTree {
 		// Fix parent's children array
 		parentNode.children = [newId];
 
-		// Update leaves set
-		if (this.leaves.has(parentId)) {
-			this.leaves.delete(parentId);
-			this.leaves.add(newId);
-		}
-
 		return newId;
 	}
 
@@ -784,6 +800,7 @@ export class TruthTree {
 	 * returns the id of the deleted node's parent
 	 */
 	deleteNode(id: number): number | null {
+		console.log(`deleting node ${id}`);
 		if (!(id in this.nodes)) {
 			console.error(
 				'TruthTree#deleteNode: Could not delete a node that does not exist'
@@ -807,16 +824,16 @@ export class TruthTree {
 			// Otherwise, the node is not the root of the entire tree
 			const parentNode = this.nodes[node.parent];
 			if (parentNode.children.length !== 1) {
-				// If the node's parent has multiple children, then the node is the root
-				// of a branch
+				// If the node's parent has multiple children, then the node is
+				// the root of a branch
 				if (node.children.length > 1) {
-					// We cannot delete the root of a branch with multiple children (this
-					// would delete the entire branch)
+					// We cannot delete the root of a branch with multiple
+					// children (this would delete the entire branch)
 					return null;
 				}
 
-				// The node has at most one child, so delete this node (and make its
-				// sole child, if it exists, a child of its parent node)
+				// The node has at most one child, so delete this node (and make
+				// its sole child, if it exists, a child of its parent node)
 				const index = parentNode.children.indexOf(id);
 				if (node.children.length === 1) {
 					parentNode.children[index] = node.children[0];
@@ -824,6 +841,7 @@ export class TruthTree {
 				} else {
 					// node.children.length === 0
 					parentNode.children.splice(index, 1);
+					this.leaves.delete(id);
 				}
 			} else {
 				// Otherwise, the node is not the root of a branch
@@ -832,8 +850,8 @@ export class TruthTree {
 					this.nodes[child].parent = node.parent;
 				}
 
-				// If the deleted node was a leaf node, then its parent is now a leaf
-				// node
+				// If the deleted node was a leaf node, then its parent is now
+				// a leaf node
 				if (node.children.length === 0) {
 					this.leaves.delete(id);
 					this.leaves.add(parentNode.id);
@@ -860,6 +878,27 @@ export class TruthTree {
 			// Otherwise, return the id of the deleted node's parent
 			return node.parent;
 		}
+	}
+
+	/**
+	 * Deletes all nodes children of and including the given node.
+	 * @param id the id of the head of a branch
+	 * @returns the id of the parent node
+	 */
+	deleteBranch(id: number): number | null {
+		const headNode = this.nodes[id];
+		if (headNode.parent === null) {
+			return null;
+		}
+
+		// Delete the children
+		for (let index = headNode.children.length - 1; index >= 0; --index) {
+			this.deleteBranch(headNode.children[index]);
+		}
+
+		// Delete this node
+		this.deleteNode(id);
+		return headNode.parent;
 	}
 
 	/**

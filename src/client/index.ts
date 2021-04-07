@@ -92,7 +92,10 @@ vue
 				if (Object.keys(correctnessResponse).length === 0) {
 					alert('This tree is correct!');
 				} else {
-					alert('This tree is invalid.');
+					const message =
+						'This tree is invalid:\n' +
+						Object.values(correctnessResponse).join('\n');
+					alert(message);
 				}
 			},
 			addStatementBefore() {
@@ -130,11 +133,28 @@ vue
 			},
 			deleteStatement() {
 				const tree: TruthTree = this.tree;
-				const toSelect = tree.deleteNode(
-					(this.selected as number | null) || tree.getLastLeaf()
-				);
+				const nodeId = this.selected as number | null;
+				if (nodeId === null) {
+					return;
+				}
+				const toSelect = tree.deleteNode(nodeId);
 				if (toSelect === null) {
 					alert('You may not delete the only statement in a branch.');
+					return;
+				}
+				this.$store.commit('select', toSelect);
+			},
+			deleteBranch() {
+				const tree: TruthTree = this.tree;
+				const nodeId = this.selected as number | null;
+				if (nodeId === null) {
+					return;
+				}
+				const head = tree.getBranchHead(nodeId);
+				console.log(`headId = ${head}`);
+				const toSelect = tree.deleteBranch(head);
+				if (toSelect === null) {
+					alert('You may not delete the root branch.');
 					return;
 				}
 				this.$store.commit('select', toSelect);
