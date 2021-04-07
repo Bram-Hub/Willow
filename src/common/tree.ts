@@ -824,6 +824,7 @@ export class TruthTree {
 				} else {
 					// node.children.length === 0
 					parentNode.children.splice(index, 1);
+					this.leaves.delete(id);
 				}
 			} else {
 				// Otherwise, the node is not the root of a branch
