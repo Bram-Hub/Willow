@@ -82,7 +82,8 @@ class Server {
 
 		this.app.get('/', (req, res) =>
 			res.render('index', {
-				commit: execSync('git rev-parse HEAD').toString().trim(),
+				// commit: execSync('git rev-parse HEAD').toString().trim(),
+				commit: "production",
 			})
 		);
 		this.app.get('*', (req, res) => res.render('error', {code: 404}));
