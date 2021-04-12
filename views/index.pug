@@ -70,26 +70,26 @@ html(lang='en')
             tr
               td Toggle premise
               td
-                key-recorder(@toggle-premise='togglePremise' event='toggle-premise')
+                key-recorder(@toggle-premise='togglePremise' event='toggle-premise' :default='["Control", "p"]')
             tr
               td Add statement before
               td
-                key-recorder(@add-statement-before='addStatementBefore' event='add-statement-before')
+                key-recorder(@add-statement-before='addStatementBefore' event='add-statement-before' :default='["Control", "b"]')
             tr
               td Add statement after
               td
-                key-recorder(@add-statement-after='addStatementAfter' event='add-statement-after')
+                key-recorder(@add-statement-after='addStatementAfter' event='add-statement-after' :default='["Control", "a"]')
             tr
               td Create branch
               td
-                key-recorder(@create-branch='createBranch' event='create-branch')
+                key-recorder(@create-branch='createBranch' event='create-branch' :default='["Control", "Shift", "B"]')
             tr
               td Delete statement
               td
-                key-recorder(@delete-statement='deleteStatement' event='delete-statement')
+                key-recorder(@delete-statement='deleteStatement' event='delete-statement' :default='["Control", "d"]')
             tr
               td Delete branch
               td
-                key-recorder(@delete-branch='deleteBranch' event='delete-branch')
+                key-recorder(@delete-branch='deleteBranch' event='delete-branch' :default='["Control", "Shift", "D"]')
     include /global/footer.pug
     script(src='/js/index.js' type='text/javascript')

@@ -15,10 +15,16 @@ export const KeyRecorder: vue.Component = {
 	name: 'key-recorder',
 	props: {
 		event: String,
+		default: Array,
 	},
 	data() {
 		return {
-			recorded: [],
+			recorded:
+				(JSON.parse(
+					localStorage.getItem(`shortcuts.${this.event}`) || 'null'
+				) as string[] | null) ||
+				(this.default as string[] | undefined) ||
+				[],
 		};
 	},
 	computed: {
@@ -36,17 +42,26 @@ export const KeyRecorder: vue.Component = {
 		},
 	},
 	watch: {
-		recorded(newVal: string[], oldVal: string[]) {
-			const toHotkeysString: (keys: string[]) => string = this.toHotkeysString;
-			if (oldVal.length > 0) {
-				// Unbind the old shortcut if it exists
-				hotkeys.unbind(toHotkeysString(oldVal));
-			}
+		recorded: {
+			handler(newVal: string[], oldVal: string[]) {
+				const toHotkeysString: (keys: string[]) => string = this
+					.toHotkeysString;
+				if (oldVal !== undefined && oldVal.length > 0) {
+					// Unbind the old shortcut if it exists
+					hotkeys.unbind(toHotkeysString(oldVal));
+				}
 
-			hotkeys(toHotkeysString(newVal), (event: Event) => {
-				event.preventDefault();
-				this.$emit(this.event as string);
-			});
+				hotkeys(toHotkeysString(newVal), (event: Event) => {
+					event.preventDefault();
+					this.$emit(this.event as string);
+				});
+
+				localStorage.setItem(
+					`shortcuts.${this.event as string}`,
+					JSON.stringify(newVal)
+				);
+			},
+			immediate: true,
 		},
 	},
 	template: `
