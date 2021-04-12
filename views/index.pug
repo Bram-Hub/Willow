@@ -47,6 +47,8 @@ html(lang='en')
         h2 {{ name }}
         .truth-tree.left
           truth-tree
+        key-recorder(@add-statement-before='addStatementBefore' event='add-statement-before')
+        key-recorder(@add-statement-after='addStatementAfter' event='add-statement-after')
     #about-modal.modal.card(style={display: 'none'})
       i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
       .row

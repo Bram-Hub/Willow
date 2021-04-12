@@ -1,11 +1,14 @@
+import hotkeys from 'hotkeys-js';
 import * as vue from 'vue';
 import * as vuex from 'vuex';
-import {TruthTree} from '../common/tree';
+import {TruthTree, TruthTreeNode} from '../common/tree';
+import {KeyRecorder} from './component/key-recorder';
 import {TruthTreeComponent} from './component/truth-tree';
 
-vue
+const instance = vue
 	.createApp({
 		components: {
+			'key-recorder': KeyRecorder,
 			'truth-tree': TruthTreeComponent,
 		},
 		data: function () {
@@ -154,20 +157,14 @@ vue
 				console.log(`headId = ${head}`);
 				const toSelect = tree.deleteBranch(head);
 				if (toSelect === null) {
-					alert('You may not delete the root branch.');
-					return;
+					return alert('You may not delete the root branch.');
 				}
 				this.$store.commit('select', toSelect);
 			},
 			togglePremise() {
-				const tree: TruthTree = this.tree;
-				const id = typeof this.selected === 'number' ? this.selected : null;
-				if (id === null) {
-					return;
-				}
-				const selectedNode = tree.getNode(id);
+				const selectedNode: TruthTreeNode | null = this.selectedNode;
 				if (selectedNode === null) {
-					return;
+					return alert('You must select a statement before doing this.');
 				}
 				selectedNode.togglePremise();
 			},
