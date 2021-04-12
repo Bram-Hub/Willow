@@ -4,7 +4,7 @@ import {TruthTree, TruthTreeNode} from '../common/tree';
 import {KeyRecorder} from './component/key-recorder';
 import {TruthTreeComponent} from './component/truth-tree';
 
-const instance = vue
+vue
 	.createApp({
 		components: {
 			'key-recorder': KeyRecorder,
