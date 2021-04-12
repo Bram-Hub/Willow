@@ -3,6 +3,14 @@ import * as vue from 'vue';
 
 import * as keys from '../keys';
 
+hotkeys.filter = event => {
+	const target = event.target || event.srcElement;
+	if (target instanceof Element) {
+		return !target.classList.contains('key-recorder');
+	}
+	return true;
+};
+
 export const KeyRecorder: vue.Component = {
 	name: 'key-recorder',
 	props: {
@@ -42,6 +50,7 @@ export const KeyRecorder: vue.Component = {
 		},
 	},
 	template: `
-    <input type="text" @keydown="onKeyDown($event)" :value="recorded.join('+')"/>
+    <input type="text" @keydown="onKeyDown($event)" :value="recorded.join('+')"
+				class="key-recorder"/>
   `,
 };

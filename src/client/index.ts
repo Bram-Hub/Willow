@@ -1,4 +1,3 @@
-import hotkeys from 'hotkeys-js';
 import * as vue from 'vue';
 import * as vuex from 'vuex';
 import {TruthTree, TruthTreeNode} from '../common/tree';
@@ -199,6 +198,17 @@ const instance = vue
 				},
 				select(state, id) {
 					state.selected = id;
+
+					// Focus on the text box corresponding to the selected node
+					// NOTE: We must use setTimeout as select is usually called
+					//       immediately after a node is created, but before it is
+					//       rendered in the DOM
+					setTimeout(() => {
+						const input = document.getElementById(`node${id}`);
+						if (input instanceof HTMLInputElement) {
+							input.focus();
+						}
+					}, 0);
 				},
 			},
 		})

@@ -64,6 +64,18 @@
   margin-right: 30px;
 }
 
+#shortcuts-modal > h2 {
+  margin-top: 0px;
+}
+
+#shortcuts-modal td:first-child {
+  padding-right: 10px;
+}
+
+#shortcuts-modal .key-recorder {
+  width: 100px;
+}
+
 .branch-line {
   border: 1px solid #000000;
   margin: 0px;

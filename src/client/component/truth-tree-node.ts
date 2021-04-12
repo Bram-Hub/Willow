@@ -14,7 +14,7 @@ export const TruthTreeNodeComponent: vue.Component = {
     <span v-if="$store.state.developerMode">id: {{ id }} valid: {{ JSON.stringify(node.isValid()) }} decomposed: {{ JSON.stringify(node.isDecomposed()) }}</span>
     <i v-if="Object.keys(node.isValid()).length === 0 && Object.keys(node.isDecomposed()).length === 0" class="fas fa-check"></i>
     <i v-else class="fas fa-times"></i>
-    <input type="text" v-model="node.text" :class="{
+    <input :id='"node" + this.id' type="text" v-model="node.text" :class="{
       'statement': true,
       'open-terminator': node.text === '◯',
       'closed-terminator': node.text === '×',

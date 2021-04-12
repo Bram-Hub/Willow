@@ -28,7 +28,7 @@ html(lang='en')
             hr
             button.menu-option(@click='addStatementBefore') Add statement before
             button.menu-option(@click='addStatementAfter') Add statement after
-            button.menu-option(@click='createBranch') Create new branch
+            button.menu-option(@click='createBranch') Create branch
             hr
             button.menu-option(@click='deleteStatement') Delete statement
             button.menu-option(@click='deleteBranch') Delete branch
@@ -36,6 +36,10 @@ html(lang='en')
           button Evaluate
           .dropdown-menu(style={display: 'none'})
             button.menu-option(@click='checkCorrectness') Check correctness
+        .dropdown
+          button Options
+          .dropdown-menu(style={display: 'none'})
+            button.menu-option(onclick='document.querySelector("#shortcuts-modal").style.display = "initial"') Shortcuts
         .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})
@@ -47,14 +51,45 @@ html(lang='en')
         h2 {{ name }}
         .truth-tree.left
           truth-tree
-        key-recorder(@add-statement-before='addStatementBefore' event='add-statement-before')
-        key-recorder(@add-statement-after='addStatementAfter' event='add-statement-after')
-    #about-modal.modal.card(style={display: 'none'})
-      i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
-      .row
-        img(src='/img/logo.png' width='100')
-        div
-          h2 About Willow
-          p Commit #{commit}
+      #about-modal.modal.card(style={display: 'none'})
+        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        .row
+          img(src='/img/logo.png' width='100')
+          div
+            h2 About Willow
+            p Commit #{commit}
+      #shortcuts-modal.modal.card(style={display: 'none'})
+        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        h2.center Shortcuts
+        table
+          thead
+            tr
+              th Action
+              th Shortcut
+          tbody
+            tr
+              td Toggle premise
+              td
+                key-recorder(@toggle-premise='togglePremise' event='toggle-premise')
+            tr
+              td Add statement before
+              td
+                key-recorder(@add-statement-before='addStatementBefore' event='add-statement-before')
+            tr
+              td Add statement after
+              td
+                key-recorder(@add-statement-after='addStatementAfter' event='add-statement-after')
+            tr
+              td Create branch
+              td
+                key-recorder(@create-branch='createBranch' event='create-branch')
+            tr
+              td Delete statement
+              td
+                key-recorder(@delete-statement='deleteStatement' event='delete-statement')
+            tr
+              td Delete branch
+              td
+                key-recorder(@delete-branch='deleteBranch' event='delete-branch')
     include /global/footer.pug
     script(src='/js/index.js' type='text/javascript')
