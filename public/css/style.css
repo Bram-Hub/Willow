@@ -76,11 +76,12 @@ body {
 }
 
 .modal {
-  max-height: 60vh;
-  max-width: 60vw;
+  box-sizing: border-box;
+  max-height: 80vh;
+  max-width: 80vw;
   overflow: auto;
   position: fixed;
-  top: 20%;
+  top: 10%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
