@@ -2,7 +2,7 @@
 /*** TOOLBAR ***/
 /***************/
 #toolbar {
-  background-color: #f0f0f0;
+  background-color: var(--toolbar-background);
 }
 
 #toolbar > .dropdown {
@@ -13,6 +13,7 @@
 #toolbar button {
   background: none;
   border: none;
+  color:var(--text-dark);
 }
 
 #toolbar > .dropdown > button {
@@ -20,19 +21,19 @@
 }
 
 #toolbar > .dropdown > button:hover {
-  background-color: #e0e0e0;
+  background-color: var(--toolbar-dropdown-hover);
 }
 
 #toolbar > .dropdown > .dropdown-menu {
-  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 3px 3px var(--toolbar-dropdown-menu-shadow);
   position: absolute;
   z-index: 1;
 }
 
 #toolbar > .dropdown > .dropdown-menu > .menu-option {
-  background-color: #f8f8f8;
+  background-color: var(--toolbar-dropdown-menu-option);
   box-sizing: border-box;
-  color: #000000;
+  color: var(--text-dark);
   cursor: default;
   display: block;
   font-size: 10pt;
@@ -45,13 +46,13 @@
 }
 
 #toolbar > .dropdown > .dropdown-menu > .menu-option:hover {
-  background-color: #3399ff;
-  color: #ffffff;
+  background-color: var(--toolbar-dropdown-menu-option-hover);
+  color: var(--text-light);
 }
 
 #toolbar > .dropdown > .dropdown-menu > hr {
   border: none;
-  border-top: 1px solid #d0d0d0;
+  border-top: 1px solid var(--toolbar-dropdown-menu-dividing-line);
   margin: 0px;
 }
 
@@ -77,13 +78,13 @@
 }
 
 .branch-line {
-  border: 1px solid #000000;
+  border: 1px solid var(--text-dark);
   margin: 0px;
   width: 50px;
 }
 
 .branch {
-  border-left: 2px solid #000000;
+  border-left: 2px solid var(--text-dark);
   list-style: none;
   margin: 0px 0px 30px 50px;
   padding: 0px;
@@ -101,19 +102,24 @@
 }
 
 .truth-tree i.fas.fa-check {
-  color: #80c080;
+  color: var(--tt-check);
 }
 
 .truth-tree i.fas.fa-times {
-  color: #c08080;
+  color: var(--tt-times);
+}
+
+.truth-tree i.fas.fa-chevron-down,
+.truth-tree i.fas.fa-chevron-right {
+  color: var(--tt-chevron);
 }
 
 .selected {
-  background-color: rgba(51, 153, 255, 0.5);
+  background-color: var(--selected);
 }
 
 .antecedent {
-  background-color: rgba(128, 192, 128, 0.5);
+  background-color: var(--antecedent);
 }
 
 .antecedent::after {
@@ -126,7 +132,7 @@
 }
 
 .decomposition {
-  background-color: rgba(192, 128, 128, 0.5);
+  background-color: var(--decomposition);
 }
 
 .decomposition::after {
@@ -143,7 +149,7 @@
 }
 
 .premise-label {
-  color: #808080;
+  color: var(--premise-label);
   display: inline-block;
   font-size: 10pt;
   font-style: italic;

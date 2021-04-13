@@ -13,8 +13,12 @@ vue
 		data: function () {
 			return {
 				name: 'Untitled',
+				colorTheme: 'system',
 			};
 		},
+		mounted() {
+			this.setColorTheme()
+	  },
 		computed: {
 			tree() {
 				return this.$store.state.tree;
@@ -170,11 +174,28 @@ vue
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
 			},
+			setColorTheme(){
+				let newColorTheme = this.colorTheme;
+			  if (newColorTheme === "system") {
+			    newColorTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+			      ? "dark"
+			      : "light";
+			  }
+				console.log("new color theme "+this.colorTheme)
+			  document.documentElement.setAttribute(
+			    "data-theme",
+			    newColorTheme
+			  );
+			}
 		},
 		watch: {
 			name(newVal) {
 				window.document.title = `${newVal} | Willow`;
 			},
+			colorTheme(newVal: string){
+				console.log("switch")
+				this.setColorTheme()
+			}
 		},
 	})
 	.use(

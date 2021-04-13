@@ -4,6 +4,8 @@ html(lang='en')
     title Untitled | Willow
     include /global/head.pug
     link(href='/css/index.css' rel='stylesheet' type='text/css')
+    link(href='/css/colors.css' rel='stylesheet' type='text/css')
+    link(href='/css/themes/dark.css' rel='stylesheet' type='text/css')
   body
     include /global/header.pug
     #content
@@ -54,7 +56,7 @@ html(lang='en')
       #about-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
         .row
-          img(src='/img/logo.png' width='100')
+          img.logo-img(src='/img/logo.png' width='100')
           div
             h2 About Willow
             p Commit #{commit}

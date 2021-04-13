@@ -1,0 +1,35 @@
+/* If you add a color to this file, make sure to add it in ../colors.css as well */
+
+[data-theme="dark"] {
+    /* global colors */
+    --text-dark: #ffffff;
+    --text-light: #000000;
+    --background: #36393f;
+
+    /* Toolbar */
+    --toolbar-background: #202225;
+    --toolbar-dropdown-hover: #6c6c6c;
+    /* --toolbar-dropdown-menu-shadow: rgba(0, 0, 0, 0.5); */
+    --toolbar-dropdown-menu-option: #3a3c40;
+    --toolbar-dropdown-menu-option-hover: #8A8AFF;
+    /* --toolbar-dropdown-menu-dividing-line: #d0d0d0; */
+
+    /* Truth tree */
+    /* --tt-check: #80c080; */
+    --tt-times: #ee3b3b;
+    --tt-chevron: #ffffff;
+    --selected: rgba(51, 153, 255, 0.5);
+    --antecedent: rgba(128, 192, 128, 0.5);
+    --decomposition: rgba(192, 128, 128, 0.5);
+    --premise-label: #ffffff;
+
+    /* Misc */
+    --header: #276427;
+    --card-background: #202225;
+    /* --card-shadow: rgba(0, 0, 0, 0.5); */
+}
+
+/* Black logo gets inverted to white on dark mode */
+[data-theme="dark"] .logo-img {
+  filter: invert(1);
+}

@@ -1,0 +1,30 @@
+/* If you add a color to this file, make sure to add it in ./themes/dark.css as well */
+
+:root {
+    /* global colors */
+    --text-dark: #000000;
+    --text-light: #ffffff;
+    --background: #ffffff;
+
+    /* Toolbar */
+    --toolbar-background: #f0f0f0;
+    --toolbar-dropdown-hover: #e0e0e0;
+    --toolbar-dropdown-menu-shadow: rgba(0, 0, 0, 0.5);
+    --toolbar-dropdown-menu-option: #f8f8f8;
+    --toolbar-dropdown-menu-option-hover: #3399ff;
+    --toolbar-dropdown-menu-dividing-line: #d0d0d0;
+
+    /* Truth tree */
+    --tt-check: #80c080;
+    --tt-times: #c08080;
+    --tt-chevron: #000000;
+    --selected: rgba(51, 153, 255, 0.5);
+    --antecedent: rgba(128, 192, 128, 0.5);
+    --decomposition: rgba(192, 128, 128, 0.5);
+    --premise-label: #808080;
+
+    /* Misc */
+    --header: #c0e0c0;
+    --card-background: #f0f0f0;
+    --card-shadow: rgba(0, 0, 0, 0.5);
+}
