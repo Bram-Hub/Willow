@@ -93,8 +93,6 @@ class Server {
 	 */
 	launch() {
 		const port = parseInt(process.env.PORT || '80');
-		console.log("Port: ", port)
-		console.log("Port: ", process.env.PORT)
 		this.server.listen(port, () =>
 			logger.info(`Server launched on port ${port}`)
 		);

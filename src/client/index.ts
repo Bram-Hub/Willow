@@ -17,6 +17,7 @@ vue
 			};
 		},
 		mounted() {
+			this.colorTheme = localStorage.getItem('theme');
 			this.setColorTheme()
 	  },
 		computed: {
@@ -181,11 +182,23 @@ vue
 			      ? "dark"
 			      : "light";
 			  }
-				console.log("new color theme "+this.colorTheme)
+
 			  document.documentElement.setAttribute(
 			    "data-theme",
 			    newColorTheme
 			  );
+				this.colorTheme = newColorTheme;
+				localStorage.setItem('theme', this.colorTheme);
+			},
+			toggleTheme(){
+				console.log(this.colorTheme)
+				if (this.colorTheme === "system") {
+			    this.colorTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+			      ? "light"
+			      : "dark";
+					return;
+			  }
+				this.colorTheme = this.colorTheme === "dark" ? "light":"dark";
 			}
 		},
 		watch: {

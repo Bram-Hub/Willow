@@ -42,6 +42,8 @@ html(lang='en')
           button Options
           .dropdown-menu(style={display: 'none'})
             button.menu-option(onclick='document.querySelector("#shortcuts-modal").style.display = "initial"') Shortcuts
+            hr
+            button.menu-option(@click='toggleTheme') Toggle Theme
         .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})
