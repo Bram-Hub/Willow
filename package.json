@@ -16,7 +16,9 @@
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "debug": "nodemon",
-    "start": "npx webpack && node --inspect -r ts-node/register src/server/server.ts"
+    "dev": "npx webpack && node --inspect -r ts-node/register src/server/server.ts",
+    "start": "node --inspect -r ts-node/register src/server/server.ts",
+    "heroku-postbuild": "npx webpack --mode production"
   },
   "repository": {
     "type": "git",
