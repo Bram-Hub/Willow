@@ -119,22 +119,6 @@ class FormulaEquivalenceEvaluator {
 	}
 
 	private checkEquivalenceHelper(lhs: Formula, rhs: Formula): boolean {
-		// Check if either of the predicates are the universal replacement
-		const hadReplacement = this.getUniversalReplacement(
-			lhs.predicate,
-			rhs.predicate
-		);
-
-		// Multiple mappings for the same key in the replacement map
-		if (hadReplacement === null) {
-			return false;
-		}
-
-		// The predicates must match
-		if (hadReplacement === false && lhs.predicate !== rhs.predicate) {
-			return false;
-		}
-
 		// Check if the arguments match
 		if (lhs.args === null || rhs.args === null) {
 			return lhs.args === rhs.args;
@@ -144,19 +128,41 @@ class FormulaEquivalenceEvaluator {
 			return false;
 		}
 
-		// Every argument must match recursively
-		return lhs.args.every((arg, index) =>
-			this.checkEquivalenceHelper(arg, rhs.args![index])
-		);
+		if (lhs.args.length > 0) {
+			// Every argument must match recursively
+			return lhs.args.every((arg, index) =>
+				this.checkEquivalenceHelper(arg, rhs.args![index])
+			);
+		}
+
+		// Check if either of the predicates are the universal replacement
+		const hadReplacement = this.getReplacement(lhs.predicate, rhs.predicate);
+
+		// Multiple mappings for the same key in the replacement map
+		if (hadReplacement === null) {
+			return false;
+		}
+
+		// The predicates must match
+		return hadReplacement === false && lhs.predicate !== rhs.predicate;
 	}
 
-	private getUniversalReplacement(lhs: string, rhs: string): boolean | null {
+	/**
+	 *
+	 * @param lhs the first item to compare
+	 * @param rhs the second item to compare
+	 * @returns null if there is a conflicting replacement, true if there is a
+	 * valid replacement, or false if no replacement occurs
+	 */
+	private getReplacement(lhs: string, rhs: string): boolean | null {
 		let key: string | null = null;
 		let value: string | null = null;
 
 		for (const arg of [lhs, rhs]) {
 			if (arg.startsWith(UNIVERSAL_REPLACEMENT_SYMBOL)) {
 				key = arg.slice(UNIVERSAL_REPLACEMENT_SYMBOL.length);
+			} else if (arg.startsWith(EXISTENTIAL_REPLACEMENT_SYMBOL)) {
+				key = arg.slice(EXISTENTIAL_REPLACEMENT_SYMBOL.length);
 			} else {
 				value = arg;
 			}

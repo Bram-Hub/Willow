@@ -34,6 +34,20 @@ export abstract class Statement {
 	}
 
 	/**
+	 *
+	 * @param other the other statement
+	 * @returns false if the statements are not equivalent, or the replacement
+	 * map used for the variables otherwise
+	 */
+	getEqualsMap(other: Statement): {[variable: string]: string} | false {
+		const evaluator = new StatementEquivalenceEvaluator(this, other);
+		if (!evaluator.checkEquivalence()) {
+			return false;
+		}
+		return evaluator.replacementMap;
+	}
+
+	/**
 	 * Returns the Set of constants in the formula.
 	 * @param symbols the list of non-instantiated symbols
 	 * @returns set of constants contained in the formula

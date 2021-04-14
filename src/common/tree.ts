@@ -5,6 +5,8 @@ import {
 	AtomicStatement,
 	NotStatement,
 	QuantifierStatement,
+	ExistenceStatement,
+	UniversalStatement,
 } from './statement';
 
 interface Response {
@@ -134,9 +136,6 @@ export class TruthTreeNode {
 		}
 
 		// Update the universe of discourse
-		if (this.statement === null) {
-			return;
-		}
 
 		// Can only guarantee children are correctly initialized if the tree's
 		// initialized flag is set to true
@@ -490,10 +489,7 @@ export class TruthTreeNode {
 	 * branch.
 	 * @returns true if this statement is decomposed, false otherwise
 	 */
-	isDecomposed(mapping = null): Response {
-		if (mapping === null) {
-			mapping = this.tree.generateInitializationMapping();
-		}
+	isDecomposed(): Response {
 		const response: Response = {};
 
 		// Note: This catches terminators
@@ -546,6 +542,110 @@ export class TruthTreeNode {
 
 			// Get the branch ending with this terminator
 			const openBranch = openTerminatorNode.getAncestorBranch();
+
+			// Quantifiers are evaluated differently
+			if (this.statement instanceof QuantifierStatement) {
+				// Collect the decomposed nodes in this branch
+				const decomposedInBranch = new Set<number>();
+				for (const decomposed of this.decomposition) {
+					if (openBranch.has(decomposed)) {
+						decomposedInBranch.add(decomposed);
+					}
+				}
+
+				if (this.statement instanceof ExistenceStatement) {
+					// the statement needs to create exactly the number of new
+					// variables that it has variables
+					if (decomposedInBranch.size !== 1) {
+						response[this.id] =
+							'Existence statement must be decomposed exactly once in a branch.';
+						return response;
+					}
+
+					for (const decomposed of decomposedInBranch) {
+						const decomposedNode = this.tree.nodes[decomposed];
+						if (decomposedNode.statement === null) {
+							response[decomposed] =
+								'Empty statement cannot be a decomposition.';
+							return response;
+						}
+
+						// todo: actually check that the new constants come
+						// from a substitution
+
+						if (
+							decomposedNode.statement.getNewConstants(decomposedNode.universe!)
+								.size !== this.statement.variables.length
+						) {
+							response[this.id] = 'Does not instantiate a new variable.';
+							return response;
+						}
+					}
+				} else if (this.statement instanceof UniversalStatement) {
+					// statement needs to instantiate every variable in the UD
+
+					if (decomposedInBranch.size === 0) {
+						response[this.id] = 'Must instantiate at least one variable.';
+						return response;
+					}
+
+					if (decomposedInBranch.size !== openTerminatorNode.universe!.size) {
+						response[this.id] =
+							'Does not instantiate every variable in the universe of discourse';
+						return response;
+					}
+
+					// NOTE: this algorithm is brittle and does not work with
+					// functions, but can possibly be modified to
+					const symbolized = this.statement.symbolized();
+
+					const instantiated: {[formula: string]: Set<string>} = {};
+
+					for (const decomposed of decomposedInBranch) {
+						const decomposedNode = this.tree.nodes[decomposed];
+						if (decomposedNode.statement === null) {
+							response[decomposed] =
+								'Empty statement cannot be a decomposition.';
+							return response;
+						}
+
+						// todo: check the decomposed nodes span the UD
+						const mapping = symbolized.getEqualsMap(decomposedNode.statement);
+						if (mapping === false) {
+							response[decomposed] = 'Not an initialization of the antecedent';
+							return response;
+						}
+
+						for (const key of Object.keys(mapping)) {
+							if (!Object.keys(instantiated).includes(key)) {
+								instantiated[key] = new Set();
+							}
+							instantiated[key].add(mapping[key]);
+						}
+					}
+
+					// TODO: Make this work for multi-variable universals
+					for (const variable of this.statement.variables) {
+						const instantiations = instantiated[variable.predicate];
+						for (const constant of openTerminatorNode.universe!) {
+							let satisfied = false;
+							for (const instance of instantiations) {
+								if (constant.equals(new Formula(instance))) {
+									satisfied = true;
+									break;
+								}
+							}
+							if (!satisfied) {
+								response[this.id] =
+									'Does not instantiate every variable in the universe of discourse';
+								return response;
+							}
+						}
+					}
+				}
+
+				return response;
+			}
 
 			// Check if a node from the correct decomposition is in the
 			let containedInBranch = false;
@@ -659,6 +759,7 @@ export class TruthTree {
 	static empty(): TruthTree {
 		const tree = new TruthTree();
 		tree.nodes[0] = new TruthTreeNode(0, tree);
+		tree.nodes[0].universe = new Set();
 		tree.root = 0;
 		tree.leaves.add(0);
 		return tree;
