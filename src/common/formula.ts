@@ -25,6 +25,33 @@ export class Formula {
 	}
 
 	/**
+	 * Returns the Set of constants in this formula.
+	 * @param symbols the list of non-instantiated symbols
+	 * @returns set of constants contained in the formula
+	 */
+	getConstants(symbols: Formula[] = []): Set<Formula> {
+		const constants = new Set<Formula>();
+
+		if (this.args === null) {
+			// No args means this must be a constant
+			if (!symbols.some(symbol => symbol.equals(this))) {
+				// Not a non-instantiated symbol, so it's a constant
+				constants.add(this);
+			}
+		} else {
+			// Only add the atomic literals -- this is most likely incorrect as
+			// it ignores functions as constants
+			for (const arg of this.args) {
+				for (const constant of arg.getConstants()) {
+					constants.add(constant);
+				}
+			}
+		}
+
+		return constants;
+	}
+
+	/**
 	 * Determines whether or not this formula is equal to another formula given a partially formed
 	 * mapping of symbolized variables to instantiated variables.
 	 * @param other the other statement

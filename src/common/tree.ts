@@ -1,5 +1,11 @@
 import {FirstOrderLogicParser} from './parser';
-import {Statement, AtomicStatement, NotStatement} from './statement';
+import {Formula} from './formula';
+import {
+	Statement,
+	AtomicStatement,
+	NotStatement,
+	QuantifierStatement,
+} from './statement';
 
 interface Response {
 	[id: number]: string;
@@ -20,6 +26,11 @@ export class TruthTreeNode {
 	antecedent: number | null = null;
 	decomposition: Set<number> = new Set();
 	private _correctDecomposition: Set<number> | null = null;
+
+	// For FOL:
+	// The universe of discourse up to (but excluding) this node in the tree
+	// If this statement does not introduce any new constants, it is null
+	private _universe: Set<Formula> | null = null;
 
 	/**
 	 * Constructs a new `TruthTreeNode` in a `TruthTree`.
@@ -121,6 +132,36 @@ export class TruthTreeNode {
 		if (this.antecedent !== null) {
 			this.tree.nodes[this.antecedent].correctDecomposition = null;
 		}
+
+		// Update the universe of discourse
+		if (this.statement === null) {
+			return;
+		}
+
+		// Can only guarantee children are correctly initialized if the tree's
+		// initialized flag is set to true
+		if (this.tree.initialized === true) {
+			this.propogateUniverse(this.universe!, this._universe !== null);
+		}
+	}
+
+	/**
+	 * Returns the universe of discourse up to (excluding) this node.
+	 * Note that this function guarantees a Set<Formula>
+	 */
+	get universe(): Set<Formula> | null {
+		if (this._universe === null) {
+			if (this.parent === null) {
+				console.log('WARNING: root node has no universe!');
+				return new Set();
+			}
+			return this.tree.nodes[this.parent].universe;
+		}
+		return this._universe;
+	}
+
+	set universe(newUniverse: Set<Formula> | null) {
+		this._universe = newUniverse;
 	}
 
 	/**
@@ -299,6 +340,16 @@ export class TruthTreeNode {
 			return response;
 		}
 
+		// If the antecedent is a quantifier, there is a different procedure:
+		// check if the statement is an instantiated version of the quantifier
+		if (antecedentNode.statement instanceof QuantifierStatement) {
+			if (!antecedentNode.statement.symbolized().equals(this.statement)) {
+				response[this.id] = 'Not a valid instantiation of the quantifier.';
+			}
+			return response;
+		}
+
+		// Check if the node is a logical consequence of the antecedent
 		if (antecedentNode.correctDecomposition!.has(this.id)) {
 			return response;
 		}
@@ -439,9 +490,13 @@ export class TruthTreeNode {
 	 * branch.
 	 * @returns true if this statement is decomposed, false otherwise
 	 */
-	isDecomposed(): Response {
+	isDecomposed(mapping = null): Response {
+		if (mapping === null) {
+			mapping = this.tree.generateInitializationMapping();
+		}
 		const response: Response = {};
 
+		// Note: This catches terminators
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// decomposed if and only if the text is empty
@@ -450,7 +505,7 @@ export class TruthTreeNode {
 			}
 
 			// Terminators are all decomposed.
-			if (TruthTree.TERMINATORS.includes(this.text)) {
+			if (this.isTerminator()) {
 				return response;
 			}
 
@@ -478,14 +533,14 @@ export class TruthTreeNode {
 		}
 
 		// Check if this statement is decomposed in every open branch that contains it
-		for (const openTerminatorId of this.tree.leaves) {
-			const openTerminatorNode = this.tree.nodes[openTerminatorId];
+		for (const leafId of this.tree.leaves) {
+			const openTerminatorNode = this.tree.nodes[leafId];
 			if (openTerminatorNode.text !== TruthTree.OPEN_TERMINATOR) {
 				continue;
 			}
 
 			// Check if this statement is contained in the open branch.
-			if (!this.isAncestorOf(openTerminatorId)) {
+			if (!this.isAncestorOf(leafId)) {
 				continue;
 			}
 
@@ -502,12 +557,38 @@ export class TruthTreeNode {
 			if (!containedInBranch) {
 				response[
 					this.id
-				] = `Must be decomposed in open branch ending with node ${openTerminatorId}`;
+				] = `Must be decomposed in open branch ending with node ${leafId}`;
 				return response;
 			}
 		}
 
 		return response;
+	}
+
+	/**
+	 * Down-propogates the universe, updating as statements introduce new
+	 * constants.
+	 * @param universe the universe to propogate
+	 * @param changes if there were new nodes initialized from the prev. node
+	 */
+	propogateUniverse(universe: Set<Formula>, changes: boolean) {
+		// If there wasn't a change to the previous universe, set universe to
+		// null in order to mark that it should refer to the parent's universe
+		this.universe = changes ? universe : null;
+
+		const nextUniverse = new Set(universe);
+
+		// The children of this node have the constants added by this node
+		// in their respective universes
+		if (this.statement !== null) {
+			const newConstants = this.statement.getNewConstants(universe);
+			newConstants.forEach(Set.prototype.add, nextUniverse);
+			changes = newConstants.size > 0;
+		}
+
+		for (const childId of this.children) {
+			this.tree.nodes[childId].propogateUniverse(nextUniverse, changes);
+		}
 	}
 
 	/**
@@ -558,6 +639,8 @@ export class TruthTree {
 	private _root: number | undefined;
 	leaves: Set<number> = new Set();
 
+	initialized = true;
+
 	get root(): number {
 		if (this._root === undefined) {
 			throw new Error('Undefined root');
@@ -583,6 +666,9 @@ export class TruthTree {
 
 	static deserialize(jsonText: string): TruthTree {
 		const newTree = new TruthTree();
+
+		// While the tree is initializing, it is not initialized
+		newTree.initialized = false;
 
 		const parsed = JSON.parse(jsonText);
 		if (
@@ -624,6 +710,11 @@ export class TruthTree {
 				`TruthTree#deserialize: The tree does not match the format: ${e.message}`
 			);
 		}
+
+		newTree.nodes[newTree.root].propogateUniverse(new Set(), true);
+
+		// Tree has completed initializing
+		newTree.initialized = true;
 
 		return newTree;
 	}
@@ -767,8 +858,8 @@ export class TruthTree {
 
 		if (newBranch) {
 			parentNode.children.push(newId);
-			// Jeff - returning parentId allows people adding multiple branches
-			// at once to do so without having to click in between.
+			// Returning parent's ID allows people adding multiple branches at
+			// once to do so without having to click the parent many times.
 			return parentId;
 		}
 
@@ -807,6 +898,18 @@ export class TruthTree {
 			return null;
 		}
 		const node = this.nodes[id];
+
+		// Remove constants added by this node from the universe
+		if (node.statement !== null) {
+			const newConstants = node.statement.getNewConstants(node.universe!);
+			for (const childId of node.children) {
+				// Propogate the universe w/o the constants added by this node
+				this.nodes[childId].propogateUniverse(
+					node.universe!,
+					newConstants.size > 0
+				);
+			}
+		}
 
 		if (node.parent === null) {
 			// If the node has no parent, then it is the root of the tree
@@ -906,6 +1009,7 @@ export class TruthTree {
 	 */
 	isCorrect(): Response {
 		const response: Response = {};
+
 		for (const node of Object.values(this.nodes)) {
 			if (this.leaves.has(node.id) && !node.isTerminator()) {
 				response[node.id] = 'All leaves must be terminators.';

@@ -34,6 +34,29 @@ export abstract class Statement {
 	}
 
 	/**
+	 * Returns the Set of constants in the formula.
+	 * @param symbols the list of non-instantiated symbols
+	 * @returns set of constants contained in the formula
+	 */
+	abstract getConstants(symbols: Formula[]): Set<Formula>;
+
+	/**
+	 * Returns the set of Formulas introduced to the universe by this statement,
+	 * i.e. returns the set difference (this \ universe)
+	 * @param universe the set of Formulas initialized in the universe
+	 * @returns the set of Formulas newly initialized by this statement
+	 */
+	getNewConstants(universe: Set<Formula>): Set<Formula> {
+		// Grab the constants in this statement
+		const constants: Set<Formula> = this.getConstants([]);
+
+		// Prune values that are in the universe already
+		universe.forEach(Set.prototype.delete, constants);
+
+		return constants;
+	}
+
+	/**
 	 * Determines whether or not the given list of branches is a correct
 	 * decomposition of this statement.
 	 * @param branches the antecedent of this statement
@@ -101,6 +124,10 @@ export class Tautology extends Statement {
 		return other instanceof Tautology;
 	}
 
+	getConstants() {
+		return new Set<Formula>();
+	}
+
 	symbolized() {
 		return this;
 	}
@@ -117,6 +144,10 @@ export class Contradiction extends Statement {
 
 	equals(other: Statement) {
 		return other instanceof Contradiction;
+	}
+
+	getConstants() {
+		return new Set<Formula>();
 	}
 
 	symbolized() {
@@ -150,6 +181,10 @@ export class AtomicStatement extends Statement {
 	// 	);
 	// }
 
+	getConstants(symbols: Formula[] = []) {
+		return this.formula.getConstants(symbols);
+	}
+
 	symbolized(variables: Formula[], symbol: string) {
 		return new AtomicStatement(this.formula.symbolized(variables, symbol));
 	}
@@ -170,6 +205,10 @@ export abstract class UnaryStatement extends Statement {
 	constructor(operand: Statement) {
 		super();
 		this.operand = operand;
+	}
+
+	getConstants(symbols: Formula[] = []) {
+		return this.operand.getConstants(symbols);
 	}
 }
 
@@ -249,6 +288,13 @@ export abstract class BinaryStatement extends Statement {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
+
+	getConstants(symbols: Formula[] = []) {
+		return new Set([
+			...this.lhs.getConstants(symbols),
+			...this.rhs.getConstants(symbols),
+		]);
+	}
 }
 
 export class ConditionalStatement extends BinaryStatement {
@@ -324,6 +370,12 @@ export abstract class CommutativeStatement extends Statement {
 		super();
 		this.operands = operands;
 	}
+
+	getConstants(symbols: Formula[] = []) {
+		return new Set(
+			...this.operands.map(operand => operand.getConstants(symbols))
+		);
+	}
 }
 
 export class AndStatement extends CommutativeStatement {
@@ -394,6 +446,13 @@ export abstract class QuantifierStatement extends Statement {
 		super();
 		this.variables = variables;
 		this.formula = formula;
+	}
+
+	// Passing arguments to a quantifier doesn't make sense
+	abstract symbolized(): Statement;
+
+	getConstants() {
+		return this.formula.getConstants(this.variables);
 	}
 }
 
