@@ -1,8 +1,4 @@
-import {
-	Formula,
-	UNIVERSAL_REPLACEMENT_SYMBOL,
-	EXISTENTIAL_REPLACEMENT_SYMBOL,
-} from '../common/formula';
+import {Formula, REPLACEMENT_SYMBOL} from '../common/formula';
 
 export abstract class Statement {
 	/**
@@ -52,7 +48,7 @@ export abstract class Statement {
 	 * @param symbols the list of non-instantiated symbols
 	 * @returns set of constants contained in the formula
 	 */
-	abstract getConstants(symbols: Formula[]): Set<Formula>;
+	abstract getConstants(symbols: Formula[]): Formula[];
 
 	/**
 	 * Returns the set of Formulas introduced to the universe by this statement,
@@ -60,12 +56,21 @@ export abstract class Statement {
 	 * @param universe the set of Formulas initialized in the universe
 	 * @returns the set of Formulas newly initialized by this statement
 	 */
-	getNewConstants(universe: Set<Formula>): Set<Formula> {
+	getNewConstants(universe: Formula[]): Formula[] {
 		// Grab the constants in this statement
-		const constants: Set<Formula> = this.getConstants([]);
+		const constants: Formula[] = this.getConstants([]);
+		console.log(`Statement: ${this.toString()}`);
+		console.log(`# of unique constants in statement: ${constants.length}`);
 
 		// Prune values that are in the universe already
-		universe.forEach(Set.prototype.delete, constants);
+		for (const constant of universe) {
+			for (let index = 0; index < constants.length; ++index) {
+				if (constant.equals(constants[index])) {
+					constants.splice(index, 1);
+					break;
+				}
+			}
+		}
 
 		return constants;
 	}
@@ -139,7 +144,7 @@ export class Tautology extends Statement {
 	}
 
 	getConstants() {
-		return new Set<Formula>();
+		return [];
 	}
 
 	symbolized() {
@@ -161,7 +166,7 @@ export class Contradiction extends Statement {
 	}
 
 	getConstants() {
-		return new Set<Formula>();
+		return [];
 	}
 
 	symbolized() {
@@ -304,10 +309,14 @@ export abstract class BinaryStatement extends Statement {
 	}
 
 	getConstants(symbols: Formula[] = []) {
-		return new Set([
-			...this.lhs.getConstants(symbols),
-			...this.rhs.getConstants(symbols),
-		]);
+		const constants = this.lhs.getConstants(symbols);
+		for (const constant of this.rhs.getConstants(symbols)) {
+			if (constants.some(element => element.equals(constant))) {
+				continue;
+			}
+			constants.push(constant);
+		}
+		return constants;
 	}
 }
 
@@ -386,9 +395,16 @@ export abstract class CommutativeStatement extends Statement {
 	}
 
 	getConstants(symbols: Formula[] = []) {
-		return new Set(
-			...this.operands.map(operand => operand.getConstants(symbols))
-		);
+		const constants: Formula[] = [];
+		for (const operand of this.operands) {
+			for (const constant of operand.getConstants(symbols)) {
+				if (constants.some(element => element.equals(constant))) {
+					continue;
+				}
+				constants.push(constant);
+			}
+		}
+		return constants;
 	}
 }
 
@@ -462,11 +478,26 @@ export abstract class QuantifierStatement extends Statement {
 		this.formula = formula;
 	}
 
-	// Passing arguments to a quantifier doesn't make sense
-	abstract symbolized(): Statement;
+	symbolized(variables: Formula[] = []): Statement {
+		const all_symbols = variables;
+		for (const variable of this.variables) {
+			if (all_symbols.some(element => element.equals(variable))) {
+				continue;
+			}
+			all_symbols.push(variable);
+		}
+		return this.formula.symbolized(all_symbols, REPLACEMENT_SYMBOL);
+	}
 
-	getConstants() {
-		return this.formula.getConstants(this.variables);
+	getConstants(symbols: Formula[] = []) {
+		const all_symbols = symbols;
+		for (const variable of this.variables) {
+			if (all_symbols.some(element => element.equals(variable))) {
+				continue;
+			}
+			all_symbols.push(variable);
+		}
+		return this.formula.getConstants(all_symbols);
 	}
 }
 
@@ -488,13 +519,6 @@ export class ExistenceStatement extends QuantifierStatement {
 	// 		this.formula.equals(other.formula)
 	// 	);
 	// }
-
-	symbolized(): Statement {
-		return this.formula.symbolized(
-			this.variables,
-			EXISTENTIAL_REPLACEMENT_SYMBOL
-		);
-	}
 
 	toString() {
 		return `(∃${this.variables.join(',')} ${this.formula})`;
@@ -519,13 +543,6 @@ export class UniversalStatement extends QuantifierStatement {
 	// 		this.formula.equals(other.formula)
 	// 	);
 	// }
-
-	symbolized(): Statement {
-		return this.formula.symbolized(
-			this.variables,
-			UNIVERSAL_REPLACEMENT_SYMBOL
-		);
-	}
 
 	toString() {
 		return `(∀${this.variables.join(',')} ${this.formula})`;

@@ -32,7 +32,7 @@ export class TruthTreeNode {
 	// For FOL:
 	// The universe of discourse up to (but excluding) this node in the tree
 	// If this statement does not introduce any new constants, it is null
-	private _universe: Set<Formula> | null = null;
+	private _universe: Formula[] | null = null;
 
 	/**
 	 * Constructs a new `TruthTreeNode` in a `TruthTree`.
@@ -146,20 +146,20 @@ export class TruthTreeNode {
 
 	/**
 	 * Returns the universe of discourse up to (excluding) this node.
-	 * Note that this function guarantees a Set<Formula>
+	 * Note that this function guarantees a Formula[]
 	 */
-	get universe(): Set<Formula> | null {
+	get universe(): Formula[] | null {
 		if (this._universe === null) {
 			if (this.parent === null) {
 				console.log('WARNING: root node has no universe!');
-				return new Set();
+				return [];
 			}
 			return this.tree.nodes[this.parent].universe;
 		}
 		return this._universe;
 	}
 
-	set universe(newUniverse: Set<Formula> | null) {
+	set universe(newUniverse: Formula[] | null) {
 		this._universe = newUniverse;
 	}
 
@@ -575,7 +575,7 @@ export class TruthTreeNode {
 
 						if (
 							decomposedNode.statement.getNewConstants(decomposedNode.universe!)
-								.size !== this.statement.variables.length
+								.length !== this.statement.variables.length
 						) {
 							response[this.id] = 'Does not instantiate a new variable.';
 							return response;
@@ -589,7 +589,7 @@ export class TruthTreeNode {
 						return response;
 					}
 
-					if (decomposedInBranch.size !== openTerminatorNode.universe!.size) {
+					if (decomposedInBranch.size !== openTerminatorNode.universe!.length) {
 						response[this.id] =
 							'Does not instantiate every variable in the universe of discourse';
 						return response;
@@ -671,19 +671,21 @@ export class TruthTreeNode {
 	 * @param universe the universe to propogate
 	 * @param changes if there were new nodes initialized from the prev. node
 	 */
-	propogateUniverse(universe: Set<Formula>, changes: boolean) {
+	propogateUniverse(universe: Formula[], changes: boolean) {
 		// If there wasn't a change to the previous universe, set universe to
 		// null in order to mark that it should refer to the parent's universe
 		this.universe = changes ? universe : null;
 
-		const nextUniverse = new Set(universe);
+		const nextUniverse = [...universe];
 
 		// The children of this node have the constants added by this node
 		// in their respective universes
 		if (this.statement !== null) {
 			const newConstants = this.statement.getNewConstants(universe);
-			newConstants.forEach(Set.prototype.add, nextUniverse);
-			changes = newConstants.size > 0;
+			for (const newConstant of newConstants) {
+				nextUniverse.push(newConstant);
+			}
+			changes = newConstants.length > 0;
 		}
 
 		for (const childId of this.children) {
@@ -759,7 +761,7 @@ export class TruthTree {
 	static empty(): TruthTree {
 		const tree = new TruthTree();
 		tree.nodes[0] = new TruthTreeNode(0, tree);
-		tree.nodes[0].universe = new Set();
+		tree.nodes[0].universe = [];
 		tree.root = 0;
 		tree.leaves.add(0);
 		return tree;
@@ -812,7 +814,7 @@ export class TruthTree {
 			);
 		}
 
-		newTree.nodes[newTree.root].propogateUniverse(new Set(), true);
+		newTree.nodes[newTree.root].propogateUniverse([], true);
 
 		// Tree has completed initializing
 		newTree.initialized = true;
@@ -1007,7 +1009,7 @@ export class TruthTree {
 				// Propogate the universe w/o the constants added by this node
 				this.nodes[childId].propogateUniverse(
 					node.universe!,
-					newConstants.size > 0
+					newConstants.length > 0
 				);
 			}
 		}
