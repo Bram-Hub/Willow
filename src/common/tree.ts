@@ -273,9 +273,6 @@ export class TruthTreeNode {
 
 	set correctDecomposition(newCorrectDecomposition: Set<number> | null) {
 		this._correctDecomposition = newCorrectDecomposition;
-		if (newCorrectDecomposition === null) {
-			console.log(`Invalidating correct decomposition on node ${this.id}`);
-		}
 	}
 
 	togglePremise() {
