@@ -59,8 +59,6 @@ export abstract class Statement {
 	getNewConstants(universe: Formula[]): Formula[] {
 		// Grab the constants in this statement
 		const constants: Formula[] = this.getConstants([]);
-		console.log(`Statement: ${this.toString()}`);
-		console.log(`# of unique constants in statement: ${constants.length}`);
 
 		// Prune values that are in the universe already
 		for (const constant of universe) {
