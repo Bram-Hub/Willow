@@ -478,17 +478,6 @@ export abstract class QuantifierStatement extends Statement {
 		this.formula = formula;
 	}
 
-	symbolized(variables: Formula[] = []): Statement {
-		const all_symbols = variables;
-		for (const variable of this.variables) {
-			if (all_symbols.some(element => element.equals(variable))) {
-				continue;
-			}
-			all_symbols.push(variable);
-		}
-		return this.formula.symbolized(all_symbols, REPLACEMENT_SYMBOL);
-	}
-
 	getConstants(symbols: Formula[] = []) {
 		const all_symbols = symbols;
 		for (const variable of this.variables) {
@@ -498,6 +487,10 @@ export abstract class QuantifierStatement extends Statement {
 			all_symbols.push(variable);
 		}
 		return this.formula.getConstants(all_symbols);
+	}
+
+	symbolized(): Statement {
+		return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
 	}
 }
 
@@ -519,6 +512,18 @@ export class ExistenceStatement extends QuantifierStatement {
 	// 		this.formula.equals(other.formula)
 	// 	);
 	// }
+
+	symbolized(variables: Formula[] = []): Statement {
+		if (variables.length === 0) {
+			// not a nested quantifier
+			return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
+		}
+
+		return new ExistenceStatement(
+			this.variables,
+			this.formula.symbolized(variables, REPLACEMENT_SYMBOL)
+		);
+	}
 
 	toString() {
 		return `(∃${this.variables.join(',')} ${this.formula})`;
@@ -543,6 +548,18 @@ export class UniversalStatement extends QuantifierStatement {
 	// 		this.formula.equals(other.formula)
 	// 	);
 	// }
+
+	symbolized(variables: Formula[] = []): Statement {
+		if (variables.length === 0) {
+			// not a nested quantifier
+			return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
+		}
+
+		return new UniversalStatement(
+			this.variables,
+			this.formula.symbolized(variables, REPLACEMENT_SYMBOL)
+		);
+	}
 
 	toString() {
 		return `(∀${this.variables.join(',')} ${this.formula})`;
