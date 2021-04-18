@@ -41,6 +41,7 @@ Closed Branch|`×`
 
 ### Statements/Nodes:
 Statements are comprised of a textbox a check/x and more supporting information. Statements may also have a temporary color for example blue to signify the current statement you have selected.
+
 ![Example Statement](https://user-images.githubusercontent.com/18558130/115157194-e3d54000-a055-11eb-9cfa-e5b7f54ab010.png)
 
 
