@@ -23,7 +23,7 @@ Everyone has their own prefered [logical symbols](https://en.wikipedia.org/wiki/
 Symbol|Options
 ---|---
 [Negation](https://en.wikipedia.org/wiki/Negation)|`not` `¬` `!` `~`
-[Disjunction](https://en.wikipedia.org/wiki/Logical_disjunction)|`or` `∨` `|`
+[Disjunction](https://en.wikipedia.org/wiki/Logical_disjunction)|`or` `∨` `\|`
 [Conjunction](https://en.wikipedia.org/wiki/Logical_conjunction)|`and` `∧` `&`
 [Implication](https://en.wikipedia.org/wiki/Material_conditional)|`implies` `only if` `→` `$` `->`
 [Equivalence](https://en.wikipedia.org/wiki/If_and_only_if)|`iff` `equiv` `↔` `%` `<->`
