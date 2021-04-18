@@ -1,5 +1,8 @@
-export const EXISTENTIAL_REPLACEMENT_SYMBOL = '?';
-export const UNIVERSAL_REPLACEMENT_SYMBOL = '.';
+export const REPLACEMENT_SYMBOL = '.';
+
+interface ReplacementMap {
+	[variable: string]: Formula;
+}
 
 export class Formula {
 	predicate: string;
@@ -25,8 +28,45 @@ export class Formula {
 	}
 
 	/**
-	 * Determines whether or not this formula is equal to another formula given a partially formed
-	 * mapping of symbolized variables to instantiated variables.
+	 * Returns the Set of constants in this formula.
+	 * @param symbols the list of non-instantiated symbols
+	 * @returns set of constants contained in the formula
+	 */
+	getConstants(symbols: Formula[] = []): Formula[] {
+		const constants: Formula[] = [];
+
+		if (this.args === null) {
+			// No args means this must be a constant
+			if (!symbols.some(symbol => symbol.equals(this))) {
+				// Not a non-instantiated symbol, so it's a constant
+				constants.push(this);
+			}
+		} else {
+			// Only add the atomic literals -- this is most likely incorrect as
+			// it ignores functions as constants
+			for (const arg of this.args) {
+				for (const constant of arg.getConstants(symbols)) {
+					let conflict = false;
+					for (const prefound of constants) {
+						if (prefound.equals(constant)) {
+							conflict = true;
+							break;
+						}
+					}
+					if (!conflict) {
+						constants.push(constant);
+					}
+				}
+			}
+		}
+
+		return constants;
+	}
+
+	/**
+	 * Determines whether or not this formula is equal to another formula given
+	 * a partially formed mapping of symbolized variables to instantiated
+	 * variables.
 	 * @param other the other statement
 	 * @param replacementMap the mapping of symbols to instantiated variables
 	 * @modifies replacementMap if there are any new mappings to be made
@@ -92,11 +132,8 @@ class FormulaEquivalenceEvaluator {
 	}
 
 	private checkEquivalenceHelper(lhs: Formula, rhs: Formula): boolean {
-		// Check if either of the predicates are the universal replacement
-		const hadReplacement = this.getUniversalReplacement(
-			lhs.predicate,
-			rhs.predicate
-		);
+		// Check if one of the predicates instantiates the other
+		const hadReplacement = this.getReplacement(lhs.predicate, rhs.predicate);
 
 		// Multiple mappings for the same key in the replacement map
 		if (hadReplacement === null) {
@@ -117,19 +154,25 @@ class FormulaEquivalenceEvaluator {
 			return false;
 		}
 
-		// Every argument must match recursively
 		return lhs.args.every((arg, index) =>
 			this.checkEquivalenceHelper(arg, rhs.args![index])
 		);
 	}
 
-	private getUniversalReplacement(lhs: string, rhs: string): boolean | null {
+	/**
+	 *
+	 * @param lhs the first item to compare
+	 * @param rhs the second item to compare
+	 * @returns null if there is a conflicting replacement, true if there is a
+	 * valid replacement, or false if no replacement occurs
+	 */
+	private getReplacement(lhs: string, rhs: string): boolean | null {
 		let key: string | null = null;
 		let value: string | null = null;
 
 		for (const arg of [lhs, rhs]) {
-			if (arg.startsWith(UNIVERSAL_REPLACEMENT_SYMBOL)) {
-				key = arg.slice(UNIVERSAL_REPLACEMENT_SYMBOL.length);
+			if (arg.startsWith(REPLACEMENT_SYMBOL)) {
+				key = arg.slice(REPLACEMENT_SYMBOL.length);
 			} else {
 				value = arg;
 			}

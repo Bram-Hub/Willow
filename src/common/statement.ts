@@ -1,8 +1,4 @@
-import {
-	Formula,
-	UNIVERSAL_REPLACEMENT_SYMBOL,
-	EXISTENTIAL_REPLACEMENT_SYMBOL,
-} from '../common/formula';
+import {Formula, REPLACEMENT_SYMBOL} from '../common/formula';
 
 export abstract class Statement {
 	/**
@@ -31,6 +27,50 @@ export abstract class Statement {
 	 */
 	equals(other: Statement): boolean {
 		return new StatementEquivalenceEvaluator(this, other).checkEquivalence();
+	}
+
+	/**
+	 *
+	 * @param other the other statement
+	 * @returns false if the statements are not equivalent, or the replacement
+	 * map used for the variables otherwise
+	 */
+	getEqualsMap(other: Statement): {[variable: string]: string} | false {
+		const evaluator = new StatementEquivalenceEvaluator(this, other);
+		if (!evaluator.checkEquivalence()) {
+			return false;
+		}
+		return evaluator.replacementMap;
+	}
+
+	/**
+	 * Returns the Set of constants in the formula.
+	 * @param symbols the list of non-instantiated symbols
+	 * @returns set of constants contained in the formula
+	 */
+	abstract getConstants(symbols: Formula[]): Formula[];
+
+	/**
+	 * Returns the set of Formulas introduced to the universe by this statement,
+	 * i.e. returns the set difference (this \ universe)
+	 * @param universe the set of Formulas initialized in the universe
+	 * @returns the set of Formulas newly initialized by this statement
+	 */
+	getNewConstants(universe: Formula[]): Formula[] {
+		// Grab the constants in this statement
+		const constants: Formula[] = this.getConstants([]);
+
+		// Prune values that are in the universe already
+		for (const constant of universe) {
+			for (let index = 0; index < constants.length; ++index) {
+				if (constant.equals(constants[index])) {
+					constants.splice(index, 1);
+					break;
+				}
+			}
+		}
+
+		return constants;
 	}
 
 	/**
@@ -101,6 +141,10 @@ export class Tautology extends Statement {
 		return other instanceof Tautology;
 	}
 
+	getConstants() {
+		return [];
+	}
+
 	symbolized() {
 		return this;
 	}
@@ -117,6 +161,10 @@ export class Contradiction extends Statement {
 
 	equals(other: Statement) {
 		return other instanceof Contradiction;
+	}
+
+	getConstants() {
+		return [];
 	}
 
 	symbolized() {
@@ -150,6 +198,10 @@ export class AtomicStatement extends Statement {
 	// 	);
 	// }
 
+	getConstants(symbols: Formula[] = []) {
+		return this.formula.getConstants(symbols);
+	}
+
 	symbolized(variables: Formula[], symbol: string) {
 		return new AtomicStatement(this.formula.symbolized(variables, symbol));
 	}
@@ -170,6 +222,10 @@ export abstract class UnaryStatement extends Statement {
 	constructor(operand: Statement) {
 		super();
 		this.operand = operand;
+	}
+
+	getConstants(symbols: Formula[] = []) {
+		return this.operand.getConstants(symbols);
 	}
 }
 
@@ -249,6 +305,17 @@ export abstract class BinaryStatement extends Statement {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
+
+	getConstants(symbols: Formula[] = []) {
+		const constants = this.lhs.getConstants(symbols);
+		for (const constant of this.rhs.getConstants(symbols)) {
+			if (constants.some(element => element.equals(constant))) {
+				continue;
+			}
+			constants.push(constant);
+		}
+		return constants;
+	}
 }
 
 export class ConditionalStatement extends BinaryStatement {
@@ -324,6 +391,19 @@ export abstract class CommutativeStatement extends Statement {
 		super();
 		this.operands = operands;
 	}
+
+	getConstants(symbols: Formula[] = []) {
+		const constants: Formula[] = [];
+		for (const operand of this.operands) {
+			for (const constant of operand.getConstants(symbols)) {
+				if (constants.some(element => element.equals(constant))) {
+					continue;
+				}
+				constants.push(constant);
+			}
+		}
+		return constants;
+	}
 }
 
 export class AndStatement extends CommutativeStatement {
@@ -395,6 +475,21 @@ export abstract class QuantifierStatement extends Statement {
 		this.variables = variables;
 		this.formula = formula;
 	}
+
+	getConstants(symbols: Formula[] = []) {
+		const all_symbols = symbols;
+		for (const variable of this.variables) {
+			if (all_symbols.some(element => element.equals(variable))) {
+				continue;
+			}
+			all_symbols.push(variable);
+		}
+		return this.formula.getConstants(all_symbols);
+	}
+
+	symbolized(): Statement {
+		return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
+	}
 }
 
 export class ExistenceStatement extends QuantifierStatement {
@@ -416,10 +511,15 @@ export class ExistenceStatement extends QuantifierStatement {
 	// 	);
 	// }
 
-	symbolized(): Statement {
-		return this.formula.symbolized(
+	symbolized(variables: Formula[] = []): Statement {
+		if (variables.length === 0) {
+			// not a nested quantifier
+			return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
+		}
+
+		return new ExistenceStatement(
 			this.variables,
-			EXISTENTIAL_REPLACEMENT_SYMBOL
+			this.formula.symbolized(variables, REPLACEMENT_SYMBOL)
 		);
 	}
 
@@ -447,10 +547,15 @@ export class UniversalStatement extends QuantifierStatement {
 	// 	);
 	// }
 
-	symbolized(): Statement {
-		return this.formula.symbolized(
+	symbolized(variables: Formula[] = []): Statement {
+		if (variables.length === 0) {
+			// not a nested quantifier
+			return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
+		}
+
+		return new UniversalStatement(
 			this.variables,
-			UNIVERSAL_REPLACEMENT_SYMBOL
+			this.formula.symbolized(variables, REPLACEMENT_SYMBOL)
 		);
 	}
 
