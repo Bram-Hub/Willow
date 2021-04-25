@@ -18,6 +18,7 @@
     "debug": "nodemon",
     "dev": "npx webpack && node --inspect -r ts-node/register src/server/server.ts",
     "start": "node --inspect -r ts-node/register src/server/server.ts",
+    "build": "npx webpack --mode production",
     "heroku-postbuild": "npx webpack --mode production"
   },
   "repository": {

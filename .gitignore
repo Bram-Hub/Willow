@@ -4,6 +4,8 @@ logs/*
 !logs/.keep
 
 public/js/index.js
+public/js/index.js.LICENSE.txt
+public/index.html
 
 ###############
 ### Node.js ###
