@@ -1,0 +1,33 @@
+name: Deploy to github pages
+on:
+  repository_dispatch:
+    types: deploy
+  push:
+    branches:
+      - rewrite
+jobs:
+  gh-pages-deploy:
+    name: Deploying to gh-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js for use with actions
+        uses: actions/setup-node@v1.4.4
+        with:
+          version:  15.x
+          
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install pug-cli -g
+          
+      - name: Build website
+        run: pug -O '{commit:"'$GITHUB_SHA'", basedir:"views/"}' views/index.pug --out public/
+        
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: gh-pages
+          folder: public
