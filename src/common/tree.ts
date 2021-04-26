@@ -287,11 +287,6 @@ export class TruthTreeNode {
 	 * @returns true if this statement is valid, false otherwise
 	 */
 	isValid(): Response {
-		if (this.premise) {
-			// Premises are always valid
-			return true;
-		}
-
 		if (this.isTerminator()) {
 			// Terminators should have no children
 			if (this.children.length > 0) {
@@ -313,6 +308,11 @@ export class TruthTreeNode {
 			}
 
 			return 'not_parsable';
+		}
+
+		if (this.premise) {
+			// Premises are always valid
+			return true;
 		}
 
 		// Non-premises must have an antecedent for this statement to be valid
