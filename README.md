@@ -14,6 +14,21 @@ See our [User's Manual](userguide.md).
 
 1. Clone the repository via `git clone https://github.com/connorjayr/Willow.git`.
 
-2. Install project dependencies via `npm install` from the project root directory.
+2. Install project dependencies via `npm ci` from the project root directory.
 
-3. Launch the application by executing `npm start`.
+3. Create an env file `cp .env.template .env`
+
+Variable|Description
+--- | ---
+NODE_ENV|The environment in which this application is being run. The possible values are `development` and `production`
+HTTPS|If the program is being run on an https server
+PORT|The port to launch the program on.
+
+5. Launch the application using `npm run <command>` with one of the commands in the table below.
+
+Command |Use
+--- | ---
+`debug`|Recommended for development. Uses nodemon to recompile the code when changes are made.
+`dev`|Runs the program once. Must be restarted when changes are made
+`build`|Builds the website in production mode
+`start`|Runs the built program
