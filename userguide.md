@@ -4,9 +4,9 @@
 ## What is Willow and what are truth trees?
 Willow is a web-based application for creating and validating truth trees. Truth trees build uppon the [short truth table method](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-ShortTruthTable.pdf). They work in the same way except when there are no forced truth assignments, the tree branches into two sub-trees. [You may read more about truth trees here](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-Trees.pdf)
 
-## Opening willow
+## Opening Willow
 ### Creating a new tree:
-- **Option 1:** Open willow in a new tab [https://willow-truth-tree.herokuapp.com/](https://willow-truth-tree.herokuapp.com/)
+- **Option 1:** Open Willow in a new tab [https://willow-truth-tree.herokuapp.com/](https://willow-truth-tree.herokuapp.com/)
 - **Option 2:** Click `File>New`
 
 ### Saving an existing tree:
@@ -39,8 +39,10 @@ Closed Branch|`×`
 
 `¬((A | B) and (C -> D)) equiv E`
 
-### Statements/Nodes:
-Statements are comprised of a textbox a check/x and more supporting information. Statements may also have a temporary color for example blue to signify the current statement you have selected.
+### Statements:
+Statements are [First-order logic](https://en.wikipedia.org/wiki/First-order_logic) expressions in textboxes. To the left of each statement is a symbol representing one of three possibilities. A green check mark signifies your statement is a logical consequence and is correctly decomposed within the tree. A red "X" signifies an issue with that statement; hovering your mouse over this "X" will give you more information regarding the issue. A yellow triangle signifies that the statement itself is not recognized by the First-order logic expression parser*. In addition to these symbols, the currently selected statement is highlighted blue, its decomposition is highlighted red, and its logical "parent" is highlighted green.
+
+*If you believe you wrote a valid FOL statement but it is not recognized, please contact a developer. 
 
 ![Example Statement](https://user-images.githubusercontent.com/18558130/115157194-e3d54000-a055-11eb-9cfa-e5b7f54ab010.png)
 
@@ -59,7 +61,7 @@ To split the truth tree into two branches, click on a statement. Then click `Edi
 
 
 
-#### Deleting a statment
+#### Deleting a statement
 To remove a statement, click on a statement. Then click `Edit>Delete statement` or press `ctrl+d`(default).
 
 ![Peek 2021-04-18 15-21](https://user-images.githubusercontent.com/18558130/115157912-b7232780-a059-11eb-9cc6-48379a449cc2.gif)
@@ -84,15 +86,15 @@ A correctly decomposed premise will be indicated by a green checkmark to the lef
 
 
 ### Decomposition:
-1. To decompose a premise/statment first add the correct branches/statements that it decomposes into. You can read more about [valid decomposition rules here](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-Trees.pdf#%5B%7B%22num%22%3A27%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22Fit%22%7D%5D)
+1. To decompose a premise/statement first add the correct branches/statements that it decomposes into. You can read more about [valid decomposition rules here](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-Trees.pdf#%5B%7B%22num%22%3A27%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22Fit%22%7D%5D)
 1. You now have 2 options
 
-a) If you would like to decompose the current statment, right click all the statements below it in the tree that it decomposes into. These statemets will turn red and will say `decomposes into`.
+a) If you would like to decompose the current statement, right click all the statements below it in the tree that it decomposes into. These statements will turn red and will say `decomposes into`.
 
  ![Peek 2021-04-18 15-07](https://user-images.githubusercontent.com/18558130/115157543-e6d13000-a057-11eb-9f15-18d61265d7fa.gif)
 
 
- b) If you would like to select the statements that the current statements are the logical consequence of, right click all the statements above it in the tree that it was decomposed from. These statemets will turn green and will say `logical consequence of`.
+ b) If you would like to select the statements that the current statements are the logical consequence of, right click all the statements above it in the tree that it was decomposed from. These statements will turn green and will say `logical consequence of`.
 
 ![Peek 2021-04-18 15-09](https://user-images.githubusercontent.com/18558130/115157592-154f0b00-a058-11eb-83ef-786e28c8b5dc.gif)
 
@@ -109,7 +111,7 @@ You may check the truth tree is valid by clicking `Evaluate>Check correctness`
 
 ## UI tips
 ### Collapsing a branch
-As your truth tree grows, it may make it hard to follow what is going on. Willow allows you to collapse branches to hide them from the screen. Do not worry, collapsed branch will still be used when willow is evaluating your tree, these branches are just hidden from the user.
+As your truth tree grows, it may make it hard to follow what is going on. Willow allows you to collapse branches to hide them from the screen. Do not worry, a collapsed branch will still be used when Willow is evaluating your tree, these branches are just hidden from the user.
 
 - Hiding a branch: Click the downward facing chevron next to the first statement in any branch.
 - Unhiding a branch: Click the rightward facing chevron next to the first statement in a hidden branch
