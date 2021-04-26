@@ -93,7 +93,7 @@
   position: relative;
 }
 
-.truth-tree i.fas.fa-check, .truth-tree i.fas.fa-times {
+.truth-tree i.fas.fa-check, .truth-tree i.fas.fa-times, .truth-tree i.fas.fa-exclamation-triangle {
   position: absolute;
   top: 50%;
   left: -30px;
@@ -106,6 +106,10 @@
 
 .truth-tree i.fas.fa-times {
   color: #c08080;
+}
+
+.truth-tree i.fas.fa-exclamation-triangle {
+  color: #bdbc58;
 }
 
 .selected {
