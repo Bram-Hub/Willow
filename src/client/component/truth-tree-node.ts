@@ -11,9 +11,9 @@ export const TruthTreeNodeComponent: vue.Component = {
 		},
 	},
 	template: `
-    <span v-if="$store.state.developerMode">id: {{ id }} valid: {{ JSON.stringify(node.isValid()) }} decomposed: {{ JSON.stringify(node.isDecomposed()) }} universe: {{ JSON.stringify(Array.from(node.universe).map(formula => formula.toString()) ) }} </span>
-    <i v-if="Object.keys(node.isValid()).length === 0 && Object.keys(node.isDecomposed()).length === 0" class="fas fa-check"></i>
-    <i v-else class="fas fa-times"></i>
+    <span v-if="$store.state.developerMode">id: {{ id }} valid: {{ node.isValid() }} decomposed: {{ node.isDecomposed() }} universe: {{ JSON.stringify(Array.from(node.universe).map(formula => formula.toString()) ) }} </span>
+    <i v-if="node.isValid() === true && node.isDecomposed() === true" class="fas fa-check" :title="node.getFeedback()"></i>
+    <i v-else class="fas fa-times" :title="node.getFeedback()"></i>
     <input :id='"node" + this.id' type="text" v-model="node.text" :class="{
       'statement': true,
       'open-terminator': node.text === '◯',
