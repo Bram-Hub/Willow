@@ -97,8 +97,8 @@
 .truth-tree i.fas.fa-check, .truth-tree i.fas.fa-times, .truth-tree i.fas.fa-exclamation-triangle {
   position: absolute;
   top: 50%;
-  left: -30px;
-  transform: translateY(-50%);
+  left: -20px;
+  transform: translate(-50%, -50%);
 }
 
 .truth-tree i.fas.fa-check {
