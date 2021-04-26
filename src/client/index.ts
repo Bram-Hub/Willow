@@ -96,14 +96,7 @@ vue
 			},
 			checkCorrectness() {
 				const correctnessResponse = this.$store.state.tree.isCorrect();
-				if (Object.keys(correctnessResponse).length === 0) {
-					alert('This tree is correct!');
-				} else {
-					const message =
-						'This tree is invalid:\n' +
-						Object.values(correctnessResponse).join('\n');
-					alert(message);
-				}
+				alert(correctnessResponse);
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
