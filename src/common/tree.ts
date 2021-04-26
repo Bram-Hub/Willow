@@ -9,9 +9,7 @@ import {
 	UniversalStatement,
 } from './statement';
 
-interface Response {
-	[id: number]: string;
-}
+type Response = string | true;
 
 export class TruthTreeNode {
 	id: number;
@@ -291,10 +289,15 @@ export class TruthTreeNode {
 	isValid(): Response {
 		if (this.premise) {
 			// Premises are always valid
-			return {};
+			return true;
 		}
 
 		if (this.isTerminator()) {
+			// Terminators should have no children
+			if (this.children.length > 0) {
+				return 'terminator_not_last';
+			}
+
 			if (this.text === TruthTree.OPEN_TERMINATOR) {
 				return this.isOpenTerminatorValid();
 			}
@@ -302,56 +305,49 @@ export class TruthTreeNode {
 			return this.isClosedTerminatorValid();
 		}
 
-		const response: Response = {};
-
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// valid if and only if the text is empty
 			if (this.text.trim().length === 0) {
-				return response;
+				return true;
 			}
 
-			response[
-				this.id
-			] = `isValid: '${this.text}' is not a parsable statement.`;
-			return response;
+			return 'not_parsable';
 		}
 
 		// Non-premises must have an antecedent for this statement to be valid
 		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
-			response[this.id] = 'Non-premise does not have an antecedent.';
-			return response;
+			return 'not_logical_consequence';
 		}
 
 		// The antecedent must have been successfully parsed into a statement
 		const antecedentNode = this.tree.nodes[this.antecedent];
 		if (antecedentNode.statement === null) {
-			response[this.id] = 'Antecedent is not a parsable statement.';
-			return response;
+			// Cannot be a logical consequence of nothing
+			return 'not_logical_consequence';
 		}
 
 		// The antecedent must be in the ancestor branch
 		if (!this.getAncestorBranch().has(this.antecedent)) {
-			response[this.id] = 'Antecedent is not an ancestor.';
-			return response;
+			return 'not_logical_consequence';
 		}
 
 		// If the antecedent is a quantifier, there is a different procedure:
 		// check if the statement is an instantiated version of the quantifier
 		if (antecedentNode.statement instanceof QuantifierStatement) {
 			if (!antecedentNode.statement.symbolized().equals(this.statement)) {
-				response[this.id] = 'Not a valid instantiation of the quantifier.';
+				// Not a valid instantiation of the quantifier.
+				return 'invalid_instantiation';
 			}
-			return response;
+			return true;
 		}
 
 		// Check if the node is a logical consequence of the antecedent
 		if (antecedentNode.correctDecomposition!.has(this.id)) {
-			return response;
+			return true;
 		}
 
-		response[this.id] = 'Not in a correct decomposition of antecedent.';
-		return response;
+		return 'not_logical_consequence';
 	}
 
 	/**
@@ -363,12 +359,9 @@ export class TruthTreeNode {
 	private isOpenTerminatorValid(): Response {
 		// Keep track of every Atomic and negation of an Atomic
 		const contradictionMap: Set<string> = new Set();
-		const response: Response = {};
 
 		if (this.decomposition.size !== 0) {
-			response[this.id] =
-				'Open terminators should not decompose into anything.';
-			return response;
+			return 'open_decomposed';
 		}
 
 		for (const ancestorId of this.getAncestorBranch()) {
@@ -383,8 +376,8 @@ export class TruthTreeNode {
 			) {
 				// If there is a contradiction, it's invalid
 				if (contradictionMap.has(ancestorStatement.toString())) {
-					response[this.id] = 'An open branch cannot contain a contradiction.';
-					return response;
+					// Branch has a contradiction
+					return 'open_contradiction';
 				}
 
 				// Otherwise, store this statement for possible future contradictions
@@ -397,19 +390,18 @@ export class TruthTreeNode {
 
 			// Check if each ancestor is valid
 			const ancestorValidity = ancestorNode.isValid();
-			if (Object.keys(ancestorValidity).length > 0) {
-				return ancestorValidity;
+			if (ancestorValidity !== true) {
+				return 'open_invalid_ancestor';
 			}
 
 			// Check if each ancestor is decomposed
 			const ancestorDecomposed = ancestorNode.isDecomposed();
-			if (Object.keys(ancestorDecomposed).length > 0) {
-				return ancestorDecomposed;
+			if (ancestorDecomposed !== true) {
+				return 'open_invalid_ancestor';
 			}
 		}
 
-		return response;
-		// return false;
+		return true;
 	}
 
 	/**
@@ -419,14 +411,9 @@ export class TruthTreeNode {
 	 * @returns true if this closed terminator is valid, false otherwise
 	 */
 	private isClosedTerminatorValid(): Response {
-		const response: Response = {};
-
 		// Closed terminators must reference exactly two statements
 		if (this.decomposition.size !== 2) {
-			response[this.id] =
-				'Closed terminators must reference exactly 2 statements.';
-			return response;
-			// return false;
+			return 'closed_reference_length';
 		}
 
 		const decomposed_statements = [...this.decomposition].map(
@@ -439,19 +426,13 @@ export class TruthTreeNode {
 
 			if (first === null || second === null) {
 				// This should never happen
-				response[this.id] =
-					'A closed terminator cannot reference a null statement for a contradiction.';
-				return response;
-				// return false;
+				return 'closed_reference_invalid';
 			}
 
 			// The referenced statements must be an atomic and its negation
 			if (first instanceof NotStatement && first.operand.equals(second)) {
 				if (!(second instanceof AtomicStatement)) {
-					response[this.id] =
-						'A contradiction can only be defined on an atomic statement and its negation.';
-					return response;
-					// return false;
+					return 'closed_not_atomic';
 				}
 
 				// The referenced statements must also be ancestors of the closed
@@ -459,26 +440,22 @@ export class TruthTreeNode {
 				const ancestorBranch = this.getAncestorBranch();
 				for (const id of this.decomposition) {
 					if (!ancestorBranch.has(id)) {
-						response[this.id] =
-							'A branch cannot be closed by a contradiction not within this branch.';
-						return response;
-						// return false;
+						return 'closed_not_ancestor';
 					}
 
-					const ancestorIsValid = this.tree.nodes[id].isValid();
-					if (Object.keys(ancestorIsValid).length > 0) {
-						return ancestorIsValid;
-						// return false;
-					}
+					// Jeff 4/26: do we need the check below? Commenting out for
+					// now, may need to reinstate it.
+
+					// const ancestorIsValid = this.tree.nodes[id].isValid();
+					// if (Object.keys(ancestorIsValid).length > 0) {
+					// 	return ancestorIsValid;
+					// }
 				}
-				return response;
-				// return true;
+				return true;
 			}
 		}
 
-		response[this.id] = 'A closed terminator must come from a contradiction.';
-		return response;
-		// return false;
+		return 'closed_not_contradiction';
 	}
 
 	/**
@@ -487,41 +464,34 @@ export class TruthTreeNode {
 	 * @returns true if this statement is decomposed, false otherwise
 	 */
 	isDecomposed(): Response {
-		const response: Response = {};
+		// const response: Response = {};
 
 		// Note: This catches terminators
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
 			// decomposed if and only if the text is empty
 			if (this.text.trim().length === 0) {
-				return response;
+				return true;
 			}
 
 			// Terminators are all decomposed.
 			if (this.isTerminator()) {
-				return response;
+				return true;
 			}
 
-			response[
-				this.id
-			] = `isDecomposed: '${this.text}' is not a parsable statement.`;
-			return response;
-			// return false;
+			return 'not_parsable';
 		}
 
 		const expectedDecomposition = this.statement.decompose();
 		if (expectedDecomposition.length === 0) {
 			// A statement with no decomposition is vacuously decomposed
-			return response;
-			// return true;
+			return true;
 		}
 
 		// Check if every decomposed node is in a child branch of this node.
 		for (const decomposedId of this.decomposition) {
 			if (!this.isAncestorOf(decomposedId)) {
-				response[this.id] =
-					'A node must be an ancestor of what it decomposes into.';
-				return response;
+				return 'reference_not_after';
 			}
 		}
 
@@ -553,18 +523,19 @@ export class TruthTreeNode {
 				if (this.statement instanceof ExistenceStatement) {
 					// the statement needs to create exactly the number of new
 					// variables that it has variables
+
+					// TODO: this should not be required. alternative
+					// decomposition rules for existential do not require this.
 					if (decomposedInBranch.size !== 1) {
-						response[this.id] =
-							'Existence statement must be decomposed exactly once in a branch.';
-						return response;
+						// Existence statement must be decomposed exactly once
+						return 'existence_decompose_length';
 					}
 
 					for (const decomposed of decomposedInBranch) {
 						const decomposedNode = this.tree.nodes[decomposed];
 						if (decomposedNode.statement === null) {
-							response[decomposed] =
-								'Empty statement cannot be a decomposition.';
-							return response;
+							// An empty statement cannot be a decomposition
+							return 'invalid_decomposition';
 						}
 
 						// todo: actually check that the new constants come
@@ -574,22 +545,22 @@ export class TruthTreeNode {
 							decomposedNode.statement.getNewConstants(decomposedNode.universe!)
 								.length !== this.statement.variables.length
 						) {
-							response[this.id] = 'Does not instantiate a new variable.';
-							return response;
+							// Need to actually instantiate new variables
+							return 'invalid_decomposition';
 						}
 					}
 				} else if (this.statement instanceof UniversalStatement) {
 					// statement needs to instantiate every variable in the UD
 
 					if (decomposedInBranch.size === 0) {
-						response[this.id] = 'Must instantiate at least one variable.';
-						return response;
+						// Must instantiate at least one variable
+						return 'universal_decompose_length';
 					}
 
+					// TODO: is this true?
 					if (decomposedInBranch.size !== openTerminatorNode.universe!.length) {
-						response[this.id] =
-							'Does not instantiate every variable in the universe of discourse';
-						return response;
+						// Must instantiate every variable in the UD
+						return 'universal_domain_not_decomposed';
 					}
 
 					// NOTE: this algorithm is brittle and does not work with
@@ -601,16 +572,15 @@ export class TruthTreeNode {
 					for (const decomposed of decomposedInBranch) {
 						const decomposedNode = this.tree.nodes[decomposed];
 						if (decomposedNode.statement === null) {
-							response[decomposed] =
-								'Empty statement cannot be a decomposition.';
-							return response;
+							// An empty statement cannot be a decomposition
+							return 'invalid_decomposition';
 						}
 
 						// todo: check the decomposed nodes span the UD
 						const mapping = symbolized.getEqualsMap(decomposedNode.statement);
 						if (mapping === false) {
-							response[decomposed] = 'Not an initialization of the antecedent';
-							return response;
+							// Not an initialization of the antecedent
+							return 'invalid_decomposition';
 						}
 
 						for (const key of Object.keys(mapping)) {
@@ -633,15 +603,14 @@ export class TruthTreeNode {
 								}
 							}
 							if (!satisfied) {
-								response[this.id] =
-									'Does not instantiate every variable in the universe of discourse';
-								return response;
+								// Does not instantiate every variable in the UD
+								return 'universal_domain_not_decomposed';
 							}
 						}
 					}
 				}
 
-				return response;
+				return true;
 			}
 
 			// Check if a node from the correct decomposition is in the
@@ -652,14 +621,29 @@ export class TruthTreeNode {
 				}
 			}
 			if (!containedInBranch) {
-				response[
-					this.id
-				] = `Must be decomposed in open branch ending with node ${leafId}`;
-				return response;
+				// This node is not decomposed in every open branch
+				return 'invalid_decomposition';
 			}
 		}
 
-		return response;
+		return true;
+	}
+
+	getFeedback(): string {
+		const validity = this.isValid();
+		if (validity !== true) {
+			return this.tree.getResponseMessage(validity);
+		}
+		const decomp = this.isDecomposed();
+		if (decomp !== true) {
+			return this.tree.getResponseMessage(decomp);
+		}
+
+		if (this.premise) {
+			return 'This statement is a premise.';
+		}
+
+		return 'This statement is a logical consequence and is decomposed correctly.';
 	}
 
 	/**
@@ -1107,24 +1091,21 @@ export class TruthTree {
 	 * Determines whether or not this truth tree is correct.
 	 * @returns true if this truth tree is correct, false otherwise
 	 */
-	isCorrect(): Response {
-		const response: Response = {};
-
+	isCorrect(): string {
 		for (const node of Object.values(this.nodes)) {
+			// TODO: remove this requirement
 			if (this.leaves.has(node.id) && !node.isTerminator()) {
-				response[node.id] = 'All leaves must be terminators.';
-				return response;
+				return 'All leaves must be terminators.';
 			}
+
+			// All nodes must be valid
 			const nodeValidity = node.isValid();
-			if (Object.keys(nodeValidity).length > 0) {
-				// All terminators in a correct truth tree must be valid
-				return nodeValidity;
-				// return false;
+			if (nodeValidity !== true) {
+				return 'This tree is incorrect.';
 			}
 		}
 
-		return response;
-		// return true;
+		return 'This tree is correct!';
 	}
 
 	/**
@@ -1169,5 +1150,78 @@ export class TruthTree {
 		for (const childId of current.children) {
 			this.printTreeHelper(childId, depth + 1);
 		}
+	}
+
+	getResponseMessage(errorCode: string): string {
+		switch (errorCode) {
+			case 'not_parsable': {
+				return 'This statement is not parsable.';
+			}
+			case 'not_logical_consequence': {
+				return (
+					'This statement is not a logical consequence of a ' +
+					'statement that occurs before it.'
+				);
+			}
+			case 'invalid_instantiation': {
+				return 'This statement does not instantiate the statement it references';
+			}
+			case 'open_decomposed': {
+				return 'An open terminator must reference no statements.';
+			}
+			case 'open_contradiction': {
+				return 'This branch contains a contradiction.';
+			}
+			case 'open_invalid_ancestor': {
+				return 'This branch contains an invalid statement.';
+			}
+			case 'closed_reference_length': {
+				return 'A closing terminator must reference exactly two statements.';
+			}
+			case 'closed_reference_invalid': {
+				return 'The referenced statements must be valid.';
+			}
+			case 'closed_not_atomic': {
+				return (
+					'The referenced statements must consist of a literal' +
+					' and its negation'
+				);
+			}
+			case 'closed_not_ancestor': {
+				return (
+					'A closing terminator must only reference statements' +
+					' that occur before it.'
+				);
+			}
+			case 'closed_not_contradiction': {
+				return (
+					'The referenced statements must consist of a statement' +
+					' and its negation'
+				);
+			}
+			case 'terminator_not_last': {
+				return 'No statements can occur in a branch after a terminator.';
+			}
+			case 'reference_not_after': {
+				return 'A statement must decompose into statements that occur after it.';
+			}
+			case 'invalid_decomposition': {
+				return 'This statement is not decomposed correctly.';
+			}
+			case 'existence_decompose_length': {
+				return 'An existence statement can only be decomposed once per branch.';
+			}
+			case 'universal_decompose_length': {
+				return 'A universal statement must be decomposed at least once.';
+			}
+			case 'universal_domain_not_decomposed': {
+				return (
+					'A universal statement must instantiate every variable' +
+					' in the universe of discourse.'
+				);
+			}
+		}
+
+		return 'Unknown error code. Contact a developer :)';
 	}
 }
