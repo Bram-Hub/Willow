@@ -69,12 +69,16 @@
   margin-top: 0px;
 }
 
-#shortcuts-modal td:first-child {
-  padding-right: 10px;
+#shortcuts-modal td, #substitutions-modal td {
+  padding: 0px 5px;
 }
 
-#shortcuts-modal .key-recorder {
+#shortcuts-modal .key-recorder, #substitutions-modal input  {
   width: 120px;
+}
+
+#substitutions-modal td:first-child {
+  text-align: center;
 }
 
 .branch-line {
@@ -146,6 +150,10 @@
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
+}
+
+.closing-terminator-decomposition::after {
+  content: 'is a result of';
 }
 
 .statement {

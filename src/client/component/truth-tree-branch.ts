@@ -24,6 +24,9 @@ export const TruthTreeBranchComponent: vue.Component = {
 			}
 			return branch;
 		},
+		closedTerminator() {
+			return TruthTree.CLOSED_TERMINATOR;
+		},
 		headNode() {
 			return this.$store.state.tree.nodes[this.head];
 		},
@@ -83,6 +86,11 @@ export const TruthTreeBranchComponent: vue.Component = {
 									&& $store.getters.selectedNode.antecedent === id,
 							decomposition: $store.getters.selectedNode !== null
 									&& $store.getters.selectedNode.decomposition.has(id),
+							'closing-terminator-decomposition': (
+								$store.getters.selectedNode !== null
+									&& $store.getters.selectedNode.decomposition.has(id)
+									&& $store.getters.selectedNode.text === closedTerminator
+							),
 						}">
           <truth-tree-node :id="id"></truth-tree-node>
           <button v-if="index === 0 && headNode.children.length > 0"

@@ -43,6 +43,7 @@ export const KeyRecorder: vue.Component = {
 	watch: {
 		recorded: {
 			handler(newVal: string[], oldVal: string[]) {
+				const event: string = this.event;
 				const toHotkeysString: (keys: string[]) => string = this
 					.toHotkeysString;
 				if (oldVal !== undefined && oldVal.length > 0) {
@@ -50,15 +51,12 @@ export const KeyRecorder: vue.Component = {
 					hotkeys.unbind(toHotkeysString(oldVal));
 				}
 
-				hotkeys(toHotkeysString(newVal), (event: Event) => {
-					event.preventDefault();
-					this.$emit(this.event as string);
+				hotkeys(toHotkeysString(newVal), (keyEvent: Event) => {
+					keyEvent.preventDefault();
+					this.$emit(event);
 				});
 
-				localStorage.setItem(
-					`shortcuts.${this.event as string}`,
-					JSON.stringify(newVal)
-				);
+				localStorage.setItem(`shortcuts.${event}`, JSON.stringify(newVal));
 			},
 			immediate: true,
 		},

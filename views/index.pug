@@ -42,12 +42,13 @@ html(lang='en')
           button Options
           .dropdown-menu(style={display: 'none'})
             button.menu-option(onclick='document.querySelector("#shortcuts-modal").style.display = "initial"') Shortcuts
+            button.menu-option(onclick='document.querySelector("#substitutions-modal").style.display = "initial"') Substitutions
             hr
-            button.menu-option(@click='toggleTheme') Toggle Theme
+            button.menu-option(@click='toggleTheme') Toggle theme
         .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})
-            a.menu-option(href='https://github.com/connorjayr/Willow/blob/master/userguide.md' target='_blank') User Guide/Tutorial
+            a.menu-option(href='https://github.com/connorjayr/Willow/blob/master/userguide.md' target='_blank') User guide
             hr
             button.menu-option(onclick='document.querySelector("#about-modal").style.display = "initial"') About
             hr
@@ -97,5 +98,50 @@ html(lang='en')
               td Delete branch
               td
                 key-recorder(@delete-branch='deleteBranch' event='delete-branch' :default='["Control", "Shift", "D"]')
+      #substitutions-modal.modal.card(style={display: 'none'})
+        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        h2.center Substitutions
+        table
+          thead
+            tr
+              th Symbol
+              th Text
+          tbody
+            tr
+              td ¬
+              td
+                substitution-recorder(symbol='¬' default='~')
+            tr
+              td ∨
+              td
+                substitution-recorder(symbol=' ∨ ' default='|')
+            tr
+              td ∧
+              td
+                substitution-recorder(symbol=' ∧ ' default='&')
+            tr
+              td →
+              td
+                substitution-recorder(symbol=' → ' default='$')
+            tr
+              td ↔
+              td
+                substitution-recorder(symbol=' ↔ ' default='%')
+            tr
+              td ∀
+              td
+                substitution-recorder(symbol='∀' default='@')
+            tr
+              td ∃
+              td
+                substitution-recorder(symbol='∃' default='/')
+            tr
+              td ◯
+              td
+                substitution-recorder(symbol='◯' default=';')
+            tr
+              td ×
+              td
+                substitution-recorder(symbol='×' default="'")
     include /global/footer.pug
     script(src='./js/index.js' type='text/javascript')

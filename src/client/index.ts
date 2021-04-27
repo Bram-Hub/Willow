@@ -2,12 +2,24 @@ import * as vue from 'vue';
 import * as vuex from 'vuex';
 import {TruthTree, TruthTreeNode} from '../common/tree';
 import {KeyRecorder} from './component/key-recorder';
+import {
+	SubstitutionRecorder,
+	Substitutions,
+} from './component/substitution-recorder';
 import {TruthTreeComponent} from './component/truth-tree';
+
+interface StoreState {
+	developerMode: boolean;
+	tree: TruthTree;
+	selected: number | null;
+	substitutions: Substitutions;
+}
 
 vue
 	.createApp({
 		components: {
 			'key-recorder': KeyRecorder,
+			'substitution-recorder': SubstitutionRecorder,
 			'truth-tree': TruthTreeComponent,
 		},
 		data: function () {
@@ -18,8 +30,8 @@ vue
 		},
 		mounted() {
 			this.colorTheme = localStorage.getItem('theme');
-			this.setColorTheme()
-	  },
+			this.setColorTheme();
+		},
 		computed: {
 			tree() {
 				return this.$store.state.tree;
@@ -168,40 +180,37 @@ vue
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
 			},
-			setColorTheme(){
+			setColorTheme() {
 				let newColorTheme = this.colorTheme;
-			  if (newColorTheme === "system") {
-			    newColorTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-			      ? "dark"
-			      : "light";
-			  }
+				if (newColorTheme === 'system') {
+					newColorTheme = window.matchMedia('(prefers-color-scheme: dark)')
+						.matches
+						? 'dark'
+						: 'light';
+				}
 
-			  document.documentElement.setAttribute(
-			    "data-theme",
-			    newColorTheme
-			  );
+				document.documentElement.setAttribute('data-theme', newColorTheme);
 				this.colorTheme = newColorTheme;
 				localStorage.setItem('theme', this.colorTheme);
 			},
-			toggleTheme(){
-				console.log(this.colorTheme)
-				if (this.colorTheme === "system") {
-			    this.colorTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-			      ? "light"
-			      : "dark";
+			toggleTheme() {
+				if (this.colorTheme === 'system') {
+					this.colorTheme = window.matchMedia('(prefers-color-scheme: dark)')
+						.matches
+						? 'light'
+						: 'dark';
 					return;
-			  }
-				this.colorTheme = this.colorTheme === "dark" ? "light":"dark";
-			}
+				}
+				this.colorTheme = this.colorTheme === 'dark' ? 'light' : 'dark';
+			},
 		},
 		watch: {
 			name(newVal) {
 				window.document.title = `${newVal} | Willow`;
 			},
-			colorTheme(newVal: string){
-				console.log("switch")
-				this.setColorTheme()
-			}
+			colorTheme() {
+				this.setColorTheme();
+			},
 		},
 	})
 	.use(
@@ -210,7 +219,8 @@ vue
 				developerMode: false,
 				tree: TruthTree.empty(),
 				selected: null,
-			},
+				substitutions: {},
+			} as StoreState,
 			getters: {
 				selectedNode(state) {
 					return state.tree.getNode(state.selected);
@@ -220,10 +230,7 @@ vue
 				toggleDeveloperMode(state) {
 					state.developerMode = !state.developerMode;
 				},
-				setTree(state, tree) {
-					state.tree = tree;
-				},
-				select(state, id) {
+				select(state, id: number) {
 					state.selected = id;
 
 					// Focus on the text box corresponding to the selected node
@@ -236,6 +243,12 @@ vue
 							input.focus();
 						}
 					}, 0);
+				},
+				setSubstitution(state, payload: {symbol: string; text: string}) {
+					state.substitutions[payload.symbol] = payload.text;
+				},
+				setTree(state, tree: TruthTree) {
+					state.tree = tree;
 				},
 			},
 		})
