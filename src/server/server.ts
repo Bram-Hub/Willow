@@ -82,7 +82,7 @@ class Server {
 
 		this.app.get('/', (req, res) =>
 			res.render('index', {
-				commit: execSync('git rev-parse HEAD').toString().trim(),
+				commit: process.env.HEROKU_SLUG_COMMIT || execSync('git rev-parse HEAD').toString().trim(),
 			})
 		);
 		this.app.get('*', (req, res) => res.render('error', {code: 404}));

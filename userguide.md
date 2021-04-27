@@ -6,7 +6,7 @@ Willow is a web-based application for creating and validating truth trees. Truth
 
 ## Opening Willow
 ### Creating a new tree:
-- **Option 1:** Open Willow in a new tab [https://willow-truth-tree.herokuapp.com/](https://willow-truth-tree.herokuapp.com/)
+- **Option 1:** Open Willow in a new tab [https://connorjayr.github.io/Willow/](https://connorjayr.github.io/Willow/)
 - **Option 2:** Click `File>New`
 
 ### Saving an existing tree:
@@ -42,7 +42,7 @@ Closed Branch|`×`
 ### Statements:
 Statements are [First-order logic](https://en.wikipedia.org/wiki/First-order_logic) expressions in textboxes. To the left of each statement is a symbol representing one of three possibilities. A green check mark signifies your statement is a logical consequence and is correctly decomposed within the tree. A red "X" signifies an issue with that statement; hovering your mouse over this "X" will give you more information regarding the issue. A yellow triangle signifies that the statement itself is not recognized by the First-order logic expression parser*. In addition to these symbols, the currently selected statement is highlighted blue, its decomposition is highlighted red, and its logical "parent" is highlighted green.
 
-*If you believe you wrote a valid FOL statement but it is not recognized, please contact a developer. 
+*If you believe you wrote a valid FOL statement but it is not recognized, please contact a developer.
 
 ![Example Statement](https://user-images.githubusercontent.com/18558130/115157194-e3d54000-a055-11eb-9cfa-e5b7f54ab010.png)
 

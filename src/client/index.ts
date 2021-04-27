@@ -13,8 +13,13 @@ vue
 		data: function () {
 			return {
 				name: 'Untitled',
+				colorTheme: 'system',
 			};
 		},
+		mounted() {
+			this.colorTheme = localStorage.getItem('theme');
+			this.setColorTheme()
+	  },
 		computed: {
 			tree() {
 				return this.$store.state.tree;
@@ -163,11 +168,40 @@ vue
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
 			},
+			setColorTheme(){
+				let newColorTheme = this.colorTheme;
+			  if (newColorTheme === "system") {
+			    newColorTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+			      ? "dark"
+			      : "light";
+			  }
+
+			  document.documentElement.setAttribute(
+			    "data-theme",
+			    newColorTheme
+			  );
+				this.colorTheme = newColorTheme;
+				localStorage.setItem('theme', this.colorTheme);
+			},
+			toggleTheme(){
+				console.log(this.colorTheme)
+				if (this.colorTheme === "system") {
+			    this.colorTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+			      ? "light"
+			      : "dark";
+					return;
+			  }
+				this.colorTheme = this.colorTheme === "dark" ? "light":"dark";
+			}
 		},
 		watch: {
 			name(newVal) {
 				window.document.title = `${newVal} | Willow`;
 			},
+			colorTheme(newVal: string){
+				console.log("switch")
+				this.setColorTheme()
+			}
 		},
 	})
 	.use(
