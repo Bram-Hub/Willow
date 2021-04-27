@@ -339,6 +339,16 @@ export class TruthTreeNode {
 				// Not a valid instantiation of the quantifier.
 				return 'invalid_instantiation';
 			}
+
+			if (antecedentNode.statement instanceof ExistenceStatement) {
+				if (
+					this.statement.getNewConstants(this.universe!).length !==
+					antecedentNode.statement.variables.length
+				) {
+					return 'existence_instantiation_length';
+				}
+			}
+
 			return true;
 		}
 
@@ -538,7 +548,7 @@ export class TruthTreeNode {
 							return 'invalid_decomposition';
 						}
 
-						// todo: actually check that the new constants come
+						// TODO: actually check that the new constants come
 						// from a substitution
 
 						if (
@@ -1165,6 +1175,9 @@ export class TruthTree {
 			}
 			case 'invalid_instantiation': {
 				return 'This statement does not instantiate the statement it references';
+			}
+			case 'existence_instantiation_length': {
+				return 'An existence statement must instantiate a new constant.';
 			}
 			case 'open_decomposed': {
 				return 'An open terminator must reference no statements.';

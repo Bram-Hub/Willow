@@ -27,9 +27,9 @@ export const TruthTreeNodeComponent: vue.Component = {
 	},
 	template: `
     <span v-if="$store.state.developerMode">
-      id: {{ id }}
-      valid: {{ node.isValid() }}
-      decomposed: {{ node.isDecomposed() }}
+      id: {{ id }},
+      valid: {{ node.isValid() }},
+      decomposed: {{ node.isDecomposed() }},
       universe: {{
         JSON.stringify(Array.from(node.universe)
             .map(formula => formula.toString()))
