@@ -632,11 +632,11 @@ export class TruthTreeNode {
 	getFeedback(): string {
 		const validity = this.isValid();
 		if (validity !== true) {
-			return this.tree.getResponseMessage(validity);
+			return this.tree.resolveErrorCode(validity);
 		}
 		const decomp = this.isDecomposed();
 		if (decomp !== true) {
-			return this.tree.getResponseMessage(decomp);
+			return this.tree.resolveErrorCode(decomp);
 		}
 
 		if (this.premise) {
@@ -1095,7 +1095,7 @@ export class TruthTree {
 		for (const node of Object.values(this.nodes)) {
 			// TODO: remove this requirement
 			if (this.leaves.has(node.id) && !node.isTerminator()) {
-				return 'All leaves must be terminators.';
+				return 'Every branch must be terminated.';
 			}
 
 			// All nodes must be valid
@@ -1152,7 +1152,7 @@ export class TruthTree {
 		}
 	}
 
-	getResponseMessage(errorCode: string): string {
+	resolveErrorCode(errorCode: string): string {
 		switch (errorCode) {
 			case 'not_parsable': {
 				return 'This statement is not parsable.';
