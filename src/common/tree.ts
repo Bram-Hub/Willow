@@ -1102,6 +1102,10 @@ export class TruthTree {
 	 * @returns true if this truth tree is correct, false otherwise
 	 */
 	isCorrect(): string {
+		if (!this.checkRepresentation()) {
+			return 'This tree is malformed -- please save this tree and contact a developer.';
+		}
+
 		for (const node of Object.values(this.nodes)) {
 			// TODO: remove this requirement
 			if (this.leaves.has(node.id) && !node.isTerminator()) {
@@ -1116,6 +1120,44 @@ export class TruthTree {
 		}
 
 		return 'This tree is correct!';
+	}
+
+	/**
+	 * Checks to make sure representation invariants are held; if they are not
+	 * held then the tree could potentially be evaluated incorrectly.
+	 * @returns whether or not the tree is valid
+	 */
+	checkRepresentation(): boolean {
+		for (const node of Object.values(this.nodes)) {
+			// Terminators don't have to get checked for any of this
+			if (node.isTerminator()) {
+				continue;
+			}
+
+			if (node.antecedent !== null) {
+				const antecedentNode = this.nodes[node.antecedent];
+
+				// Must be in decomposition of antecedent
+				if (!antecedentNode.decomposition.has(node.id)) {
+					return false;
+				}
+
+				// Antecedent must be an ancestor of the node
+				if (!antecedentNode.isAncestorOf(node.id)) {
+					return false;
+				}
+			}
+
+			// Must be antecedent of decomposition
+			for (const decomposedId of node.decomposition) {
+				const decomposedNode = this.nodes[decomposedId];
+				if (decomposedNode.antecedent !== node.id) {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**

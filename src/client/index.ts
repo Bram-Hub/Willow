@@ -110,6 +110,16 @@ vue
 				const correctnessResponse = this.$store.state.tree.isCorrect();
 				alert(correctnessResponse);
 			},
+			checkRepresentation() {
+				const repHeld = this.$store.state.tree.checkRepresentation();
+				if (repHeld === true) {
+					alert('This tree is well formed.');
+				} else {
+					alert(
+						'This tree is malformed. Please contact a developer with the file.'
+					);
+				}
+			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
 				this.$store.commit(
