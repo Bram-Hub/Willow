@@ -1,0 +1,113 @@
+/********************/
+/*** GLOBAL RULES ***/
+/********************/
+
+* {
+  font-family: Roboto, sans-serif;
+}
+
+code, tt {
+  font-family: 'Roboto Mono', monospace;
+}
+
+body {
+  margin: 0px;
+  min-height: 100vh;
+  color:var(--text-dark);
+  background: var(--background);
+}
+
+/**************/
+/*** HEADER ***/
+/**************/
+#header {
+  background-color: var(--header);
+}
+
+#header > * {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#header img {
+  margin: 20px;
+  width: 50px;
+}
+
+/**************/
+/*** LAYOUT ***/
+/**************/
+.container {
+  margin: 30px 100px;
+}
+
+.row, .column {
+  display: flex;
+  justify-content: center;
+}
+
+.row {
+  flex-direction: row;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.row > *, .column > * {
+  flex: 1;
+}
+
+.left {
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.card {
+  background-color: var(--card-background);
+  border-radius: 5px;
+  box-shadow: 0px 3px 3px var(--card-shadow);
+  padding: 30px;
+}
+
+.modal {
+  box-sizing: border-box;
+  max-height: 80vh;
+  max-width: 80vw;
+  overflow: auto;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.modal-close {
+  cursor: pointer;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+a.hidden {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button.hidden {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0px;
+}
+
+div.hidden {
+  display: none;
+}
