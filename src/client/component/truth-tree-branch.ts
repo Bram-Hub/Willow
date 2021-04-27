@@ -66,6 +66,12 @@ export const TruthTreeBranchComponent: vue.Component = {
 					selectedNode.antecedent = null;
 					otherNode.decomposition.delete(selectedNode.id);
 				} else {
+					// Remove this node from the current antecedent decomposition
+					if (selectedNode.antecedent !== null) {
+						const currentAntecedent: TruthTreeNode = this.$store.state.tree
+							.nodes[selectedNode.antecedent];
+						currentAntecedent.decomposition.delete(selectedNode.id);
+					}
 					selectedNode.antecedent = id;
 					otherNode.decomposition.add(selectedNode.id);
 				}
