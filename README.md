@@ -2,10 +2,10 @@ Willow
 ------
 A web application used for building and assigning truth trees.
 
-Currently being rewritten by [Connor Roizman](https://github.com/connorjayr)
-and [Jeff Putlock](https://github.com/jputlock).
-
-Dark theme brought to you by [Eli Schiff](https://github.com/elihschiff).
+Completely rewritten and revitalized by
+[Connor Roizman](https://github.com/connorjayr),
+[Eli Schiff](https://github.com/elihschiff), and
+[Jeff Putlock](https://github.com/jputlock).
 
 ### How to Use
 See our [User's Manual](userguide.md).
