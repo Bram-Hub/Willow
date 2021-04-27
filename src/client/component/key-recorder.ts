@@ -1,8 +1,6 @@
 import hotkeys from 'hotkeys-js';
 import * as vue from 'vue';
 
-import * as keys from '../keys';
-
 hotkeys.filter = event => {
 	const target = event.target || event.srcElement;
 	if (target instanceof Element) {
@@ -19,6 +17,7 @@ export const KeyRecorder: vue.Component = {
 	},
 	data() {
 		return {
+			pressed: new Set<string>(),
 			recorded:
 				(JSON.parse(
 					localStorage.getItem(`shortcuts.${this.event}`) || 'null'
@@ -27,15 +26,15 @@ export const KeyRecorder: vue.Component = {
 				[],
 		};
 	},
-	computed: {
-		pressedKeyCodes() {
-			return keys.pressedKeyCodes;
-		},
-	},
 	methods: {
 		onKeyDown(event: KeyboardEvent) {
-			this.recorded = Array.from(this.pressedKeyCodes as Set<string>);
+			const pressed = this.pressed as Set<string>;
+			pressed.add(event.key);
+			this.recorded = Array.from(pressed);
 			event.preventDefault();
+		},
+		onKeyUp(event: KeyboardEvent) {
+			(this.pressed as Set<string>).delete(event.key);
 		},
 		toHotkeysString(keys: string[]) {
 			return keys.join('+').toLowerCase();
@@ -65,7 +64,8 @@ export const KeyRecorder: vue.Component = {
 		},
 	},
 	template: `
-    <input type="text" @keydown="onKeyDown($event)" :value="recorded.join('+')"
+    <input type="text" @focus="pressed.clear()" @keydown="onKeyDown($event)"
+				@keyup="onKeyUp($event)" :value="recorded.join('+')"
 				class="key-recorder"/>
   `,
 };
