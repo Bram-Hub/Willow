@@ -887,7 +887,7 @@ export class TruthTree {
 	 * @returns the leftmost node
 	 */
 	leftmostNode(root?: number | null): TruthTreeNode | null {
-		let node = this.getNode(root || this.root);
+		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
 		}
@@ -906,7 +906,7 @@ export class TruthTree {
 	 * @returns the rightmost node
 	 */
 	rightmostNode(root?: number | null): TruthTreeNode | null {
-		let node = this.getNode(root || this.root);
+		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
 		}
