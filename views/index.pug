@@ -37,8 +37,7 @@ html(lang='en')
         .dropdown
           button Evaluate
           .dropdown-menu(style={display: 'none'})
-            button.menu-option(@click='checkCorrectness') Check correctness
-            button.menu-option(@click='checkRepresentation') Check representation
+            button.menu-option(@click='checkTree') Check tree
         .dropdown
           button Options
           .dropdown-menu(style={display: 'none'})
@@ -58,6 +57,7 @@ html(lang='en')
       .container.center
         h2 {{ name }}
         .truth-tree.left
+          p(v-if='$store.state.developerMode') checkRepresentation: {{ $store.state.tree.checkRepresentation() }}
           truth-tree
       #about-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')

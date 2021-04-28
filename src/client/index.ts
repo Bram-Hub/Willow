@@ -106,19 +106,8 @@ vue
 				}
 				this.saveFile();
 			},
-			checkCorrectness() {
-				const correctnessResponse = this.$store.state.tree.isCorrect();
-				alert(correctnessResponse);
-			},
-			checkRepresentation() {
-				const repHeld = this.$store.state.tree.checkRepresentation();
-				if (repHeld === true) {
-					alert('This tree is well formed.');
-				} else {
-					alert(
-						'This tree is malformed. Please contact a developer with the file.'
-					);
-				}
+			checkTree() {
+				alert((this.$store.state.tree as TruthTree).isCorrect());
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
