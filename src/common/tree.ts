@@ -278,7 +278,7 @@ export class TruthTreeNode {
 	}
 
 	isTerminator(): boolean {
-		return TruthTree.TERMINATORS.includes(this.text);
+		return TruthTree.TERMINATORS.includes(this.text.trim());
 	}
 
 	/**
@@ -651,6 +651,13 @@ export class TruthTreeNode {
 
 		if (this.premise) {
 			return 'This statement is a premise.';
+		}
+
+		if (this.isTerminator()) {
+			if (this.text.trim() === TruthTree.OPEN_TERMINATOR) {
+				return 'This open branch represents a valid assignment.';
+			}
+			return 'This branch is successfully closed.';
 		}
 
 		return 'This statement is a logical consequence and is decomposed correctly.';
