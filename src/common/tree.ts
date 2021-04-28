@@ -1146,9 +1146,12 @@ export class TruthTree {
 			const antecedentNode = this.nodes[node.antecedent];
 			antecedentNode.decomposition.delete(node.id);
 		}
-		for (const childId of node.decomposition) {
-			const childNode = this.nodes[childId];
-			childNode.antecedent = null;
+
+		if (!node.isTerminator()) {
+			for (const childId of node.decomposition) {
+				const childNode = this.nodes[childId];
+				childNode.antecedent = null;
+			}
 		}
 
 		delete this.nodes[id];
