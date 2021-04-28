@@ -287,8 +287,8 @@ vue
 
 					// Focus on the text box corresponding to the selected node
 					// NOTE: We must use setTimeout as select is usually called
-					//       immediately after a node is created, but before it is
-					//       rendered in the DOM
+					//       immediately after a node is created, but before it
+					//       is rendered in the DOM
 					setTimeout(() => {
 						const input = document.getElementById(`node${id}`);
 						if (input instanceof HTMLInputElement) {

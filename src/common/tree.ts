@@ -14,13 +14,13 @@ type Response = string | true;
 interface TreeOptions {
 	requireAtomicContradiction: boolean;
 	requireAllBranchesTerminated: boolean;
-	editablePremises: boolean;
+	lockedOptions: boolean;
 }
 
 const DEFAULT_TREE_OPTIONS: TreeOptions = {
 	requireAtomicContradiction: true,
 	requireAllBranchesTerminated: true,
-	editablePremises: true,
+	lockedOptions: false,
 };
 
 export class TruthTreeNode {
@@ -1203,7 +1203,7 @@ export class TruthTree {
 			}
 
 			if (this.leaves.has(node.id)) {
-				if (!this.options.requireAllBranchesTerminated) {
+				if (this.options.requireAllBranchesTerminated) {
 					// Require all leaves to be terminators
 					if (!node.isTerminator()) {
 						return 'Every branch must be terminated.';

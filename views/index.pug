@@ -34,7 +34,9 @@ html(lang='en')
             hr
             button.menu-option(@click='deleteStatement') Delete statement
             button.menu-option(@click='deleteBranch') Delete branch
-            hr
+        .dropdown
+          button Navigate
+          .dropdown-menu(style={display: 'none'})
             button.menu-option(@click='moveUp') Move up
             button.menu-option(@click='moveDown') Move down
             button.menu-option(@click='moveUpBranch') Move up branch
@@ -45,6 +47,7 @@ html(lang='en')
           button Evaluate
           .dropdown-menu(style={display: 'none'})
             button.menu-option(@click='checkTree') Check tree
+            button.menu-option(onclick='document.querySelector("#tree-options-modal").style.display = "initial"') Evaluation Options
         .dropdown
           button Options
           .dropdown-menu(style={display: 'none'})
@@ -64,7 +67,7 @@ html(lang='en')
       .container.center
         h2 {{ name }}
         .truth-tree.left
-          p(v-if='$store.state.developerMode') checkRepresentation: {{ $store.state.tree.checkRepresentation() }}
+          p(v-if='$store.state.developerMode') checkRepresentation: {{ $store.state.tree.checkRepresentation() }}, treeOptions: {{ JSON.stringify($store.state.tree.options) }}
           truth-tree
       #status-bar(v-if='selected !== null') {{ selectedNode.getFeedback() }}
       #about-modal.modal.card(style={display: 'none'})
@@ -176,5 +179,26 @@ html(lang='en')
               td ×
               td
                 substitution-recorder(symbol='×' default="'")
+      #tree-options-modal.modal.card(style={display: 'none'})
+        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        h2.center Tree Options
+        table
+          thead
+            tr
+              th Option
+              th Value
+          tbody
+            tr
+              td Require contradictions to use atomic statements.
+              td.center
+                input#requireAtomicContradiction(type="checkbox" v-model="tree.options.requireAtomicContradiction")
+            tr
+              td Require all branches be terminated.
+              td.center
+                input#requireAllBranchesTerminated(type="checkbox" v-model="tree.options.requireAllBranchesTerminated")
+            tr
+              td Lock the current options and premises.
+              td.center
+                input#lockedOptions(type="checkbox" v-model="tree.options.lockedOptions")
     include /global/footer.pug
     script(src='./js/index.js' type='text/javascript')
