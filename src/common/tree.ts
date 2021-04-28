@@ -880,6 +880,44 @@ export class TruthTree {
 		return current.id;
 	}
 
+	/**
+	 * Returns the leftmost node in the subtree rooted at a given node, or the
+	 * entire tree if no node is specified.
+	 * @param root the id of the root of the subtree
+	 * @returns the leftmost node
+	 */
+	leftmostNode(root?: number | null): TruthTreeNode | null {
+		let node = this.getNode(root || this.root);
+		if (node === null) {
+			return null;
+		}
+
+		// Move down the tree, preferring the leftmost child if there are multiple
+		while (node.children.length > 0) {
+			node = this.nodes[node.children[0]];
+		}
+		return node;
+	}
+
+	/**
+	 * Returns the rightmost node in the subtree rooted at a given node, or the
+	 * entire tree if no node is specified.
+	 * @param root the id of the root of the subtree
+	 * @returns the rightmost node
+	 */
+	rightmostNode(root?: number | null): TruthTreeNode | null {
+		let node = this.getNode(root || this.root);
+		if (node === null) {
+			return null;
+		}
+
+		// Move down the tree, preferring the rightmost child if there are multiple
+		while (node.children.length > 0) {
+			node = this.nodes[node.children[node.children.length - 1]];
+		}
+		return node;
+	}
+
 	private getNextId() {
 		return Math.max(...Object.keys(this.nodes).map(id => parseInt(id))) + 1;
 	}
@@ -1165,19 +1203,6 @@ export class TruthTree {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Returns the id of the last (or bottommost, if visualized) leaf node in this
-	 * tree.
-	 * @returns the id of the last leaf node
-	 */
-	getLastLeaf(): number {
-		let node = this.nodes[this.root];
-		while (node.children.length > 0) {
-			node = this.nodes[node.children[node.children.length - 1]];
-		}
-		return node.id;
 	}
 
 	printTree() {

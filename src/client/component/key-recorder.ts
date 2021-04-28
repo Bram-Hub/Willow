@@ -17,6 +17,10 @@ export const KeyRecorder: vue.Component = {
 	},
 	data() {
 		return {
+			keyMap: {
+				ArrowUp: 'Up',
+				ArrowDown: 'Down',
+			},
 			pressed: new Set<string>(),
 			recorded:
 				(JSON.parse(
@@ -30,7 +34,11 @@ export const KeyRecorder: vue.Component = {
 		onKeyDown(event: KeyboardEvent) {
 			const pressed = this.pressed as Set<string>;
 			pressed.add(event.key);
-			this.recorded = Array.from(pressed);
+
+			const keyMap: {[key: string]: string} = this.keyMap;
+			this.recorded = Array.from(pressed).map(key =>
+				key in keyMap ? keyMap[key] : key
+			);
 			event.preventDefault();
 		},
 		onKeyUp(event: KeyboardEvent) {

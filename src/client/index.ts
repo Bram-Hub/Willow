@@ -79,6 +79,7 @@ vue
 						);
 					}
 					try {
+						this.$store.commit('select', null);
 						this.$store.commit('setTree', TruthTree.deserialize(fileContents));
 					} catch (err) {
 						alert(
@@ -106,8 +107,12 @@ vue
 				}
 				this.saveFile();
 			},
-			checkTree() {
-				alert((this.tree as TruthTree).isCorrect());
+			togglePremise() {
+				const selectedNode: TruthTreeNode | null = this.selectedNode;
+				if (selectedNode === null) {
+					return alert('You must select a statement before doing this.');
+				}
+				selectedNode.togglePremise();
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
@@ -125,7 +130,7 @@ vue
 					tree.addNodeAfter(
 						typeof this.selected === 'number'
 							? this.selected
-							: tree.getLastLeaf(),
+							: tree.rightmostNode()?.id,
 						false
 					)
 				);
@@ -137,7 +142,7 @@ vue
 					tree.addNodeAfter(
 						typeof this.selected === 'number'
 							? this.selected
-							: tree.getLastLeaf(),
+							: tree.rightmostNode()?.id,
 						true
 					)
 				);
@@ -162,19 +167,67 @@ vue
 					return;
 				}
 				const head = tree.getBranchHead(nodeId);
-				console.log(`headId = ${head}`);
 				const toSelect = tree.deleteBranch(head);
 				if (toSelect === null) {
 					return alert('You may not delete the root branch.');
 				}
 				this.$store.commit('select', toSelect);
 			},
-			togglePremise() {
-				const selectedNode: TruthTreeNode | null = this.selectedNode;
-				if (selectedNode === null) {
-					return alert('You must select a statement before doing this.');
+			moveUp() {
+				const tree: TruthTree = this.$store.state.tree;
+				const selectedNode: TruthTreeNode =
+					(this.$store.getters.selectedNode as TruthTreeNode | null) ||
+					tree.nodes[tree.root];
+
+				const parentNode = tree.getNode(selectedNode.parent);
+				if (parentNode === null) {
+					// Prevent the user from moving above the root node
+					this.$store.commit('select', tree.root);
+				} else if (parentNode.children.length > 1) {
+					const childIndex = parentNode.children.indexOf(selectedNode.id);
+					if (childIndex > 0) {
+						this.$store.commit(
+							'select',
+							tree.rightmostNode(parentNode.children[childIndex - 1])?.id
+						);
+					} else {
+						this.$store.commit('select', parentNode.id);
+					}
+				} else {
+					this.$store.commit('select', parentNode.id);
 				}
-				selectedNode.togglePremise();
+			},
+			moveDown() {
+				const tree: TruthTree = this.$store.state.tree;
+				const selectedNode: TruthTreeNode =
+					(this.$store.getters.selectedNode as TruthTreeNode | null) ||
+					tree.nodes[tree.root];
+
+				if (selectedNode.children.length > 0) {
+					this.$store.commit('select', selectedNode.children[0]);
+				} else {
+					let node = selectedNode;
+					let parentNode = tree.getNode(node.parent);
+					while (
+						parentNode !== null &&
+						parentNode.children[parentNode.children.length - 1] === node.id
+					) {
+						node = parentNode;
+						parentNode = tree.getNode(node.parent);
+					}
+					if (parentNode === null) {
+						return;
+					}
+					const childIndex = parentNode.children.indexOf(node.id);
+					this.$store.commit('select', parentNode.children[childIndex + 1]);
+				}
+			},
+			moveUpBranch() {},
+			moveDownBranch() {},
+			moveUpTree() {},
+			moveDownTree() {},
+			checkTree() {
+				alert((this.tree as TruthTree).isCorrect());
 			},
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
