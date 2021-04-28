@@ -107,7 +107,7 @@ vue
 				this.saveFile();
 			},
 			checkTree() {
-				alert((this.$store.state.tree as TruthTree).isCorrect());
+				alert((this.tree as TruthTree).isCorrect());
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
