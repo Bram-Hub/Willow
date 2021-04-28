@@ -1,7 +1,7 @@
 /* If you add a color to this file, make sure to add it in ./themes/dark.css as well */
 
 :root {
-    /* global colors */
+    /* Global colors */
     --text-dark: #000000;
     --text-light: #ffffff;
     --background: #ffffff;
@@ -23,7 +23,11 @@
     --decomposition: rgba(192, 128, 128, 0.5);
     --premise-label: #808080;
 
-    /* Misc */
+    /* Status bar */
+    --status-bar-foreground: #ffffff;
+    --status-bar-background: rgba(0, 0, 0, 0.5);
+
+    /* Misc. */
     --header: #c0e0c0;
     --card-background: #f0f0f0;
     --card-shadow: rgba(0, 0, 0, 0.5);

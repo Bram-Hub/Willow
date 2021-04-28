@@ -179,3 +179,15 @@
 .truth-tree i.fas.fa-ellipsis-v {
   margin: 5px;
 }
+
+#status-bar {
+  background-color: var(--status-bar-background);
+  color: var(--status-bar-foreground);
+  height: 30px;
+  line-height: 30px;
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
