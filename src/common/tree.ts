@@ -11,6 +11,18 @@ import {
 
 type Response = string | true;
 
+interface TreeOptions {
+	requireAtomicContradiction: boolean;
+	requireAllBranchesTerminated: boolean;
+	editablePremises: boolean;
+}
+
+const DEFAULT_TREE_OPTIONS: TreeOptions = {
+	requireAtomicContradiction: true,
+	requireAllBranchesTerminated: true,
+	editablePremises: true,
+};
+
 export class TruthTreeNode {
 	id: number;
 
@@ -281,6 +293,14 @@ export class TruthTreeNode {
 		return TruthTree.TERMINATORS.includes(this.text.trim());
 	}
 
+	isOpenTerminator(): boolean {
+		return TruthTree.OPEN_TERMINATOR === this.text.trim();
+	}
+
+	isClosedTerminator(): boolean {
+		return TruthTree.CLOSED_TERMINATOR === this.text.trim();
+	}
+
 	/**
 	 * Determines whether or not this statement is valid; i.e., it is a logical
 	 * consequence of some other statement in the truth tree.
@@ -293,10 +313,10 @@ export class TruthTreeNode {
 				return 'terminator_not_last';
 			}
 
-			if (this.text === TruthTree.OPEN_TERMINATOR) {
+			if (this.isOpenTerminator()) {
 				return this.isOpenTerminatorValid();
 			}
-			// this.text === TruthTree.CLOSED_TERMINATOR
+			// Is a closed terminator
 			return this.isClosedTerminatorValid();
 		}
 
@@ -439,9 +459,12 @@ export class TruthTreeNode {
 				return 'closed_reference_invalid';
 			}
 
-			// The referenced statements must be an atomic and its negation
+			// The referenced statements must be a statement and its negation
 			if (first instanceof NotStatement && first.operand.equals(second)) {
-				if (!(second instanceof AtomicStatement)) {
+				if (
+					this.tree.options.requireAtomicContradiction &&
+					!(second instanceof AtomicStatement)
+				) {
 					return 'closed_not_atomic';
 				}
 
@@ -508,7 +531,7 @@ export class TruthTreeNode {
 		// Check if this statement is decomposed in every open branch that contains it
 		for (const leafId of this.tree.leaves) {
 			const openTerminatorNode = this.tree.nodes[leafId];
-			if (openTerminatorNode.text !== TruthTree.OPEN_TERMINATOR) {
+			if (!openTerminatorNode.isOpenTerminator()) {
 				continue;
 			}
 
@@ -654,7 +677,7 @@ export class TruthTreeNode {
 		}
 
 		if (this.isTerminator()) {
-			if (this.text.trim() === TruthTree.OPEN_TERMINATOR) {
+			if (this.isOpenTerminator()) {
 				return 'This open branch represents a valid assignment.';
 			}
 			return 'This branch is successfully closed.';
@@ -735,11 +758,15 @@ export class TruthTree {
 		TruthTree.CLOSED_TERMINATOR,
 	];
 
+	// Inner Representation
 	nodes: {[id: number]: TruthTreeNode} = {};
 	private _root: number | undefined;
 	leaves: Set<number> = new Set();
 
 	initialized = true;
+
+	// These options control which truth tree extensions to allow.
+	options: TreeOptions = DEFAULT_TREE_OPTIONS;
 
 	get root(): number {
 		if (this._root === undefined) {
@@ -772,18 +799,24 @@ export class TruthTree {
 		newTree.initialized = false;
 
 		const parsed = JSON.parse(jsonText);
+		if (typeof parsed !== 'object') {
+			throw new Error('TruthTree#deserialize: This file is not in JSON.');
+		}
+
+		const parsedNodes = parsed['nodes'];
 		if (
 			!(
-				typeof parsed === 'object' &&
-				Array.isArray(parsed) &&
-				parsed.length > 0
+				typeof parsedNodes === 'object' &&
+				Array.isArray(parsedNodes) &&
+				parsedNodes.length > 0
 			)
 		) {
 			throw new Error('TruthTree#deserialize: The tree is empty.');
 		}
+
 		try {
 			// Read in each node individually
-			for (const jsonNode of parsed) {
+			for (const jsonNode of parsedNodes) {
 				const node = TruthTreeNode.fromJSON(newTree, jsonNode);
 				if (node.children.length === 0) {
 					newTree.leaves.add(node.id);
@@ -795,7 +828,7 @@ export class TruthTree {
 						newTree._root = node.id;
 					} else {
 						// Cannot have two roots, so throw an error
-						throw new Error('Tree has multiple roots.');
+						throw new Error('TruthTree#deserialize: Tree has multiple roots.');
 					}
 				}
 
@@ -804,7 +837,7 @@ export class TruthTree {
 
 			// Tree must have exactly one root
 			if (newTree._root === undefined) {
-				throw new Error('Tree has no root.');
+				throw new Error('TruthTree#deserialize: Tree has no root.');
 			}
 		} catch (e) {
 			throw new Error(
@@ -812,6 +845,10 @@ export class TruthTree {
 			);
 		}
 
+		// Grab the options
+		newTree.options = parsed['options'];
+
+		// Load the universe
 		newTree.nodes[newTree.root].propogateUniverse([], true);
 
 		// Tree has completed initializing
@@ -850,7 +887,11 @@ export class TruthTree {
 			serializedNodes.push(serializedNode);
 		}
 
-		return JSON.stringify(serializedNodes);
+		const serializedTree: {[key: string]: any} = {};
+		serializedTree['nodes'] = serializedNodes;
+		serializedTree['options'] = this.options;
+
+		return JSON.stringify(serializedTree);
 	}
 
 	/**
@@ -1151,16 +1192,43 @@ export class TruthTree {
 			return 'This tree is malformed -- please save this tree and contact a developer.';
 		}
 
-		for (const node of Object.values(this.nodes)) {
-			// TODO: remove this requirement
-			if (this.leaves.has(node.id) && !node.isTerminator()) {
-				return 'Every branch must be terminated.';
-			}
+		let hasValidOpenTerm = false;
 
+		// All nodes always have to be valid in order for the tree to be correct.
+		for (const node of Object.values(this.nodes)) {
 			// All nodes must be valid
 			const nodeValidity = node.isValid();
 			if (nodeValidity !== true) {
 				return 'This tree is incorrect.';
+			}
+
+			if (this.leaves.has(node.id)) {
+				if (!this.options.requireAllBranchesTerminated) {
+					// Require all leaves to be terminators
+					if (!node.isTerminator()) {
+						return 'Every branch must be terminated.';
+					}
+				} else {
+					// Otherwise track if there is a valid open terminator.
+					if (node.isOpenTerminator()) {
+						hasValidOpenTerm = true;
+					}
+				}
+			}
+		}
+
+		// If there is a satisfied open branch, then the tree is correct.
+		// This condition always fails if requireAllBranchesTerminated is true
+		if (hasValidOpenTerm) {
+			return 'This tree is correct!';
+		}
+
+		// Otherwise, every leaf must be a closed terminator
+		for (const leafId of this.leaves) {
+			const leaf = this.nodes[leafId];
+
+			if (!leaf.isClosedTerminator()) {
+				return 'Every branch must be terminated.';
 			}
 		}
 
