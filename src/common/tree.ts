@@ -557,42 +557,57 @@ export class TruthTreeNode {
 					// the statement needs to create exactly the number of new
 					// variables that it has variables
 
-					// TODO: this should not be required. alternative
-					// decomposition rules for existential do not require this.
+					// TODO: Allow for 'alternative decomposition' rule for
+					// existence statements, which removes this requirement.
+
+					// Alternative Rule: decomposes into a new branch for each
+					// constant (currently) in the universe PLUS one branch for
+					// a new constant introduced by the existential.
 					if (decomposedInBranch.size !== 1) {
 						// Existence statement must be decomposed exactly once
 						return 'existence_decompose_length';
 					}
 
+					const symbolized = this.statement.symbolized();
+
 					for (const decomposed of decomposedInBranch) {
 						const decomposedNode = this.tree.nodes[decomposed];
+
+						// An empty statement cannot be a decomposition
 						if (decomposedNode.statement === null) {
-							// An empty statement cannot be a decomposition
 							return 'invalid_decomposition';
 						}
 
-						// TODO: actually check that the new constants come
-						// from a substitution
+						// Has to be an instantiation of the antecedent
+						if (symbolized.getEqualsMap(decomposedNode.statement) === false) {
+							return 'invalid_decomposition';
+						}
 
+						// Has to actually instantiate new variables
 						if (
 							decomposedNode.statement.getNewConstants(decomposedNode.universe!)
 								.length !== this.statement.variables.length
 						) {
-							// Need to actually instantiate new variables
 							return 'invalid_decomposition';
 						}
 					}
 				} else if (this.statement instanceof UniversalStatement) {
-					// statement needs to instantiate every variable in the UD
+					// Statement needs to instantiate every variable in the UD
 
+					// TODO: remove this requirement, see line 633
+					// Multivariable universals are not supported yet.
+					if (this.statement.variables.length > 1) {
+						return 'universal_variables_length';
+					}
+
+					// Must instantiate at least one variable
 					if (decomposedInBranch.size === 0) {
-						// Must instantiate at least one variable
 						return 'universal_decompose_length';
 					}
 
-					// TODO: is this true?
-					if (decomposedInBranch.size !== openTerminatorNode.universe!.length) {
-						// Must instantiate every variable in the UD
+					// Must instantiate every variable in the universe
+					// This is a rough metric to prevent later calculation.
+					if (decomposedInBranch.size < openTerminatorNode.universe!.length) {
 						return 'universal_domain_not_decomposed';
 					}
 
@@ -609,7 +624,7 @@ export class TruthTreeNode {
 							return 'invalid_decomposition';
 						}
 
-						// todo: check the decomposed nodes span the UD
+						// TODO: check the decomposed nodes span the UD
 						const mapping = symbolized.getEqualsMap(decomposedNode.statement);
 						if (mapping === false) {
 							// Not an initialization of the antecedent
@@ -624,7 +639,10 @@ export class TruthTreeNode {
 						}
 					}
 
-					// TODO: Make this work for multi-variable universals
+					// The instantiated variables must match the universe
+
+					// TODO: Make this work for multivariable universals
+					// TODO: Make this work for functions, not just object literals
 					for (const variable of this.statement.variables) {
 						const instantiations = instantiated[variable.predicate];
 						for (const constant of openTerminatorNode.universe!) {
@@ -1376,6 +1394,12 @@ export class TruthTree {
 				return (
 					'A universal statement must instantiate every variable' +
 					' in the universe of discourse.'
+				);
+			}
+			case 'universal_variables_length': {
+				return (
+					'Universals with multiple variables cannot be evaluated' +
+					' yet; please split into multiple universal statements.'
 				);
 			}
 		}
