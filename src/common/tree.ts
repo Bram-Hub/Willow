@@ -1225,11 +1225,11 @@ export class TruthTree {
 			return 'This tree is correct!';
 		}
 
-		// Otherwise, every leaf must be a closed terminator
+		// Otherwise, every leaf must be a terminator of some kind
 		for (const leafId of this.leaves) {
 			const leaf = this.nodes[leafId];
 
-			if (!leaf.isClosedTerminator()) {
+			if (!leaf.isTerminator()) {
 				return 'Every branch must be terminated.';
 			}
 		}
