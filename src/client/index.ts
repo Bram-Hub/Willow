@@ -104,8 +104,8 @@ vue
 				const name = prompt('Save as...');
 				if (name !== null) {
 					this.name = name;
+					this.saveFile();
 				}
-				this.saveFile();
 			},
 			togglePremise() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
