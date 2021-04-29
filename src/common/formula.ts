@@ -159,6 +159,7 @@ class FormulaEquivalenceEvaluator {
 		);
 	}
 
+	// TODO: cannot recognize substituting a function for a variable
 	/**
 	 *
 	 * @param lhs the first item to compare
