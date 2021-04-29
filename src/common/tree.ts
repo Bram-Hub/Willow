@@ -594,7 +594,7 @@ export class TruthTreeNode {
 					}
 				} else if (this.statement instanceof UniversalStatement) {
 					// Each universal must instantiate at least one variable.
-					if (decomposedInBranch.size < this.statement.variables.length) {
+					if (decomposedInBranch.size === 0) {
 						return 'universal_decompose_length';
 					}
 
@@ -1369,7 +1369,7 @@ export class TruthTree {
 				return 'An existence statement can only be decomposed once per branch.';
 			}
 			case 'universal_decompose_length': {
-				return 'Each universal variable must be instantiated for at least one constant';
+				return 'A universal statement must be decomposed at least once.';
 			}
 			case 'universal_domain_not_decomposed': {
 				return (
