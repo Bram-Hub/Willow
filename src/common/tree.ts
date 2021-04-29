@@ -8,6 +8,7 @@ import {
 	ExistenceStatement,
 	UniversalStatement,
 } from './statement';
+import {deleteMapping, createNDimensionalMapping} from './util';
 
 type Response = string | true;
 
@@ -592,22 +593,20 @@ export class TruthTreeNode {
 						}
 					}
 				} else if (this.statement instanceof UniversalStatement) {
-					// Statement needs to instantiate every variable in the UD
-
-					// TODO: remove this requirement, see line 633
-					// Multivariable universals are not supported yet.
-					if (this.statement.variables.length > 1) {
-						return 'universal_variables_length';
-					}
-
-					// Must instantiate at least one variable
-					if (decomposedInBranch.size === 0) {
+					// Each universal must instantiate at least one variable.
+					if (decomposedInBranch.size < this.statement.variables.length) {
 						return 'universal_decompose_length';
 					}
 
 					// Must instantiate every variable in the universe
 					// This is a rough metric to prevent later calculation.
-					if (decomposedInBranch.size < openTerminatorNode.universe!.length) {
+					if (
+						decomposedInBranch.size <
+						Math.pow(
+							openTerminatorNode.universe!.length,
+							this.statement.variables.length
+						)
+					) {
 						return 'universal_domain_not_decomposed';
 					}
 
@@ -615,7 +614,10 @@ export class TruthTreeNode {
 					// functions, but can possibly be modified to
 					const symbolized = this.statement.symbolized();
 
-					const instantiated: {[formula: string]: Set<string>} = {};
+					const uninstantiated = createNDimensionalMapping(
+						this.statement.variables.length,
+						openTerminatorNode.universe!
+					);
 
 					for (const decomposed of decomposedInBranch) {
 						const decomposedNode = this.tree.nodes[decomposed];
@@ -624,40 +626,19 @@ export class TruthTreeNode {
 							return 'invalid_decomposition';
 						}
 
-						// TODO: check the decomposed nodes span the UD
-						const mapping = symbolized.getEqualsMap(decomposedNode.statement);
-						if (mapping === false) {
+						const assignment = symbolized.getEqualsMap(
+							decomposedNode.statement
+						);
+						if (assignment === false) {
 							// Not an initialization of the antecedent
 							return 'invalid_decomposition';
 						}
 
-						for (const key of Object.keys(mapping)) {
-							if (!Object.keys(instantiated).includes(key)) {
-								instantiated[key] = new Set();
-							}
-							instantiated[key].add(mapping[key]);
-						}
+						deleteMapping(uninstantiated, assignment, this.statement.variables);
 					}
 
-					// The instantiated variables must match the universe
-
-					// TODO: Make this work for multivariable universals
-					// TODO: Make this work for functions, not just object literals
-					for (const variable of this.statement.variables) {
-						const instantiations = instantiated[variable.predicate];
-						for (const constant of openTerminatorNode.universe!) {
-							let satisfied = false;
-							for (const instance of instantiations) {
-								if (constant.equals(new Formula(instance))) {
-									satisfied = true;
-									break;
-								}
-							}
-							if (!satisfied) {
-								// Does not instantiate every variable in the UD
-								return 'universal_domain_not_decomposed';
-							}
-						}
+					if (Object.keys(uninstantiated).length !== 0) {
+						return 'universal_domain_not_decomposed';
 					}
 				}
 
@@ -1388,7 +1369,7 @@ export class TruthTree {
 				return 'An existence statement can only be decomposed once per branch.';
 			}
 			case 'universal_decompose_length': {
-				return 'A universal statement must be decomposed at least once.';
+				return 'Each universal variable must be instantiated for at least one constant';
 			}
 			case 'universal_domain_not_decomposed': {
 				return (
