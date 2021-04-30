@@ -1,4 +1,5 @@
-import {Formula, REPLACEMENT_SYMBOL} from '../common/formula';
+import {Formula, REPLACEMENT_SYMBOL} from './formula';
+import {AssignmentMap} from './util';
 
 export abstract class Statement {
 	/**
@@ -35,12 +36,12 @@ export abstract class Statement {
 	 * @returns false if the statements are not equivalent, or the replacement
 	 * map used for the variables otherwise
 	 */
-	getEqualsMap(other: Statement): {[variable: string]: string} | false {
+	getEqualsMap(other: Statement): AssignmentMap | false {
 		const evaluator = new StatementEquivalenceEvaluator(this, other);
 		if (!evaluator.checkEquivalence()) {
 			return false;
 		}
-		return evaluator.replacementMap;
+		return evaluator.assignment;
 	}
 
 	/**
@@ -567,7 +568,7 @@ export class UniversalStatement extends QuantifierStatement {
 class StatementEquivalenceEvaluator {
 	lhs: Statement;
 	rhs: Statement;
-	replacementMap: {[variable: string]: string} = {};
+	assignment: AssignmentMap = {};
 
 	constructor(lhs: Statement, rhs: Statement) {
 		this.lhs = lhs;
@@ -580,12 +581,7 @@ class StatementEquivalenceEvaluator {
 
 	private checkEquivalenceHelper(lhs: Statement, rhs: Statement): boolean {
 		if (lhs instanceof AtomicStatement && rhs instanceof AtomicStatement) {
-			const answer = lhs.formula.isMappedEquals(
-				rhs.formula,
-				this.replacementMap
-			);
-
-			return answer;
+			return lhs.formula.isMappedEquals(rhs.formula, this.assignment);
 		}
 
 		// Unary Statements

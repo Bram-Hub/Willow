@@ -1,8 +1,6 @@
-export const REPLACEMENT_SYMBOL = '.';
+import {AssignmentMap} from './util';
 
-interface AssignmentMap {
-	[variable: string]: string;
-}
+export const REPLACEMENT_SYMBOL = '.';
 
 export class Formula {
 	predicate: string;
@@ -90,7 +88,6 @@ export class Formula {
 
 		// Symbolize the predicate if necessary
 		if (variables.some(variable => variable.predicate === this.predicate)) {
-			// newPredicate = symbol;
 			newPredicate = `${symbol}${this.predicate}`;
 		}
 
@@ -135,6 +132,11 @@ class FormulaEquivalenceEvaluator {
 		// Multiple mappings for the same key in the replacement map
 		if (hadReplacement === null) {
 			return false;
+		}
+
+		// Mapped a variable to something else, possibly a function
+		if (hadReplacement === true) {
+			return true;
 		}
 
 		// The predicates must match

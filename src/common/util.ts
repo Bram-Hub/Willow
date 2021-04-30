@@ -1,5 +1,9 @@
 import {Formula} from './formula';
 
+export interface AssignmentMap {
+	[variable: string]: string;
+}
+
 export interface InstantiationMapping {
 	[variable: string]: InstantiationMapping;
 }
@@ -23,7 +27,7 @@ export function createNDimensionalMapping(
 
 export function deleteMapping(
 	map: InstantiationMapping,
-	assignment: {[variable: string]: string},
+	assignment: AssignmentMap,
 	variables: Formula[]
 ) {
 	recursiveDeleteMapping(map, assignment, variables, 0);
@@ -31,7 +35,7 @@ export function deleteMapping(
 
 function recursiveDeleteMapping(
 	map: InstantiationMapping,
-	assignment: {[variable: string]: string},
+	assignment: AssignmentMap,
 	variables: Formula[],
 	variableIndex: number
 ) {
