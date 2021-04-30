@@ -1,7 +1,7 @@
 export const REPLACEMENT_SYMBOL = '.';
 
-interface ReplacementMap {
-	[variable: string]: Formula;
+interface AssignmentMap {
+	[variable: string]: string;
 }
 
 export class Formula {
@@ -68,18 +68,15 @@ export class Formula {
 	 * a partially formed mapping of symbolized variables to instantiated
 	 * variables.
 	 * @param other the other statement
-	 * @param replacementMap the mapping of symbols to instantiated variables
-	 * @modifies replacementMap if there are any new mappings to be made
+	 * @param assignment the mapping of symbols to instantiated variables
+	 * @modifies assignment if there are any new mappings to be made
 	 * @returns true if this statement is equal to `other`, false otherwise
 	 */
-	isMappedEquals(
-		other: Formula,
-		replacementMap: {[variable: string]: string}
-	): boolean {
+	isMappedEquals(other: Formula, assignment: AssignmentMap): boolean {
 		return new FormulaEquivalenceEvaluator(
 			this,
 			other,
-			replacementMap
+			assignment
 		).checkEquivalence();
 	}
 
@@ -119,12 +116,12 @@ export class Formula {
 class FormulaEquivalenceEvaluator {
 	lhs: Formula;
 	rhs: Formula;
-	replacementMap: {[variable: string]: string};
+	assignment: AssignmentMap;
 
-	constructor(lhs: Formula, rhs: Formula, replacementMap = {}) {
+	constructor(lhs: Formula, rhs: Formula, assignment = {}) {
 		this.lhs = lhs;
 		this.rhs = rhs;
-		this.replacementMap = replacementMap;
+		this.assignment = assignment;
 	}
 
 	checkEquivalence(): boolean {
@@ -133,7 +130,7 @@ class FormulaEquivalenceEvaluator {
 
 	private checkEquivalenceHelper(lhs: Formula, rhs: Formula): boolean {
 		// Check if one of the predicates instantiates the other
-		const hadReplacement = this.getReplacement(lhs.predicate, rhs.predicate);
+		const hadReplacement = this.getReplacement(lhs, rhs);
 
 		// Multiple mappings for the same key in the replacement map
 		if (hadReplacement === null) {
@@ -159,7 +156,6 @@ class FormulaEquivalenceEvaluator {
 		);
 	}
 
-	// TODO: cannot recognize substituting a function for a variable
 	/**
 	 *
 	 * @param lhs the first item to compare
@@ -167,30 +163,32 @@ class FormulaEquivalenceEvaluator {
 	 * @returns null if there is a conflicting replacement, true if there is a
 	 * valid replacement, or false if no replacement occurs
 	 */
-	private getReplacement(lhs: string, rhs: string): boolean | null {
-		let key: string | null = null;
+	private getReplacement(lhs: Formula, rhs: Formula): boolean | null {
+		let variable: string | null = null;
 		let value: string | null = null;
 
 		for (const arg of [lhs, rhs]) {
-			if (arg.startsWith(REPLACEMENT_SYMBOL)) {
-				key = arg.slice(REPLACEMENT_SYMBOL.length);
+			const predicate = arg.predicate;
+
+			if (predicate.startsWith(REPLACEMENT_SYMBOL)) {
+				variable = predicate.slice(REPLACEMENT_SYMBOL.length);
 			} else {
-				value = arg;
+				value = arg.toString();
 			}
 		}
 
 		// Add the mapping to the map
-		if (key !== null && value !== null) {
-			if (Object.keys(this.replacementMap).includes(key)) {
+		if (variable !== null && value !== null) {
+			if (Object.keys(this.assignment).includes(variable)) {
 				// Conflicting mappings
-				if (this.replacementMap[key] !== value) {
+				if (this.assignment[variable] !== value) {
 					return null;
 				}
 			} else {
-				this.replacementMap[key] = value;
+				this.assignment[variable] = value;
 			}
 		}
 
-		return key !== null && value !== null;
+		return variable !== null && value !== null;
 	}
 }

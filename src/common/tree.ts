@@ -1001,6 +1001,7 @@ export class TruthTree {
 		// If the original node was the root, replace it
 		if (this.root === childId) {
 			this.root = newId;
+			this.nodes[newId].universe = [];
 		}
 
 		return newId;
