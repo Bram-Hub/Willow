@@ -30,20 +30,24 @@ export class Formula {
 	 * @param symbols the list of non-instantiated symbols
 	 * @returns set of constants contained in the formula
 	 */
-	getConstants(symbols: Formula[] = []): Formula[] {
+	getConstants(variables: Formula[] = []): Formula[] {
 		const constants: Formula[] = [];
 
 		if (this.args === null) {
 			// No args means this must be a constant
-			if (!symbols.some(symbol => symbol.equals(this))) {
+			if (!variables.some(variable => variable.equals(this))) {
 				// Not a non-instantiated symbol, so it's a constant
 				constants.push(this);
 			}
 		} else {
 			// Only add the atomic literals -- this is most likely incorrect as
 			// it ignores functions as constants
+
+			let constantArgs = 0;
+
 			for (const arg of this.args) {
-				for (const constant of arg.getConstants(symbols)) {
+				let isConstant = false;
+				for (const constant of arg.getConstants(variables)) {
 					let conflict = false;
 					for (const prefound of constants) {
 						if (prefound.equals(constant)) {
@@ -53,7 +57,27 @@ export class Formula {
 					}
 					if (!conflict) {
 						constants.push(constant);
+						isConstant = true;
 					}
+				}
+				if (isConstant) {
+					++constantArgs;
+				}
+			}
+
+			// If all of the args are constants AND this is not a predicate,
+			// we should count this formula as a distinct constant
+			if (constantArgs === this.args.length && !this.isPredicate()) {
+				let conflict = false;
+				for (const prefound of constants) {
+					if (prefound.equals(this)) {
+						conflict = true;
+						break;
+					}
+				}
+
+				if (!conflict) {
+					constants.push(this);
 				}
 			}
 		}
@@ -76,6 +100,11 @@ export class Formula {
 			other,
 			assignment
 		).checkEquivalence();
+	}
+
+	// It's a predicate if it starts with a capital letter
+	isPredicate() {
+		return this.predicate.charAt(0) === this.predicate.charAt(0).toUpperCase();
 	}
 
 	/**

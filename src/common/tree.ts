@@ -363,7 +363,7 @@ export class TruthTreeNode {
 
 			if (antecedentNode.statement instanceof ExistenceStatement) {
 				if (
-					this.statement.getNewConstants(this.universe!).length !==
+					this.statement.getNewConstants(this.universe!).length <
 					antecedentNode.statement.variables.length
 				) {
 					return 'existence_instantiation_length';
@@ -1322,7 +1322,7 @@ export class TruthTree {
 				return 'This statement does not instantiate the statement it references';
 			}
 			case 'existence_instantiation_length': {
-				return 'An existence statement must instantiate a new constant.';
+				return 'Each variable in an existence statement must instantiate a new constant.';
 			}
 			case 'open_decomposed': {
 				return 'An open terminator must reference no statements.';
