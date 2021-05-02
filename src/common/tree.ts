@@ -151,7 +151,7 @@ export class TruthTreeNode {
 		// Can only guarantee children are correctly initialized if the tree's
 		// initialized flag is set to true
 		if (this.tree.initialized === true) {
-			this.propogateUniverse(this.universe!, this._universe !== null);
+			this.propogateUniverse(this.universe!, 'self');
 		}
 	}
 
@@ -699,11 +699,16 @@ export class TruthTreeNode {
 	 * Down-propogates the universe, updating as statements introduce new
 	 * constants.
 	 * @param universe the universe to propogate
-	 * @param changes if there were new nodes initialized from the prev. node
+	 * @param changes boolean values representing whether there were new nodes
+	 * initialized from the prev. node or 'self' to check if this node has its
+	 * own universe
 	 */
-	propogateUniverse(universe: Formula[], changes: boolean) {
+	propogateUniverse(universe: Formula[], changes: boolean | 'self') {
 		// If there wasn't a change to the previous universe, set universe to
 		// null in order to mark that it should refer to the parent's universe
+		if (changes === 'self') {
+			changes = this._universe !== null;
+		}
 
 		// Note: this is using _universe instead of universe due to weird JS bug?
 		this._universe = changes ? universe : null;
@@ -1052,6 +1057,7 @@ export class TruthTree {
 
 		if (newBranch) {
 			parentNode.children.push(newId);
+			parentNode.propogateUniverse(parentNode.universe!, 'self');
 			// Returning parent's ID allows people adding multiple branches at
 			// once to do so without having to click the parent many times.
 			return parentId;
@@ -1071,6 +1077,7 @@ export class TruthTree {
 
 		// Fix parent's children array
 		parentNode.children = [newId];
+		parentNode.propogateUniverse(parentNode.universe!, 'self');
 
 		return newId;
 	}

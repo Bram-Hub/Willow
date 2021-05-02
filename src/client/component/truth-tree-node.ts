@@ -42,8 +42,7 @@ export const TruthTreeNodeComponent: vue.Component = {
       valid: {{ node.isValid() }},
       decomposed: {{ node.isDecomposed() }},
       universe: {{
-        JSON.stringify(Array.from(node.universe)
-            .map(formula => formula.toString()))
+        JSON.stringify(node.universe.map(formula => formula.toString()))
       }}
     </span>
     <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
