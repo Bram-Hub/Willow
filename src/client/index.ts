@@ -6,7 +6,7 @@ import {
 	SubstitutionRecorder,
 	Substitutions,
 } from './component/substitution-recorder';
-import {TruthTreeComponent} from './component/truth-tree';
+import {TruthTreeBranchComponent} from './component/truth-tree-branch';
 import {getNodeIconClasses} from './component/truth-tree-node';
 
 /**
@@ -53,7 +53,7 @@ export const instance = vue
 		components: {
 			'key-recorder': KeyRecorder,
 			'substitution-recorder': SubstitutionRecorder,
-			'truth-tree': TruthTreeComponent,
+			'truth-tree-branch': TruthTreeBranchComponent,
 		},
 		data: function () {
 			return {
@@ -300,6 +300,18 @@ export const instance = vue
 				this.$store.commit('select', {
 					id: (this.tree as TruthTree).rightmostNode()?.id,
 				});
+			},
+			toggleBranchExpansion() {
+				this.$refs.rootBranch.toggleBranchExpansion();
+			},
+			collapseAllBranches() {
+				this.$refs.rootBranch.collapseAllBranches();
+			},
+			expandAllBranches() {
+				this.$refs.rootBranch.expandAllBranches();
+			},
+			collapseTerminatedBranches() {
+				this.$refs.rootBranch.collapseTerminatedBranches();
 			},
 			checkStatement() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
