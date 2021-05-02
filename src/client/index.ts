@@ -202,7 +202,7 @@ export const instance = vue
 					alert('You may not delete the only statement in a branch.');
 					return;
 				}
-				this.$store.commit('select', {id: toSelect});
+				this.$store.commit('select', {id: toSelect, delay: true});
 			},
 			deleteBranch() {
 				const tree: TruthTree = this.tree;
@@ -225,7 +225,7 @@ export const instance = vue
 				if (toSelect === null) {
 					return alert('You may not delete the root branch.');
 				}
-				this.$store.commit('select', {id: toSelect});
+				this.$store.commit('select', {id: toSelect, delay: true});
 			},
 			moveUp() {
 				const tree: TruthTree = this.$store.state.tree;
