@@ -110,6 +110,18 @@ html(lang='en')
               th Shortcut
           tbody
             tr
+              td Open file
+              td
+                key-recorder(@open-file='openFile' event='open-file' :default='["Control", "o"]')
+            tr
+              td Save file
+              td
+                key-recorder(@save-file='saveFile' event='save-file' :default='["Control", "s"]')
+            tr
+              td Save file as...
+              td
+                key-recorder(@save-file-as='saveFileAs' event='save-file-as' :default='["Control", "Shift", "S"]')
+            tr
               td Toggle premise
               td
                 key-recorder(@toggle-premise='togglePremise' event='toggle-premise' :default='["Control", "p"]')
