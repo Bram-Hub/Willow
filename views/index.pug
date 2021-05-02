@@ -13,7 +13,7 @@ html(lang='en')
         .dropdown
           button File
           .dropdown-menu(style={display: 'none'})
-            a.menu-option(href='/' target='blank') New
+            a.menu-option(href='./' target='blank') New
             hr
             button.menu-option(@click='openFile') Open
             .hidden
@@ -43,6 +43,11 @@ html(lang='en')
             button.menu-option(@click='moveDownBranch') Move down branch
             button.menu-option(@click='moveUpTree') Move up tree
             button.menu-option(@click='moveDownTree') Move down tree
+            hr
+            button.menu-option(@click='toggleBranchExpansion') Toggle branch expansion
+            button.menu-option(@click='collapseAllBranches') Collapse all branches
+            button.menu-option(@click='expandAllBranches') Expand all branches
+            button.menu-option(@click='collapseTerminatedBranches') Collapse terminated branches
         .dropdown
           button Evaluate
           .dropdown-menu(style={display: 'none'})
@@ -70,7 +75,7 @@ html(lang='en')
         h2 {{ name }}
         .truth-tree.left
           p(v-if='$store.state.developerMode') checkRepresentation: {{ $store.state.tree.checkRepresentation() }}, leaves: {{ [...$store.state.tree.leaves] }}, treeOptions: {{ JSON.stringify($store.state.tree.options) }}
-          truth-tree
+          truth-tree-branch(:head='$store.state.tree.root' ref='rootBranch')
       #status-bar(v-if='selectedNode !== null')
         i(:class="getNodeIconClasses(selectedNode)")
         |  {{ selectedNode.getFeedback() }}

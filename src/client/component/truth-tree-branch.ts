@@ -13,7 +13,11 @@ export const TruthTreeBranchComponent: vue.Component = {
 	data() {
 		return {
 			expanded: true,
+			childBranches: [],
 		};
+	},
+	beforeUpdate() {
+		this.childBranches = [];
 	},
 	computed: {
 		branch() {
@@ -32,6 +36,11 @@ export const TruthTreeBranchComponent: vue.Component = {
 		},
 	},
 	methods: {
+		addChildBranchRef(ref: any) {
+			if (ref) {
+				this.childBranches.push(ref);
+			}
+		},
 		modifyDecomposition(id: number) {
 			const selectedNode: TruthTreeNode | null = this.$store.getters
 				.selectedNode;
@@ -79,6 +88,58 @@ export const TruthTreeBranchComponent: vue.Component = {
 			}
 			selectedNode.correctDecomposition = null;
 		},
+		toggleBranchExpansion() {
+			const selected: number | null = this.$store.state.selected;
+			if (selected === null) {
+				return alert('You must select a statement before doing this.');
+			}
+			if ((this.branch as number[]).includes(selected)) {
+				(this.expanded as boolean) = !(this.expanded as boolean);
+			} else {
+				for (const childBranch of this.childBranches) {
+					childBranch.toggleBranchExpansion();
+				}
+			}
+		},
+		collapseAllBranches() {
+			for (const childBranch of this.childBranches) {
+				childBranch.expandAllBranches();
+			}
+			(this.expanded as boolean) = false;
+		},
+		expandAllBranches() {
+			(this.expanded as boolean) = true;
+			for (const childBranch of this.childBranches) {
+				childBranch.expandAllBranches();
+			}
+		},
+		collapseTerminatedBranches() {
+			const branch: number[] = this.branch;
+			const tail = (this.$store.state.tree as TruthTree).nodes[
+				branch[branch.length - 1]
+			];
+			if (this.childBranches.length === 0) {
+				if (tail.isTerminator()) {
+					this.expanded = false;
+					return true;
+				}
+			} else {
+				// Only collapse this branch if all of its child branches are collapsed
+				let collapse = true;
+				for (const childBranch of this.childBranches) {
+					if (!childBranch.collapseTerminatedBranches()) {
+						collapse = false;
+						// NOTE: Do not break outside of for loop, since we still need to
+						// 			 call collapseTerminatedBranches() for all child branches
+					}
+				}
+				if (collapse) {
+					this.expanded = false;
+					return true;
+				}
+			}
+			return false;
+		},
 	},
 	template: `
     <ul class="branch">
@@ -111,7 +172,8 @@ export const TruthTreeBranchComponent: vue.Component = {
             v-if="$store.state.tree.nodes[id].children.length > 1 && expanded"
             v-for="child in $store.state.tree.nodes[id].children">
           <hr class="branch-line"/>
-          <truth-tree-branch :head="child"></truth-tree-branch>
+          <truth-tree-branch :head="child"
+							:ref="addChildBranchRef"></truth-tree-branch>
         </template>
       </template>
       <li v-if="!expanded && headNode.children.length > 0">
