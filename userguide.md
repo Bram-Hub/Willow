@@ -18,7 +18,10 @@ Willow is a web-based application for creating and validating truth trees. Truth
 
 ## Creating a truth tree
 ### Syntax:
-Everyone has their own prefered [logical symbols](https://en.wikipedia.org/wiki/List_of_logic_symbols). Willow is smart and allows you to use a number of different options. You may use or even mix and match any of the following options.
+Willow tries to be flexiable with syntax but there are a few rules you must follow for Willow to correctly parse your truth tree.
+
+#### Symbols:
+Everyone has their own preferred [logical symbols](https://en.wikipedia.org/wiki/List_of_logic_symbols). Willow is smart and allows you to use a number of different options. You may use or even mix and match any of the following options.
 
 Symbol|Options
 ---|---
@@ -27,8 +30,17 @@ Symbol|Options
 [Conjunction](https://en.wikipedia.org/wiki/Logical_conjunction)|`and` `∧` `&`
 [Implication](https://en.wikipedia.org/wiki/Material_conditional)|`implies` `only if` `→` `$` `->`
 [Equivalence](https://en.wikipedia.org/wiki/If_and_only_if)|`iff` `equiv` `↔` `%` `<->`
+[Universal Quantifier](https://en.wikipedia.org/wiki/Universal_quantification)|`forall` `∀`
+[Existential Quantifier](https://en.wikipedia.org/wiki/Existential_quantification)|`exists` `∃`
 Open Branch|`◯`
 Closed Branch|`×`
+
+#### Predicates and Propositions:
+Predicates and propositions must be capitalized.
+
+For example, writing `A` is valid, however `a` is invalid.
+
+In addition, writing `P(x)` is valid, however `p(x)` is invalid.
 
 #### Valid Examples:
 `¬((A ∨ B) ∧ (C → D)) ↔ E`
@@ -38,6 +50,8 @@ Closed Branch|`×`
 `not ((A or B) and (C implies D)) iff E`
 
 `¬((A | B) and (C -> D)) equiv E`
+
+`∀x ∃y (P(x) ∧ Q(y))`
 
 ### Statements:
 Statements are [First-order logic](https://en.wikipedia.org/wiki/First-order_logic) expressions in textboxes. To the left of each statement is a symbol representing one of three possibilities. A green check mark signifies your statement is a logical consequence and is correctly decomposed within the tree. A red "X" signifies an issue with that statement; hovering your mouse over this "X" will give you more information regarding the issue. A yellow triangle signifies that the statement itself is not recognized by the First-order logic expression parser*. In addition to these symbols, the currently selected statement is highlighted blue, its decomposition is highlighted red, and its logical "parent" is highlighted green.
