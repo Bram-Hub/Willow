@@ -54,7 +54,8 @@ export const TruthTreeNodeComponent: vue.Component = {
           'statement': true,
           'open-terminator': node.text === '◯',
           'closed-terminator': node.text === '×',
-        }"/>
+        }"
+        :readonly="node.premise && $store.state.tree.options.lockedOptions"/>
     <p v-if="node.premise" class="premise-label">Premise</p>
   `,
 };

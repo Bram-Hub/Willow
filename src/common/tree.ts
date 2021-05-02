@@ -933,12 +933,40 @@ export class TruthTree {
 	}
 
 	/**
+	 * Determines whether or not the branch with a given root contains a premise.
+	 * @param root the id of the root
+	 * @returns true if the branch contains a premise, false otherwise
+	 */
+	branchContainsPremise(root?: number | null) {
+		if (typeof root !== 'number') {
+			return false;
+		}
+
+		// Perform a BFS to determine if any of the nodes in the branch contains
+		// a premise
+		let queue = [root];
+		while (queue.length > 0) {
+			// queue is non-empty, so we can guarantee that shift() does not return
+			// undefined
+			const node = this.getNode(queue.shift());
+			if (node === null) {
+				continue;
+			}
+			if (node.premise) {
+				return true;
+			}
+			queue = queue.concat(node.children);
+		}
+		return false;
+	}
+
+	/**
 	 * Returns the leftmost node in the subtree rooted at a given node, or the
 	 * entire tree if no node is specified.
 	 * @param root the id of the root of the subtree
 	 * @returns the leftmost node
 	 */
-	leftmostNode(root?: number | null): TruthTreeNode | null {
+	leftmostNode(root?: number | null) {
 		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
@@ -957,7 +985,7 @@ export class TruthTree {
 	 * @param root the id of the root of the subtree
 	 * @returns the rightmost node
 	 */
-	rightmostNode(root?: number | null): TruthTreeNode | null {
+	rightmostNode(root?: number | null) {
 		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;

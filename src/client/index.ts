@@ -132,6 +132,11 @@ export const instance = vue
 				if (selectedNode === null) {
 					return alert('You must select a statement before doing this.');
 				}
+
+				if ((this.tree as TruthTree).options.lockedOptions) {
+					return alert('You may not toggle premises while they are locked.');
+				}
+
 				selectedNode.togglePremise();
 			},
 			addStatementBefore() {
@@ -169,11 +174,16 @@ export const instance = vue
 			},
 			deleteStatement() {
 				const tree: TruthTree = this.tree;
-				const nodeId = this.selected as number | null;
-				if (nodeId === null) {
+				const selected: number | null = this.selected;
+				if (selected === null) {
 					return;
 				}
-				const toSelect = tree.deleteNode(nodeId);
+
+				if (tree.nodes[selected].premise && tree.options.lockedOptions) {
+					return alert('You may not delete premises while they are locked.');
+				}
+
+				const toSelect = tree.deleteNode(selected);
 				if (toSelect === null) {
 					alert('You may not delete the only statement in a branch.');
 					return;
@@ -182,11 +192,18 @@ export const instance = vue
 			},
 			deleteBranch() {
 				const tree: TruthTree = this.tree;
-				const nodeId = this.selected as number | null;
-				if (nodeId === null) {
+				const selected: number | null = this.selected;
+				if (selected === null) {
 					return;
 				}
-				const head = tree.getBranchHead(nodeId);
+				const head = tree.getBranchHead(selected);
+
+				if (tree.branchContainsPremise(head) && tree.options.lockedOptions) {
+					return alert(
+						'You may not delete branches that contain premises while premises are locked.'
+					);
+				}
+
 				const toSelect = tree.deleteBranch(head);
 				if (toSelect === null) {
 					return alert('You may not delete the root branch.');
