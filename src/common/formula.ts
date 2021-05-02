@@ -47,11 +47,8 @@ export class Formula {
 				constants.push(this);
 			}
 		} else {
-			// Only add the atomic literals -- this is most likely incorrect as
-			// it ignores functions as constants
-
+			// Count how many of the arguments are functions
 			let constantArgs = 0;
-
 			for (const arg of this.args) {
 				let isConstant = false;
 				for (const constant of arg.getConstants(variables)) {
@@ -198,7 +195,7 @@ class FormulaEquivalenceEvaluator {
 	 */
 	private getReplacement(lhs: Formula, rhs: Formula): boolean | null {
 		let variable: string | null = null;
-		let value: string | null = null;
+		let value: Formula | null = null;
 
 		for (const arg of [lhs, rhs]) {
 			const predicate = arg.name;
@@ -206,7 +203,7 @@ class FormulaEquivalenceEvaluator {
 			if (predicate.startsWith(REPLACEMENT_SYMBOL)) {
 				variable = predicate.slice(REPLACEMENT_SYMBOL.length);
 			} else {
-				value = arg.toString();
+				value = arg;
 			}
 		}
 
@@ -214,7 +211,7 @@ class FormulaEquivalenceEvaluator {
 		if (variable !== null && value !== null) {
 			if (Object.keys(this.assignment).includes(variable)) {
 				// Conflicting mappings
-				if (this.assignment[variable] !== value) {
+				if (!this.assignment[variable].equals(value)) {
 					return null;
 				}
 			} else {

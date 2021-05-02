@@ -1,7 +1,7 @@
 import {Formula} from './formula';
 
 export interface AssignmentMap {
-	[variable: string]: string;
+	[variable: string]: Formula;
 }
 
 export interface InstantiationMapping {
@@ -40,7 +40,7 @@ function recursiveDeleteMapping(
 	variableIndex: number
 ) {
 	const variable = variables[variableIndex];
-	const value = assignment[variable.toString()];
+	const value = assignment[variable.toString()].toString();
 
 	// If this assignment is already satisfied, stop early
 	if (!Object.keys(map).includes(value)) {
