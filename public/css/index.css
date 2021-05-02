@@ -56,13 +56,8 @@
   margin: 0px;
 }
 
-#about-modal {
-  width: 600px;
-}
-
-#about-modal img {
-  flex: 0 100px;
-  margin-right: 30px;
+#options-modal td:last-child {
+  text-align: center;
 }
 
 #shortcuts-modal > h2 {
@@ -79,6 +74,15 @@
 
 #substitutions-modal td:first-child {
   text-align: center;
+}
+
+#about-modal {
+  width: 600px;
+}
+
+#about-modal img {
+  flex: 0 100px;
+  margin-right: 30px;
 }
 
 .branch-line {

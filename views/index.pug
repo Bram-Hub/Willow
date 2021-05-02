@@ -47,7 +47,7 @@ html(lang='en')
           button Evaluate
           .dropdown-menu(style={display: 'none'})
             button.menu-option(@click='checkTree') Check tree
-            button.menu-option(onclick='Willow.showModal("tree-options-modal")') Options
+            button.menu-option(onclick='Willow.showModal("options-modal")') Options
         .dropdown
           button Settings
           .dropdown-menu(style={display: 'none'})
@@ -72,13 +72,27 @@ html(lang='en')
       #status-bar(v-if='selectedNode !== null')
         i(:class="getNodeIconClasses(selectedNode)")
         |  {{ selectedNode.getFeedback() }}
-      #about-modal.modal.card(style={display: 'none'})
+      #options-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
-        .row
-          img.logo-img(src='./img/logo.png' width='100')
-          div
-            h2 About Willow
-            p Commit #{commit}
+        h2.center Options
+        table
+          thead
+            tr
+              th Option
+              th Value
+          tbody
+            tr
+              td Require contradictions to use atomic statements.
+              td
+                input#requireAtomicContradiction(type='checkbox' v-model='tree.options.requireAtomicContradiction')
+            tr
+              td Require all branches be terminated.
+              td
+                input#requireAllBranchesTerminated(type='checkbox' v-model='tree.options.requireAllBranchesTerminated')
+            tr
+              td Lock the current options and premises.
+              td
+                input#lockedOptions(type='checkbox' v-model='tree.options.lockedOptions')
       #shortcuts-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
         h2.center Shortcuts
@@ -181,26 +195,12 @@ html(lang='en')
               td ×
               td
                 substitution-recorder(symbol='×' default="'")
-      #tree-options-modal.modal.card(style={display: 'none'})
+      #about-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
-        h2.center Tree Options
-        table
-          thead
-            tr
-              th Option
-              th Value
-          tbody
-            tr
-              td Require contradictions to use atomic statements.
-              td.center
-                input#requireAtomicContradiction(type="checkbox" v-model="tree.options.requireAtomicContradiction")
-            tr
-              td Require all branches be terminated.
-              td.center
-                input#requireAllBranchesTerminated(type="checkbox" v-model="tree.options.requireAllBranchesTerminated")
-            tr
-              td Lock the current options and premises.
-              td.center
-                input#lockedOptions(type="checkbox" v-model="tree.options.lockedOptions")
+        .row
+          img.logo-img(src='./img/logo.png' width='100')
+          div
+            h2 About Willow
+            p Commit #{commit}
     include /global/footer.pug
     script(src='./js/index.js' type='text/javascript')
