@@ -15,8 +15,9 @@
     --toolbar-dropdown-menu-dividing-line: #d0d0d0;
 
     /* Truth tree */
-    --tt-check: #80c080;
-    --tt-times: #c08080;
+    --statement-correct: #80c080;
+    --statement-incorrect: #c08080;
+    --statement-error: #bdbc58;
     --tt-chevron: #000000;
     --selected: rgba(51, 153, 255, 0.5);
     --antecedent: rgba(128, 192, 128, 0.5);
