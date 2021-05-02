@@ -85,7 +85,7 @@ export const TruthTreeBranchComponent: vue.Component = {
       <template v-for="id, index in branch">
         <li v-if="index === 0 || expanded"
 						@contextmenu.prevent="modifyDecomposition(id)"
-						@click="$store.commit('select', id)"
+						@click="$store.commit('select', {id: id})"
 						:class="{
 							selected: $store.state.selected === id,
 							antecedent: $store.getters.selectedNode !== null

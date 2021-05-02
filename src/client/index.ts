@@ -34,6 +34,20 @@ interface StoreState {
 	substitutions: Substitutions;
 }
 
+/**
+ * Focuses on the text box corresponding to a given node in the DOM.
+ * @param id the node id
+ */
+function focusOnNode(id?: number | null) {
+	if (typeof id !== 'number') {
+		return;
+	}
+	const input = document.getElementById(`node${id}`);
+	if (input instanceof HTMLInputElement) {
+		input.focus();
+	}
+}
+
 export const instance = vue
 	.createApp({
 		components: {
@@ -99,7 +113,7 @@ export const instance = vue
 						);
 					}
 					try {
-						this.$store.commit('select', null);
+						this.$store.commit('select', {id: null});
 						this.$store.commit('setTree', TruthTree.deserialize(fileContents));
 					} catch (err) {
 						alert(
@@ -141,36 +155,36 @@ export const instance = vue
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
-				this.$store.commit(
-					'select',
-					tree.addNodeBefore(
+				this.$store.commit('select', {
+					id: tree.addNodeBefore(
 						typeof this.selected === 'number' ? this.selected : tree.root
-					)
-				);
+					),
+					delay: true,
+				});
 			},
 			addStatementAfter() {
 				const tree: TruthTree = this.tree;
-				this.$store.commit(
-					'select',
-					tree.addNodeAfter(
+				this.$store.commit('select', {
+					id: tree.addNodeAfter(
 						typeof this.selected === 'number'
 							? this.selected
 							: tree.rightmostNode()?.id,
 						false
-					)
-				);
+					),
+					delay: true,
+				});
 			},
 			createBranch() {
 				const tree: TruthTree = this.tree;
-				this.$store.commit(
-					'select',
-					tree.addNodeAfter(
+				this.$store.commit('select', {
+					id: tree.addNodeAfter(
 						typeof this.selected === 'number'
 							? this.selected
 							: tree.rightmostNode()?.id,
 						true
-					)
-				);
+					),
+					delay: true,
+				});
 			},
 			deleteStatement() {
 				const tree: TruthTree = this.tree;
@@ -188,7 +202,7 @@ export const instance = vue
 					alert('You may not delete the only statement in a branch.');
 					return;
 				}
-				this.$store.commit('select', toSelect);
+				this.$store.commit('select', {id: toSelect});
 			},
 			deleteBranch() {
 				const tree: TruthTree = this.tree;
@@ -197,6 +211,9 @@ export const instance = vue
 					return;
 				}
 				const head = tree.getBranchHead(selected);
+				if (head === null) {
+					return;
+				}
 
 				if (tree.branchContainsPremise(head) && tree.options.lockedOptions) {
 					return alert(
@@ -208,7 +225,7 @@ export const instance = vue
 				if (toSelect === null) {
 					return alert('You may not delete the root branch.');
 				}
-				this.$store.commit('select', toSelect);
+				this.$store.commit('select', {id: toSelect});
 			},
 			moveUp() {
 				const tree: TruthTree = this.$store.state.tree;
@@ -219,19 +236,18 @@ export const instance = vue
 				const parentNode = tree.getNode(selectedNode.parent);
 				if (parentNode === null) {
 					// Prevent the user from moving above the root node
-					this.$store.commit('select', tree.root);
+					this.$store.commit('select', {id: tree.root});
 				} else if (parentNode.children.length > 1) {
 					const childIndex = parentNode.children.indexOf(selectedNode.id);
 					if (childIndex > 0) {
-						this.$store.commit(
-							'select',
-							tree.rightmostNode(parentNode.children[childIndex - 1])?.id
-						);
+						this.$store.commit('select', {
+							id: tree.rightmostNode(parentNode.children[childIndex - 1])?.id,
+						});
 					} else {
-						this.$store.commit('select', parentNode.id);
+						this.$store.commit('select', {id: parentNode.id});
 					}
 				} else {
-					this.$store.commit('select', parentNode.id);
+					this.$store.commit('select', {id: parentNode.id});
 				}
 			},
 			moveDown() {
@@ -241,7 +257,7 @@ export const instance = vue
 					tree.nodes[tree.root];
 
 				if (selectedNode.children.length > 0) {
-					this.$store.commit('select', selectedNode.children[0]);
+					this.$store.commit('select', {id: selectedNode.children[0]});
 				} else {
 					let node = selectedNode;
 					let parentNode = tree.getNode(node.parent);
@@ -256,19 +272,34 @@ export const instance = vue
 						return;
 					}
 					const childIndex = parentNode.children.indexOf(node.id);
-					this.$store.commit('select', parentNode.children[childIndex + 1]);
+					this.$store.commit('select', {
+						id: parentNode.children[childIndex + 1],
+					});
 				}
 			},
-			moveUpBranch() {},
-			moveDownBranch() {},
+			moveUpBranch() {
+				this.moveUp();
+				this.$store.commit('select', {
+					id: (this.tree as TruthTree).getBranchHead(
+						this.selected as number | null
+					),
+				});
+			},
+			moveDownBranch() {
+				this.moveDown();
+				this.$store.commit('select', {
+					id: (this.tree as TruthTree).getBranchTail(
+						this.selected as number | null
+					),
+				});
+			},
 			moveUpTree() {
-				this.$store.commit('select', (this.tree as TruthTree).root);
+				this.$store.commit('select', {id: (this.tree as TruthTree).root});
 			},
 			moveDownTree() {
-				this.$store.commit(
-					'select',
-					(this.tree as TruthTree).rightmostNode()?.id
-				);
+				this.$store.commit('select', {
+					id: (this.tree as TruthTree).rightmostNode()?.id,
+				});
 			},
 			checkStatement() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
@@ -330,27 +361,41 @@ export const instance = vue
 				},
 			},
 			mutations: {
-				toggleDeveloperMode(state) {
+				toggleDeveloperMode(state: StoreState) {
 					state.developerMode = !state.developerMode;
 				},
-				select(state, id: number) {
-					state.selected = id;
+				select(
+					state: StoreState,
+					payload: {id: number | null; focus?: boolean; delay?: boolean}
+				) {
+					// Default values for payload
+					payload = {
+						focus: true,
+						delay: false,
+						...payload,
+					};
 
-					// Focus on the text box corresponding to the selected node
-					// NOTE: We must use setTimeout as select is usually called
-					//       immediately after a node is created, but before it
-					//       is rendered in the DOM
-					setTimeout(() => {
-						const input = document.getElementById(`node${id}`);
-						if (input instanceof HTMLInputElement) {
-							input.focus();
+					state.selected = payload.id;
+
+					if (payload.focus) {
+						if (payload.delay) {
+							// Focus on the text box corresponding to the selected node
+							// NOTE: We must use setTimeout if `delay` is true; for instance,
+							// 			 immediately after a node is created, but before it is
+							//       rendered in the DOM
+							setTimeout(() => focusOnNode(payload.id), 0);
+						} else {
+							focusOnNode(payload.id);
 						}
-					}, 0);
+					}
 				},
-				setSubstitution(state, payload: {symbol: string; text: string}) {
+				setSubstitution(
+					state: StoreState,
+					payload: {symbol: string; text: string}
+				) {
 					state.substitutions[payload.symbol] = payload.text;
 				},
-				setTree(state, tree: TruthTree) {
+				setTree(state: StoreState, tree: TruthTree) {
 					state.tree = tree;
 				},
 			},

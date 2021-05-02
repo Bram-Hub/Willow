@@ -917,17 +917,42 @@ export class TruthTree {
 	}
 
 	/**
-	 * Returns the id of the node that begins the most recent branch.
-	 * @param id the node id
-	 * @returns the id of the node which begins the newest branch `id` is in.
+	 * Returns the id of the node at the top of the branch containing a given
+	 * node.
+	 * @param id the id of the node used to locate the branch
+	 * @returns the id of the node at the top of the branch containing the node
+	 * whose id is `id`
 	 */
-	getBranchHead(id: number) {
-		let current = this.nodes[id];
+	getBranchHead(id?: number | null) {
+		let current = this.getNode(id);
+		if (current === null) {
+			return null;
+		}
+
 		while (
 			current.parent !== null &&
 			this.nodes[current.parent].children.length === 1
 		) {
 			current = this.nodes[current.parent];
+		}
+		return current.id;
+	}
+
+	/**
+	 * Returns the id of the node at the bottom of the branch containing a given
+	 * node.
+	 * @param id the id of the node used to locate the branch
+	 * @returns the id of the node at the bottom of the branch containing the node
+	 * whose id is `id`
+	 */
+	getBranchTail(id?: number | null) {
+		let current = this.getNode(id);
+		if (current === null) {
+			return null;
+		}
+
+		while (current.children.length === 1) {
+			current = this.nodes[current.children[0]];
 		}
 		return current.id;
 	}
