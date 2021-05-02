@@ -3,17 +3,24 @@ import {AssignmentMap} from './util';
 export const REPLACEMENT_SYMBOL = '.';
 
 export class Formula {
-	predicate: string;
+	name: string;
 	args: Formula[] | null;
+	isPredicate = false;
 
 	/**
 	 * Constructs a new `Formula`, which is represented by a predicate and its arguments.
-	 * @param predicate the function symbol in the formula or the variable itself
-	 * @param args the arguments to this predicate or null if the predicate is a variable
+	 * @param name the function symbol in the formula or the variable itself
+	 * @param args the arguments for this symbol or null if it is a variable
+	 * @param isPredicate whether or not the Formula is a predicate
 	 */
-	constructor(predicate: string, args: Formula[] | null = null) {
-		this.predicate = predicate;
+	constructor(
+		name: string,
+		args: Formula[] | null = null,
+		isPredicate = false
+	) {
+		this.name = name;
 		this.args = args;
+		this.isPredicate = isPredicate;
 	}
 
 	/**
@@ -65,9 +72,9 @@ export class Formula {
 				}
 			}
 
-			// If all of the args are constants AND this is not a predicate,
+			// If all of the args are constants AND this is NOT a predicate,
 			// we should count this formula as a distinct constant
-			if (constantArgs === this.args.length && !this.isPredicate()) {
+			if (constantArgs === this.args.length && !this.isPredicate) {
 				let conflict = false;
 				for (const prefound of constants) {
 					if (prefound.equals(this)) {
@@ -89,7 +96,7 @@ export class Formula {
 	 * Determines whether or not this formula is equal to another formula given
 	 * a partially formed mapping of symbolized variables to instantiated
 	 * variables.
-	 * @param other the other statement
+	 * @param other the other formula
 	 * @param assignment the mapping of symbols to instantiated variables
 	 * @modifies assignment if there are any new mappings to be made
 	 * @returns true if this statement is equal to `other`, false otherwise
@@ -102,27 +109,22 @@ export class Formula {
 		).checkEquivalence();
 	}
 
-	// It's a predicate if it starts with a capital letter
-	isPredicate() {
-		return this.predicate.charAt(0) === this.predicate.charAt(0).toUpperCase();
-	}
-
 	/**
 	 * Symbolizes the given variables in the formula.
 	 * @param variables the variables to modify
 	 * @param symbol the symbol that modifies the variables
 	 */
 	symbolized(variables: Formula[], symbol: string): Formula {
-		let newPredicate = this.predicate;
+		let newName = this.name;
 
 		// Symbolize the predicate if necessary
-		if (variables.some(variable => variable.predicate === this.predicate)) {
-			newPredicate = `${symbol}${this.predicate}`;
+		if (variables.some(variable => variable.name === this.name)) {
+			newName = `${symbol}${this.name}`;
 		}
 
 		// Symbolize each of the args
 		return new Formula(
-			newPredicate,
+			newName,
 			this.args?.map(arg => arg.symbolized(variables, symbol))
 		);
 	}
@@ -133,9 +135,9 @@ export class Formula {
 	 */
 	toString(): string {
 		if (this.args === null) {
-			return this.predicate;
+			return this.name;
 		}
-		return `${this.predicate}(${this.args.join(',')})`;
+		return `${this.name}(${this.args.join(',')})`;
 	}
 }
 
@@ -169,7 +171,7 @@ class FormulaEquivalenceEvaluator {
 		}
 
 		// The predicates must match
-		if (hadReplacement === false && lhs.predicate !== rhs.predicate) {
+		if (hadReplacement === false && lhs.name !== rhs.name) {
 			return false;
 		}
 
@@ -199,7 +201,7 @@ class FormulaEquivalenceEvaluator {
 		let value: string | null = null;
 
 		for (const arg of [lhs, rhs]) {
-			const predicate = arg.predicate;
+			const predicate = arg.name;
 
 			if (predicate.startsWith(REPLACEMENT_SYMBOL)) {
 				variable = predicate.slice(REPLACEMENT_SYMBOL.length);
