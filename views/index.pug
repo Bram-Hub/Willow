@@ -46,8 +46,10 @@ html(lang='en')
         .dropdown
           button Evaluate
           .dropdown-menu(style={display: 'none'})
-            button.menu-option(@click='checkTree') Check tree
             button.menu-option(onclick='Willow.showModal("options-modal")') Options
+            hr
+            button.menu-option(@click='checkStatement') Check statement
+            button.menu-option(@click='checkTree') Check tree
         .dropdown
           button Settings
           .dropdown-menu(style={display: 'none'})
@@ -84,11 +86,11 @@ html(lang='en')
             tr
               td Require contradictions to use atomic statements.
               td
-                input#requireAtomicContradiction(type='checkbox' v-model='tree.options.requireAtomicContradiction')
+                input#requireAtomicContradiction(type='checkbox' v-model='tree.options.requireAtomicContradiction' :disabled='tree.options.lockedOptions')
             tr
               td Require all branches be terminated.
               td
-                input#requireAllBranchesTerminated(type='checkbox' v-model='tree.options.requireAllBranchesTerminated')
+                input#requireAllBranchesTerminated(type='checkbox' v-model='tree.options.requireAllBranchesTerminated' :disabled='tree.options.lockedOptions')
             tr
               td Lock the current options and premises.
               td

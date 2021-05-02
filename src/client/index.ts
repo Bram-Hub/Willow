@@ -246,6 +246,13 @@ export const instance = vue
 			moveDownBranch() {},
 			moveUpTree() {},
 			moveDownTree() {},
+			checkStatement() {
+				const selectedNode: TruthTreeNode | null = this.selectedNode;
+				if (selectedNode === null) {
+					return alert('You must select a statement before doing this.');
+				}
+				alert(selectedNode.getFeedback());
+			},
 			checkTree() {
 				alert((this.tree as TruthTree).isCorrect());
 			},
