@@ -554,7 +554,6 @@ export class TruthTreeNode {
 
 				// Can only be decomposed once per branch
 				if (decomposedInBranch.size !== 1) {
-					console.log([...decomposedInBranch]);
 					return 'existence_decompose_length';
 				}
 
