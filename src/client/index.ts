@@ -261,8 +261,15 @@ export const instance = vue
 			},
 			moveUpBranch() {},
 			moveDownBranch() {},
-			moveUpTree() {},
-			moveDownTree() {},
+			moveUpTree() {
+				this.$store.commit('select', (this.tree as TruthTree).root);
+			},
+			moveDownTree() {
+				this.$store.commit(
+					'select',
+					(this.tree as TruthTree).rightmostNode()?.id
+				);
+			},
 			checkStatement() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
 				if (selectedNode === null) {

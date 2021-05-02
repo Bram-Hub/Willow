@@ -967,7 +967,8 @@ export class TruthTree {
 	 * @returns the leftmost node
 	 */
 	leftmostNode(root?: number | null) {
-		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
+		let node =
+			typeof root === 'number' ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
 		}
@@ -986,7 +987,8 @@ export class TruthTree {
 	 * @returns the rightmost node
 	 */
 	rightmostNode(root?: number | null) {
-		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
+		let node =
+			typeof root === 'number' ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
 		}
