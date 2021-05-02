@@ -1281,6 +1281,9 @@ export class TruthTree {
 			return 'This tree is malformed -- please save this tree and contact a developer.';
 		}
 
+		// Refresh the universe to ensure it's correct before giving a result
+		this.recalculateUniverse();
+
 		let hasValidOpenTerm = false;
 
 		// All nodes always have to be valid in order for the tree to be correct.
@@ -1366,6 +1369,15 @@ export class TruthTree {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Propogates the universe down from the root node to recalculate the
+	 * universe at all nodes in the tree.
+	 */
+	recalculateUniverse() {
+		const rootNode = this.nodes[this.root];
+		rootNode.propogateUniverse([], true);
 	}
 
 	printTree() {

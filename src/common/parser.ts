@@ -440,12 +440,26 @@ export class PropositionalLogicParser extends Parser<Statement> {
 			return parensStmt;
 		}
 
-		return new AtomicStatement(this.match('identifier'));
+		return new AtomicStatement(this.match('predicateName'));
 	}
 
-	identifier(): string {
+	predicateName(): string {
 		const acceptableChars = '0-9A-Za-z';
-		const chars = [this.char(acceptableChars)];
+		const chars = [this.char('A-Z')];
+
+		let char: string | null = this.maybeChar(acceptableChars);
+
+		while (char !== null) {
+			chars.push(char);
+			char = this.maybeChar(acceptableChars);
+		}
+
+		return chars.join('');
+	}
+
+	symbolName(): string {
+		const acceptableChars = '0-9A-Za-z';
+		const chars = [this.char('a-z')];
 
 		let char: string | null = this.maybeChar(acceptableChars);
 
@@ -502,7 +516,7 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 			this.maybeKeyword(...FirstOrderLogicParser.OPERATORS['forall'])
 		) {
 			// universal statement
-			const variables = this.match('identifierList');
+			const variables = this.match('symbolNameList');
 			const statement = this.match('unaryExpression');
 
 			return new UniversalStatement(variables, statement);
@@ -510,7 +524,7 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 			this.maybeKeyword(...FirstOrderLogicParser.OPERATORS['exists'])
 		) {
 			// existence statement
-			const variables = this.match('identifierList');
+			const variables = this.match('symbolNameList');
 			const statement = this.match('unaryExpression');
 
 			return new ExistenceStatement(variables, statement);
@@ -526,35 +540,21 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 	}
 
 	predicate(): Formula {
-		const predicateName = this.match('capitalizedIdentifier');
+		const predicateName = this.match('predicateName');
 		const predicateArguments = this.match('formulaTail');
 
 		return new Formula(predicateName, predicateArguments, true);
 	}
 
-	capitalizedIdentifier(): string {
-		const acceptableChars = '0-9A-Za-z';
-		const chars = [this.char('A-Z')];
-
-		let char: string | null = this.maybeChar(acceptableChars);
-
-		while (char !== null) {
-			chars.push(char);
-			char = this.maybeChar(acceptableChars);
-		}
-
-		return chars.join('');
-	}
-
 	formula(): Formula {
-		const functionSymbol = this.match('identifier');
+		const functionSymbol = this.match('symbolName');
 		const functionArguments = this.match('formulaTail');
 
 		return new Formula(functionSymbol, functionArguments);
 	}
 
 	formulaTail(): Formula[] | null {
-		// If there is no open parenthesis, then it must be the innermost identifier
+		// If there is no open parenthesis, then it must be the innermost symbolName
 		if (this.maybeKeyword('(') === null) {
 			return null;
 		}
@@ -585,21 +585,21 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 		return [head, ...tail];
 	}
 
-	identifierList(): Formula[] {
-		const head = this.match('identifier');
-		const tail = this.match('identifierListTail');
+	symbolNameList(): Formula[] {
+		const head = this.match('symbolName');
+		const tail = this.match('symbolNameListTail');
 
 		return [new Formula(head), ...tail];
 	}
 
-	identifierListTail(): Formula[] {
+	symbolNameListTail(): Formula[] {
 		// Must start with a ','
 		if (this.maybeKeyword(',') === null) {
 			return [];
 		}
 
-		const head = this.match('identifier');
-		const tail = this.match('identifierListTail');
+		const head = this.match('symbolName');
+		const tail = this.match('symbolNameListTail');
 
 		return [new Formula(head), ...tail];
 	}
