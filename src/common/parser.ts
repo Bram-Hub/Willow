@@ -9,7 +9,7 @@ import {
 	UniversalStatement,
 	ExistenceStatement,
 } from './statement';
-import {Formula} from '../common/formula';
+import {Formula} from './formula';
 
 class ParseError extends Error {
 	position: number;
@@ -475,8 +475,9 @@ export class PropositionalLogicParser extends Parser<Statement> {
  * 					 | "forall" id_list unary_expr
  * 					 | "exists" id_list unary_expr
  * 					 | "(" expr_gen ")"
- * 					 | formula
- * formula			-> id formula_tail
+ *                   | predicate
+ * predicate		-> capitalLetter formula
+ * formula			-> formula formula_tail
  * formula_tail		-> ( formula )
  * 					 | eps
  */
@@ -521,14 +522,35 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 			return parensStmt;
 		}
 
-		return new AtomicStatement(this.match('formula'));
+		return new AtomicStatement(this.match('predicate'));
+	}
+
+	predicate(): Formula {
+		const predicateName = this.match('capitalizedIdentifier');
+		const predicateArguments = this.match('formulaTail');
+
+		return new Formula(predicateName, predicateArguments, true);
+	}
+
+	capitalizedIdentifier(): string {
+		const acceptableChars = '0-9A-Za-z';
+		const chars = [this.char('A-Z')];
+
+		let char: string | null = this.maybeChar(acceptableChars);
+
+		while (char !== null) {
+			chars.push(char);
+			char = this.maybeChar(acceptableChars);
+		}
+
+		return chars.join('');
 	}
 
 	formula(): Formula {
 		const functionSymbol = this.match('identifier');
-		const innerIdentifier = this.match('formulaTail');
+		const functionArguments = this.match('formulaTail');
 
-		return new Formula(functionSymbol, innerIdentifier);
+		return new Formula(functionSymbol, functionArguments);
 	}
 
 	formulaTail(): Formula[] | null {

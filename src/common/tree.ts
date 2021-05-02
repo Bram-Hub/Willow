@@ -162,7 +162,10 @@ export class TruthTreeNode {
 	get universe(): Formula[] | null {
 		if (this._universe === null) {
 			if (this.parent === null) {
-				console.log('WARNING: root node has no universe!');
+				console.log(
+					'WARNING: root has no universe! If you see this error,' +
+						'try saving the file and opening it in a new tab.'
+				);
 				return [];
 			}
 			return this.tree.nodes[this.parent].universe;
@@ -498,8 +501,6 @@ export class TruthTreeNode {
 	 * @returns true if this statement is decomposed, false otherwise
 	 */
 	isDecomposed(): Response {
-		// const response: Response = {};
-
 		// Note: This catches terminators
 		if (this.statement === null) {
 			// If the text could not be parsed into a statement, then the statement is
@@ -587,7 +588,7 @@ export class TruthTreeNode {
 						// Has to actually instantiate new variables
 						if (
 							decomposedNode.statement.getNewConstants(decomposedNode.universe!)
-								.length !== this.statement.variables.length
+								.length < this.statement.variables.length
 						) {
 							return 'invalid_decomposition';
 						}
@@ -610,10 +611,7 @@ export class TruthTreeNode {
 						return 'universal_domain_not_decomposed';
 					}
 
-					// NOTE: this algorithm is brittle and does not work with
-					// functions, but can possibly be modified to
 					const symbolized = this.statement.symbolized();
-
 					const uninstantiated = createNDimensionalMapping(
 						this.statement.variables.length,
 						openTerminatorNode.universe!
@@ -629,6 +627,7 @@ export class TruthTreeNode {
 						const assignment = symbolized.getEqualsMap(
 							decomposedNode.statement
 						);
+
 						if (assignment === false) {
 							// Not an initialization of the antecedent
 							return 'invalid_decomposition';
@@ -694,7 +693,9 @@ export class TruthTreeNode {
 	propogateUniverse(universe: Formula[], changes: boolean) {
 		// If there wasn't a change to the previous universe, set universe to
 		// null in order to mark that it should refer to the parent's universe
-		this.universe = changes ? universe : null;
+
+		// Note: this is using _universe instead of universe due to weird JS bug?
+		this._universe = changes ? universe : null;
 
 		const nextUniverse = [...universe];
 
@@ -981,8 +982,10 @@ export class TruthTree {
 		// Create the new node in the tree
 		const newId = this.getNextId();
 		this.nodes[newId] = new TruthTreeNode(newId, this);
-		this.nodes[newId].parent = childNode.parent;
-		this.nodes[newId].children = [childId];
+
+		const newNode = this.nodes[newId];
+		newNode.parent = childNode.parent;
+		newNode.children = [childId];
 
 		// Fix parent's children pointer
 		const parentNode = this.getNode(childNode.parent);
@@ -1001,7 +1004,7 @@ export class TruthTree {
 		// If the original node was the root, replace it
 		if (this.root === childId) {
 			this.root = newId;
-			this.nodes[newId].universe = [];
+			newNode.propogateUniverse([], true);
 		}
 
 		return newId;
@@ -1231,6 +1234,12 @@ export class TruthTree {
 			const leaf = this.nodes[leafId];
 
 			if (!leaf.isTerminator()) {
+				if (this.options.requireAllBranchesTerminated) {
+					return (
+						'Every branch must be closed or there must be at' +
+						' least one open branch.'
+					);
+				}
 				return 'Every branch must be terminated.';
 			}
 		}
