@@ -18,7 +18,7 @@ Willow is a web-based application for creating and validating truth trees. Truth
 
 ## Creating a truth tree
 ### Syntax:
-Willow tries to be flexiable with syntax but there are a few rules you must follow for Willow to correctly parse your truth tree.
+Willow tries to be flexible with syntax but there are a few rules you must follow for Willow to correctly parse your truth tree.
 
 #### Symbols:
 Everyone has their own preferred [logical symbols](https://en.wikipedia.org/wiki/List_of_logic_symbols). Willow is smart and allows you to use a number of different options. You may use or even mix and match any of the following options.
@@ -34,6 +34,8 @@ Symbol|Options
 [Existential Quantifier](https://en.wikipedia.org/wiki/Existential_quantification)|`exists` `∃`
 Open Branch|`◯`
 Closed Branch|`×`
+
+Also note that variables and function symbols must be lowercase. For example `forall x` is valid but `forall X` is invalid.
 
 #### Predicates and Propositions:
 Predicates and propositions must be capitalized.
