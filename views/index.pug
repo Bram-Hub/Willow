@@ -69,7 +69,9 @@ html(lang='en')
         .truth-tree.left
           p(v-if='$store.state.developerMode') checkRepresentation: {{ $store.state.tree.checkRepresentation() }}, leaves: {{ [...$store.state.tree.leaves] }}, treeOptions: {{ JSON.stringify($store.state.tree.options) }}
           truth-tree
-      #status-bar(v-if='selected !== null') {{ selectedNode.getFeedback() }}
+      #status-bar(v-if='selectedNode !== null')
+        i(:class="getNodeIconClasses(selectedNode)")
+        |  {{ selectedNode.getFeedback() }}
       #about-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
         .row

@@ -105,21 +105,21 @@
   transform: translate(-50%, -50%);
 }
 
-.truth-tree i.fas.fa-check {
-  color: var(--tt-check);
+.statement-correct {
+  color: var(--statement-correct);
 }
 
-.truth-tree i.fas.fa-times {
-  color: var(--tt-times);
+.statement-incorrect {
+  color: var(--statement-incorrect);
+}
+
+.statement-error {
+  color: var(--statement-error);
 }
 
 .truth-tree i.fas.fa-chevron-down,
 .truth-tree i.fas.fa-chevron-right {
   color: var(--tt-chevron);
-}
-
-.truth-tree i.fas.fa-exclamation-triangle {
-  color: #bdbc58;
 }
 
 .selected {
@@ -190,4 +190,6 @@
   left: 0;
   right: 0;
   text-align: center;
+  text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5);
+  font-weight: 500;
 }

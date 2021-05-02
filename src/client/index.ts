@@ -7,6 +7,7 @@ import {
 	Substitutions,
 } from './component/substitution-recorder';
 import {TruthTreeComponent} from './component/truth-tree';
+import {getNodeIconClasses} from './component/truth-tree-node';
 
 /**
  * Shows a modal on the screen. Any other visible modals will be hidden.
@@ -62,6 +63,7 @@ export const instance = vue
 			},
 		},
 		methods: {
+			getNodeIconClasses: getNodeIconClasses,
 			openFile() {
 				if (
 					confirm(

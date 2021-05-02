@@ -2,6 +2,16 @@ import * as vue from 'vue';
 import {TruthTreeNode} from '../../common/tree';
 import {Substitutions} from './substitution-recorder';
 
+export function getNodeIconClasses(node: TruthTreeNode): string[] {
+	if (node.isValid() === 'not_parsable') {
+		return ['fas', 'fa-exclamation-triangle', 'statement-error'];
+	} else if (node.isValid() === true && node.isDecomposed() === true) {
+		return ['fas', 'fa-check', 'statement-correct'];
+	} else {
+		return ['fas', 'fa-times', 'statement-incorrect'];
+	}
+}
+
 export const TruthTreeNodeComponent: vue.Component = {
 	name: 'truth-tree-node',
 	props: {
@@ -13,6 +23,7 @@ export const TruthTreeNodeComponent: vue.Component = {
 		},
 	},
 	methods: {
+		getNodeIconClasses: getNodeIconClasses,
 		makeSubstitutions() {
 			const node = this.node as TruthTreeNode;
 			for (const [symbol, text] of Object.entries(
@@ -35,11 +46,7 @@ export const TruthTreeNodeComponent: vue.Component = {
             .map(formula => formula.toString()))
       }}
     </span>
-    <i v-if="node.isValid() === 'not_parsable'"
-        class="fas fa-exclamation-triangle" title="This is not parsable."></i>
-    <i v-else-if="node.isValid() === true && node.isDecomposed() === true"
-        class="fas fa-check" :title="node.getFeedback()"></i>
-    <i v-else class="fas fa-times" :title="node.getFeedback()"></i>
+    <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
     <input :id='"node" + this.id' type="text" v-model="node.text"
         @focus="$store.commit('select', id)"
         @input="makeSubstitutions()"
