@@ -47,12 +47,12 @@ html(lang='en')
           button Evaluate
           .dropdown-menu(style={display: 'none'})
             button.menu-option(@click='checkTree') Check tree
-            button.menu-option(onclick='document.querySelector("#tree-options-modal").style.display = "initial"') Evaluation Options
+            button.menu-option(onclick='Willow.showModal("tree-options-modal")') Options
         .dropdown
-          button Options
+          button Settings
           .dropdown-menu(style={display: 'none'})
-            button.menu-option(onclick='document.querySelector("#shortcuts-modal").style.display = "initial"') Shortcuts
-            button.menu-option(onclick='document.querySelector("#substitutions-modal").style.display = "initial"') Substitutions
+            button.menu-option(onclick='Willow.showModal("shortcuts-modal")') Shortcuts
+            button.menu-option(onclick='Willow.showModal("substitutions-modal")') Substitutions
             hr
             button.menu-option(@click='toggleTheme') Toggle theme
         .dropdown
@@ -60,7 +60,7 @@ html(lang='en')
           .dropdown-menu(style={display: 'none'})
             a.menu-option(href='https://github.com/connorjayr/Willow/blob/master/userguide.md' target='_blank') User guide
             hr
-            button.menu-option(onclick='document.querySelector("#about-modal").style.display = "initial"') About
+            button.menu-option(onclick='Willow.showModal("about-modal")') About
             hr
             a.menu-option(href='https://github.com/connorjayr/Willow/issues' target='_blank') Report a bug
             button.menu-option(@click='toggleDeveloperMode') Toggle developer mode

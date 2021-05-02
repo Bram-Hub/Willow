@@ -20,12 +20,13 @@ module.exports = {
 	},
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js'],
-    alias: {
-      'vue$': process.env.NODE_ENV === 'production'
+		alias: {
+			vue$:
+				process.env.NODE_ENV === 'production'
 					? 'vue/dist/vue.esm-browser.prod.js'
 					: 'vue/dist/vue.esm-browser.js',
-    },
-  },
+		},
+	},
 	plugins: [
 		new webpack.DefinePlugin({
 			__VUE_OPTIONS_API__: true,
@@ -33,7 +34,9 @@ module.exports = {
 		}),
 	],
 	output: {
-		filename: '[name].js',
 		path: path.join(__dirname, 'public/js/'),
+		filename: '[name].js',
+		libraryTarget: 'var',
+		library: 'Willow',
 	},
 };
