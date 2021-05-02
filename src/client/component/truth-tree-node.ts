@@ -47,13 +47,14 @@ export const TruthTreeNodeComponent: vue.Component = {
     </span>
     <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
     <input :id='"node" + this.id' type="text" v-model="node.text"
-        @focus="$store.commit('select', id)"
+        @focus="$store.commit('select', {id: id, focus: false})"
         @input="makeSubstitutions()"
         :class="{
           'statement': true,
           'open-terminator': node.text === '◯',
           'closed-terminator': node.text === '×',
-        }"/>
+        }"
+        :readonly="node.premise && $store.state.tree.options.lockedOptions"/>
     <p v-if="node.premise" class="premise-label">Premise</p>
   `,
 };

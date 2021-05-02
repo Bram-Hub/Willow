@@ -922,12 +922,18 @@ export class TruthTree {
 	}
 
 	/**
-	 * Returns the id of the node that begins the most recent branch.
-	 * @param id the node id
-	 * @returns the id of the node which begins the newest branch `id` is in.
+	 * Returns the id of the node at the top of the branch containing a given
+	 * node.
+	 * @param id the id of the node used to locate the branch
+	 * @returns the id of the node at the top of the branch containing the node
+	 * whose id is `id`
 	 */
-	getBranchHead(id: number) {
-		let current = this.nodes[id];
+	getBranchHead(id?: number | null) {
+		let current = this.getNode(id);
+		if (current === null) {
+			return null;
+		}
+
 		while (
 			current.parent !== null &&
 			this.nodes[current.parent].children.length === 1
@@ -938,13 +944,61 @@ export class TruthTree {
 	}
 
 	/**
+	 * Returns the id of the node at the bottom of the branch containing a given
+	 * node.
+	 * @param id the id of the node used to locate the branch
+	 * @returns the id of the node at the bottom of the branch containing the node
+	 * whose id is `id`
+	 */
+	getBranchTail(id?: number | null) {
+		let current = this.getNode(id);
+		if (current === null) {
+			return null;
+		}
+
+		while (current.children.length === 1) {
+			current = this.nodes[current.children[0]];
+		}
+		return current.id;
+	}
+
+	/**
+	 * Determines whether or not the branch with a given root contains a premise.
+	 * @param root the id of the root
+	 * @returns true if the branch contains a premise, false otherwise
+	 */
+	branchContainsPremise(root?: number | null) {
+		if (typeof root !== 'number') {
+			return false;
+		}
+
+		// Perform a BFS to determine if any of the nodes in the branch contains
+		// a premise
+		let queue = [root];
+		while (queue.length > 0) {
+			// queue is non-empty, so we can guarantee that shift() does not return
+			// undefined
+			const node = this.getNode(queue.shift());
+			if (node === null) {
+				continue;
+			}
+			if (node.premise) {
+				return true;
+			}
+			queue = queue.concat(node.children);
+		}
+		return false;
+	}
+
+	/**
 	 * Returns the leftmost node in the subtree rooted at a given node, or the
 	 * entire tree if no node is specified.
 	 * @param root the id of the root of the subtree
 	 * @returns the leftmost node
 	 */
-	leftmostNode(root?: number | null): TruthTreeNode | null {
-		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
+	leftmostNode(root?: number | null) {
+		let node =
+			typeof root === 'number' ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
 		}
@@ -962,8 +1016,9 @@ export class TruthTree {
 	 * @param root the id of the root of the subtree
 	 * @returns the rightmost node
 	 */
-	rightmostNode(root?: number | null): TruthTreeNode | null {
-		let node = root !== null ? this.getNode(root) : this.getNode(this.root);
+	rightmostNode(root?: number | null) {
+		let node =
+			typeof root === 'number' ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
 			return null;
 		}
