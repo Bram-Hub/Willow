@@ -2,6 +2,8 @@ Willow
 ------
 A web application used for building and assigning truth trees.
 
+You may use Willow at the following URL: [https://connorjayr.github.io/Willow/](https://connorjayr.github.io/Willow/)
+
 Completely rewritten and revitalized by
 [Connor Roizman](https://github.com/connorjayr),
 [Eli Schiff](https://github.com/elihschiff), and

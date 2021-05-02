@@ -25,6 +25,8 @@ jobs:
 
       - name: Build website
         run: |
+          BASE_URL=${{ secrets.BASE_URL }}
+          export BASE_URL
           npm run build
           pug -O '{commit:"'$GITHUB_SHA'", basedir:"views/"}' views/index.pug --out public/
 
