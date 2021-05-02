@@ -1168,6 +1168,16 @@ export class TruthTree {
 			}
 		}
 
+		// Ensure no closed terminators still reference this
+		for (const leafId of this.leaves) {
+			const leafNode = this.nodes[leafId];
+			if (!leafNode.isClosedTerminator()) {
+				continue;
+			}
+			// Is a closed terminator
+			leafNode.decomposition.delete(id);
+		}
+
 		delete this.nodes[id];
 
 		if (node.children.length === 1) {
