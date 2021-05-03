@@ -102,7 +102,7 @@ export const instance = vue
 				reader.readAsText(file, 'UTF-8');
 
 				reader.onload = loadEvent => {
-					this.name = file.name.endsWith('.willow')
+					const name = file.name.endsWith('.willow')
 						? file.name.substring(0, file.name.length - '.willow'.length)
 						: file.name;
 
@@ -115,6 +115,7 @@ export const instance = vue
 					try {
 						this.$store.commit('select', {id: null});
 						this.$store.commit('setTree', TruthTree.deserialize(fileContents));
+						this.name = name;
 					} catch (err) {
 						alert(
 							'The selected file does not contain a truth tree. Perhaps you selected the wrong file, or the file has been corrupted.'
