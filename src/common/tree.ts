@@ -18,12 +18,6 @@ interface TreeOptions {
 	lockedOptions: boolean;
 }
 
-const DEFAULT_TREE_OPTIONS: TreeOptions = {
-	requireAtomicContradiction: true,
-	requireAllBranchesTerminated: true,
-	lockedOptions: false,
-};
-
 export class TruthTreeNode {
 	id: number;
 
@@ -54,6 +48,19 @@ export class TruthTreeNode {
 	constructor(id: number, tree: TruthTree) {
 		this.id = id;
 		this.tree = tree;
+	}
+
+	clone(newTree: TruthTree) {
+		const newNode = new TruthTreeNode(this.id, newTree);
+		newNode.text = this.text;
+		newNode.premise = this.premise;
+		newNode.comment = this.comment;
+		newNode.parent = this.parent;
+		newNode.children = [...this.children];
+		newNode.antecedent = this.antecedent;
+		newNode.decomposition = new Set(this.decomposition);
+
+		return newNode;
 	}
 
 	static fromJSON(
@@ -787,7 +794,11 @@ export class TruthTree {
 	initialized = true;
 
 	// These options control which truth tree extensions to allow.
-	options: TreeOptions = DEFAULT_TREE_OPTIONS;
+	options: TreeOptions = {
+		requireAtomicContradiction: true,
+		requireAllBranchesTerminated: true,
+		lockedOptions: false,
+	};
 
 	get root(): number {
 		if (this._root === undefined) {
@@ -798,6 +809,37 @@ export class TruthTree {
 
 	set root(newRoot) {
 		this._root = newRoot;
+	}
+
+	/**
+	 * Creates a deep copy of this tree.
+	 * @returns a clone of this tree
+	 */
+	clone() {
+		const newTree = new TruthTree();
+
+		// Copy the nodes
+		for (const node of Object.values(this.nodes)) {
+			newTree.nodes[node.id] = node.clone(newTree);
+		}
+
+		// Copy the root and leaves
+		newTree.root = this.root;
+		newTree.leaves = new Set(this.leaves);
+
+		// Copy the options
+		newTree.options = {
+			requireAtomicContradiction: this.options['requireAtomicContradiction'],
+			requireAllBranchesTerminated: this.options[
+				'requireAllBranchesTerminated'
+			],
+			lockedOptions: this.options['lockedOptions'],
+		};
+
+		// Calculate the universe for each node
+		newTree.recalculateUniverse();
+
+		return newTree;
 	}
 
 	/**
