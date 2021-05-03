@@ -1,5 +1,5 @@
 import * as vue from 'vue';
-import {TruthTreeNode} from '../../common/tree';
+import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {Substitutions} from './substitution-recorder';
 
 export function getNodeIconClasses(node: TruthTreeNode): string[] {
@@ -19,7 +19,9 @@ export const TruthTreeNodeComponent: vue.Component = {
 	},
 	computed: {
 		node() {
-			return this.$store.state.tree.nodes[this.id];
+			const id: number = this.id;
+			const tree: TruthTree = this.$store.state.tree;
+			return id in tree.nodes ? tree.nodes[id] : null;
 		},
 	},
 	methods: {
@@ -40,11 +42,11 @@ export const TruthTreeNodeComponent: vue.Component = {
 		'node.text': {
 			handler() {
 				const id: number = this.id;
-				const node: TruthTreeNode | undefined = this.node;
+				const node: TruthTreeNode | null = this.node;
 				const nodeElement = document.getElementById(`node${id}`);
 				const hiddenNodeElement = document.getElementById(`hidden-node${id}`);
 				if (
-					node === undefined ||
+					node === null ||
 					nodeElement === null ||
 					hiddenNodeElement === null
 				) {
