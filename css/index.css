@@ -198,7 +198,11 @@
 .comment {
   color: var(--comment);
   font-style: italic;
-  min-width: 200px;
+  min-width: 60px;
+  border: 2px dashed #a0a0a0;
+  padding: 1px 5px;
+  margin-left: 10px;
+  background-color: transparent;
 }
 
 .truth-tree i.fas.fa-ellipsis-v {
