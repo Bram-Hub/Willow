@@ -163,6 +163,7 @@
 .statement {
   margin: 2px;
   min-width: 200px;
+  max-width: calc(100% - 89.7px);
 }
 
 .hidden-statement {
