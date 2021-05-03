@@ -18,11 +18,12 @@
     --statement-correct: #80c080;
     --statement-incorrect: #c08080;
     --statement-error: #bdbc58;
+    --comment: #40a040;
+    --premise-label: #808080;
     --tt-chevron: #000000;
     --selected: rgba(51, 153, 255, 0.5);
     --antecedent: rgba(128, 192, 128, 0.5);
     --decomposition: rgba(192, 128, 128, 0.5);
-    --premise-label: #808080;
 
     /* Status bar */
     --status-bar-foreground: #ffffff;
