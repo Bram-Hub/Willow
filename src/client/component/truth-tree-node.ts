@@ -12,6 +12,16 @@ export function getNodeIconClasses(node: TruthTreeNode): string[] {
 	}
 }
 
+function resizeFromBbox(elementId: string, bboxId: string, text: string) {
+	const element = document.getElementById(elementId);
+	const bboxElement = document.getElementById(bboxId);
+	if (element === null || bboxElement === null) {
+		return;
+	}
+	bboxElement.textContent = text;
+	element.style.width = `${bboxElement.scrollWidth}px`;
+}
+
 export const TruthTreeNodeComponent: vue.Component = {
 	name: 'truth-tree-node',
 	props: {
@@ -43,17 +53,21 @@ export const TruthTreeNodeComponent: vue.Component = {
 			handler() {
 				const id: number = this.id;
 				const node: TruthTreeNode | null = this.node;
-				const nodeElement = document.getElementById(`node${id}`);
-				const hiddenNodeElement = document.getElementById(`hidden-node${id}`);
-				if (
-					node === null ||
-					nodeElement === null ||
-					hiddenNodeElement === null
-				) {
+				if (node === null) {
 					return;
 				}
-				hiddenNodeElement.textContent = node.text;
-				nodeElement.style.width = `${hiddenNodeElement.scrollWidth}px`;
+				resizeFromBbox(`node${id}`, `bbox-node${id}`, node.text);
+			},
+			immediate: true,
+		},
+		'node.comment': {
+			handler() {
+				const id: number = this.id;
+				const node: TruthTreeNode | null = this.node;
+				if (node === null || node.comment === null) {
+					return;
+				}
+				resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
 			},
 			immediate: true,
 		},
@@ -77,7 +91,14 @@ export const TruthTreeNodeComponent: vue.Component = {
           'closed-terminator': node.text === '×',
         }"
         :readonly="node.premise && $store.state.tree.options.lockedOptions"/>
-		<span :id="'hidden-node' + this.id" class="hidden-statement"></span>
+		<span :id="'bbox-node' + this.id" class="bbox"></span>
+		<input v-if="node.comment !== null" :id="'comment' + this.id" type="text"
+				placeholder="Comment" v-model="node.comment"
+				@click.stop="$store.commit('select', {id: id, focus: false})"
+				@focus="$store.commit('select', {id: id, focus: false})"
+				class="comment"
+        :readonly="node.premise && $store.state.tree.options.lockedOptions"/>
+		<span :id="'bbox-comment' + this.id" class="bbox comment-bbox"></span>
     <p v-if="node.premise" class="premise-label">Premise</p>
   `,
 };

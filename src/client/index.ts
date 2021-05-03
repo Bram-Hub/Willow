@@ -142,6 +142,14 @@ export const instance = vue
 					this.saveFile();
 				}
 			},
+			toggleComment() {
+				const selectedNode: TruthTreeNode | null = this.selectedNode;
+				if (selectedNode === null) {
+					return alert('You must select a statement before doing this.');
+				}
+
+				selectedNode.comment = selectedNode.comment === null ? '' : null;
+			},
 			togglePremise() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
 				if (selectedNode === null) {

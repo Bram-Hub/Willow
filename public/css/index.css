@@ -99,6 +99,8 @@
 }
 
 .branch > li {
+  align-items: center;
+  display: flex;
   position: relative;
 }
 
@@ -163,15 +165,18 @@
 .statement {
   margin: 2px;
   min-width: 200px;
-  max-width: 80%;
 }
 
-.hidden-statement {
+.bbox {
   font-size: 10pt;
   position: absolute;
   left: 0;
   visibility: hidden;
   white-space: pre;
+}
+
+.comment-bbox {
+  font-style: italic;
 }
 
 .premise-label {
@@ -188,6 +193,12 @@
 
 .open-terminator, .closed-terminator {
   text-align: center;
+}
+
+.comment {
+  color: var(--comment);
+  font-style: italic;
+  min-width: 200px;
 }
 
 .truth-tree i.fas.fa-ellipsis-v {

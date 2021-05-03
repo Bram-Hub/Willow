@@ -30,6 +30,7 @@ export class TruthTreeNode {
 	private _text = '';
 	private _statement: Statement | null = null;
 	premise = false;
+	comment: string | null = null;
 
 	tree: TruthTree;
 
@@ -97,6 +98,10 @@ export class TruthTreeNode {
 		// Check for optional properties
 		if ('premise' in jsonObject && typeof jsonObject.premise === 'boolean') {
 			newNode.premise = jsonObject.premise;
+		}
+
+		if ('comment' in jsonObject && typeof jsonObject.comment === 'string') {
+			newNode.comment = jsonObject.comment;
 		}
 
 		if ('parent' in jsonObject && typeof jsonObject.parent === 'number') {
@@ -890,6 +895,10 @@ export class TruthTree {
 
 			if (node.premise) {
 				serializedNode.premise = node.premise;
+			}
+
+			if (node.comment !== null) {
+				serializedNode.comment = node.comment;
 			}
 
 			if (node.parent !== null) {

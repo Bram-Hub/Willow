@@ -26,6 +26,7 @@ html(lang='en')
         .dropdown
           button Edit
           .dropdown-menu(style={display: 'none'})
+            button.menu-option(@click='toggleComment') Toggle comment
             button.menu-option(@click='togglePremise') Toggle premise
             hr
             button.menu-option(@click='addStatementBefore') Add statement before
