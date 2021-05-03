@@ -142,6 +142,8 @@ export const instance = vue
 					this.saveFile();
 				}
 			},
+			undo() {},
+			redo() {},
 			toggleComment() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
 				if (selectedNode === null) {
