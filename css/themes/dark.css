@@ -15,13 +15,19 @@
     /* --toolbar-dropdown-menu-dividing-line: #d0d0d0; */
 
     /* Truth tree */
-    /* --tt-check: #80c080; */
-    --tt-times: #ee3b3b;
-    --tt-chevron: #ffffff;
-    --selected: rgba(51, 153, 255, 0.5);
-    --antecedent: rgba(128, 192, 128, 0.5);
-    --decomposition: rgba(192, 128, 128, 0.5);
+    --statement-correct: #80c080;
+    --statement-incorrect: #ee3b3b;
+    --statement-error: #d0d000;
+    --comment: #3bff91;
     --premise-label: #ffffff;
+    --tt-chevron: #ffffff;
+    --selected: rgba(34, 82, 130, 0.5);
+    --antecedent: rgba(81, 130, 81, 0.5);
+    --decomposition: rgba(192, 128, 128, 0.5);
+
+    /* Status bar */
+    --status-bar-foreground: #ffffff;
+    --status-bar-background: rgba(0, 0, 0, 0.5);
 
     /* Misc */
     --header: #276427;
