@@ -90,7 +90,10 @@ body {
 }
 
 .modal-close {
+  background: none;
+  border: none;
   cursor: pointer;
+  padding: 0px;
   position: absolute;
   top: 5px;
   right: 5px;
