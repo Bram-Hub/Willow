@@ -25,6 +25,7 @@ Variable|Description
 NODE_ENV|The environment in which this application is being run. The possible values are `development` and `production`
 HTTPS|If the program is being run on an https server
 PORT|The port to launch the program on.
+BASE_URL|The base url for example "http://localhost:8080"
 
 5. Launch the application using `npm run <command>` with one of the commands in the table below.
 
