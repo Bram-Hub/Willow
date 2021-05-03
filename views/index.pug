@@ -123,6 +123,10 @@ html(lang='en')
               td
                 key-recorder(@save-file-as='saveFileAs' event='save-file-as' :default='["Control", "Shift", "S"]')
             tr
+              td Toggle comment
+              td
+                key-recorder(@toggle-comment='toggleComment' event='toggle-comment' :default='["Control", "/"]')
+            tr
               td Toggle premise
               td
                 key-recorder(@toggle-premise='togglePremise' event='toggle-premise' :default='["Control", "p"]')
@@ -170,6 +174,22 @@ html(lang='en')
               td Move down tree
               td
                 key-recorder(@move-down-tree='moveDownTree' event='move-down-tree' :default='["End"]')
+            tr
+              td Toggle branch expansion
+              td
+                key-recorder(@toggle-branch-expansion='toggleBranchExpansion' event='toggle-branch-expansion')
+            tr
+              td Collapse all branches
+              td
+                key-recorder(@collapse-all-branches='collapseAllBranches' event='collapse-all-branches' :default='["Control", "k", "0"]')
+            tr
+              td Expand all branches
+              td
+                key-recorder(@expand-all-branches='expandAllBranches' event='expand-all-branches' :default='["Control", "k", "j"]')
+            tr
+              td Collapse terminated branches
+              td
+                key-recorder(@collapse-terminated-branches='collapseTerminatedBranches' event='collapse-terminated-branches')
       #substitutions-modal.modal.card(style={display: 'none'})
         i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
         h2.center Substitutions
