@@ -36,6 +36,21 @@ export const TruthTreeNodeComponent: vue.Component = {
 			}
 		},
 	},
+	watch: {
+		'node.text': {
+			handler() {
+				const id: number = this.id;
+				const node = document.getElementById(`node${id}`);
+				const hiddenNode = document.getElementById(`hidden-node${id}`);
+				if (node === null || hiddenNode === null) {
+					return;
+				}
+				hiddenNode.textContent = (this.node as TruthTreeNode).text;
+				node.style.width = `${hiddenNode.scrollWidth}px`;
+			},
+			immediate: true,
+		},
+	},
 	template: `
     <span v-if="$store.state.developerMode">
       id: {{ id }},
@@ -46,7 +61,7 @@ export const TruthTreeNodeComponent: vue.Component = {
       }}
     </span>
     <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
-    <input :id='"node" + this.id' type="text" v-model="node.text"
+    <input :id="'node' + this.id" type="text" v-model="node.text"
         @focus="$store.commit('select', {id: id, focus: false})"
         @input="makeSubstitutions()"
         :class="{
@@ -55,6 +70,7 @@ export const TruthTreeNodeComponent: vue.Component = {
           'closed-terminator': node.text === '×',
         }"
         :readonly="node.premise && $store.state.tree.options.lockedOptions"/>
+		<span :id="'hidden-node' + this.id" class="hidden-statement"></span>
     <p v-if="node.premise" class="premise-label">Premise</p>
   `,
 };
