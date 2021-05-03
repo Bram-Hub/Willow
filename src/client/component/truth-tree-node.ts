@@ -40,13 +40,18 @@ export const TruthTreeNodeComponent: vue.Component = {
 		'node.text': {
 			handler() {
 				const id: number = this.id;
-				const node = document.getElementById(`node${id}`);
-				const hiddenNode = document.getElementById(`hidden-node${id}`);
-				if (node === null || hiddenNode === null) {
+				const node: TruthTreeNode | undefined = this.node;
+				const nodeElement = document.getElementById(`node${id}`);
+				const hiddenNodeElement = document.getElementById(`hidden-node${id}`);
+				if (
+					node === undefined ||
+					nodeElement === null ||
+					hiddenNodeElement === null
+				) {
 					return;
 				}
-				hiddenNode.textContent = (this.node as TruthTreeNode).text;
-				node.style.width = `${hiddenNode.scrollWidth}px`;
+				hiddenNodeElement.textContent = node.text;
+				nodeElement.style.width = `${hiddenNodeElement.scrollWidth}px`;
 			},
 			immediate: true,
 		},
