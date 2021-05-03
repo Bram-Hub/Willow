@@ -1,3 +1,7 @@
+mixin modalCloseButton()
+  button.modal-close(onclick='this.parentNode.style.display = "none"')
+    i.fas.fa-times
+
 doctype html
 html(lang='en')
   head
@@ -26,6 +30,9 @@ html(lang='en')
         .dropdown
           button Edit
           .dropdown-menu(style={display: 'none'})
+            button.menu-option(@click='undo') Undo
+            button.menu-option(@click='redo') Redo
+            hr
             button.menu-option(@click='toggleComment') Toggle comment
             button.menu-option(@click='togglePremise') Toggle premise
             hr
@@ -81,7 +88,7 @@ html(lang='en')
         i(:class="getNodeIconClasses(selectedNode)")
         |  {{ selectedNode.getFeedback() }}
       #options-modal.modal.card(style={display: 'none'})
-        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        +modalCloseButton()
         h2.center Options
         table
           thead
@@ -102,7 +109,7 @@ html(lang='en')
               td
                 input#lockedOptions(type='checkbox' v-model='tree.options.lockedOptions')
       #shortcuts-modal.modal.card(style={display: 'none'})
-        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        +modalCloseButton()
         h2.center Shortcuts
         table
           thead
@@ -122,6 +129,14 @@ html(lang='en')
               td Save file as...
               td
                 key-recorder(@save-file-as='saveFileAs' event='save-file-as' :default='["Control", "Shift", "S"]')
+            tr
+              td Undo
+              td
+                key-recorder(@undo='undo' event='undo' :default='["Control", "z"]')
+            tr
+              td Redo
+              td
+                key-recorder(@redo='redo' event='redo' :default='["Control", "y"]')
             tr
               td Toggle comment
               td
@@ -191,7 +206,7 @@ html(lang='en')
               td
                 key-recorder(@collapse-terminated-branches='collapseTerminatedBranches' event='collapse-terminated-branches')
       #substitutions-modal.modal.card(style={display: 'none'})
-        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        +modalCloseButton()
         h2.center Substitutions
         table
           thead
@@ -236,7 +251,7 @@ html(lang='en')
               td
                 substitution-recorder(symbol='×' default="'")
       #about-modal.modal.card(style={display: 'none'})
-        i.fas.fa-times.modal-close(onclick='this.parentNode.style.display = "none"')
+        +modalCloseButton()
         .row
           img.logo-img(src=`${env.BASE_URL}/img/logo.png` width='100')
           div
