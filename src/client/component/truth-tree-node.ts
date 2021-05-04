@@ -1,4 +1,5 @@
 import * as vue from 'vue';
+import {node} from 'webpack';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {Substitutions} from './substitution-recorder';
 
@@ -10,6 +11,20 @@ export function getNodeIconClasses(node: TruthTreeNode): string[] {
 	} else {
 		return ['fas', 'fa-times', 'statement-incorrect'];
 	}
+}
+
+function resizeText(id: number, node: TruthTreeNode | null) {
+	if (node === null) {
+		return;
+	}
+	resizeFromBbox(`node${id}`, `bbox-node${id}`, node.text);
+}
+
+function resizeComment(id: number, node: TruthTreeNode | null) {
+	if (node === null || node.comment === null) {
+		return;
+	}
+	resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
 }
 
 function resizeFromBbox(elementId: string, bboxId: string, text: string) {
@@ -26,6 +41,11 @@ export const TruthTreeNodeComponent: vue.Component = {
 	name: 'truth-tree-node',
 	props: {
 		id: Number,
+	},
+	data() {
+		return {
+			rendered: false,
+		};
 	},
 	computed: {
 		node() {
@@ -48,28 +68,22 @@ export const TruthTreeNodeComponent: vue.Component = {
 			}
 		},
 	},
+	updated() {
+		// Only run this hook once, since resizing is handled by watchers after the
+		// component has been rendered for the first time
+		if (this.rendered as boolean) {
+			return;
+		}
+		resizeText(this.id as number, this.node as TruthTreeNode | null);
+		resizeComment(this.id as number, this.node as TruthTreeNode | null);
+		(this.rendered as boolean) = true;
+	},
 	watch: {
-		'node.text': {
-			handler() {
-				const id: number = this.id;
-				const node: TruthTreeNode | null = this.node;
-				if (node === null) {
-					return;
-				}
-				resizeFromBbox(`node${id}`, `bbox-node${id}`, node.text);
-			},
-			immediate: true,
+		'node.text'() {
+			resizeText(this.id as number, this.node as TruthTreeNode | null);
 		},
-		'node.comment': {
-			handler() {
-				const id: number = this.id;
-				const node: TruthTreeNode | null = this.node;
-				if (node === null || node.comment === null) {
-					return;
-				}
-				resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
-			},
-			immediate: true,
+		'node.comment'() {
+			resizeComment(this.id as number, this.node as TruthTreeNode | null);
 		},
 	},
 	template: `
