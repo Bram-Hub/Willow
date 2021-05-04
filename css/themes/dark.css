@@ -33,6 +33,7 @@
     --header: #276427;
     --card-background: #202225;
     /* --card-shadow: rgba(0, 0, 0, 0.5); */
+    --clear-shortcut: #ffffff;
 }
 
 /* Black logo gets inverted to white on dark mode */
