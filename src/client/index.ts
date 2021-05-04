@@ -48,6 +48,11 @@ function focusOnNode(id?: number | null) {
 	}
 }
 
+interface HistoryState {
+	tree: TruthTree;
+	selected: number | null;
+}
+
 export const instance = vue
 	.createApp({
 		components: {
@@ -59,6 +64,8 @@ export const instance = vue
 			return {
 				name: 'Untitled',
 				colorTheme: 'system',
+				undoStack: [],
+				redoStack: [],
 			};
 		},
 		mounted() {
@@ -113,6 +120,8 @@ export const instance = vue
 						);
 					}
 					try {
+						(this.undoStack as HistoryState[]) = [];
+						(this.redoStack as HistoryState[]) = [];
 						this.$store.commit('select', {id: null});
 						this.$store.commit('setTree', TruthTree.deserialize(fileContents));
 						this.name = name;
@@ -142,14 +151,52 @@ export const instance = vue
 					this.saveFile();
 				}
 			},
-			undo() {},
-			redo() {},
+			recordState() {
+				(this.undoStack as HistoryState[]).push({
+					tree: (this.tree as TruthTree).clone(),
+					selected: this.selected as number | null,
+				});
+				(this.redoStack as HistoryState[]) = [];
+			},
+			undo() {
+				const undoStack: HistoryState[] = this.undoStack;
+				if (undoStack.length === 0) {
+					return alert('There is nothing to undo.');
+				}
+
+				(this.redoStack as HistoryState[]).push({
+					tree: (this.tree as TruthTree).clone(),
+					selected: this.selected as number | null,
+				});
+
+				this.$store.commit('select', {id: null});
+				const lastState = undoStack.pop() as HistoryState;
+				this.$store.commit('setTree', lastState.tree);
+				this.$store.commit('select', {id: lastState.selected, delay: true});
+			},
+			redo() {
+				const redoStack: HistoryState[] = this.redoStack;
+				if (redoStack.length === 0) {
+					return alert('There is nothing to redo.');
+				}
+
+				(this.undoStack as HistoryState[]).push({
+					tree: (this.tree as TruthTree).clone(),
+					selected: this.selected as number | null,
+				});
+
+				this.$store.commit('select', {id: null});
+				const lastState = redoStack.pop() as HistoryState;
+				this.$store.commit('setTree', lastState.tree);
+				this.$store.commit('select', {id: lastState.selected, delay: true});
+			},
 			toggleComment() {
 				const selectedNode: TruthTreeNode | null = this.selectedNode;
 				if (selectedNode === null) {
 					return alert('You must select a statement before doing this.');
 				}
 
+				this.recordState();
 				selectedNode.comment = selectedNode.comment === null ? '' : null;
 			},
 			togglePremise() {
@@ -162,10 +209,12 @@ export const instance = vue
 					return alert('You may not toggle premises while they are locked.');
 				}
 
+				this.recordState();
 				selectedNode.togglePremise();
 			},
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
+				this.recordState();
 				this.$store.commit('select', {
 					id: tree.addNodeBefore(
 						typeof this.selected === 'number' ? this.selected : tree.root
@@ -175,6 +224,7 @@ export const instance = vue
 			},
 			addStatementAfter() {
 				const tree: TruthTree = this.tree;
+				this.recordState();
 				this.$store.commit('select', {
 					id: tree.addNodeAfter(
 						typeof this.selected === 'number'
@@ -187,6 +237,7 @@ export const instance = vue
 			},
 			createBranch() {
 				const tree: TruthTree = this.tree;
+				this.recordState();
 				this.$store.commit('select', {
 					id: tree.addNodeAfter(
 						typeof this.selected === 'number'
@@ -208,6 +259,7 @@ export const instance = vue
 					return alert('You may not delete premises while they are locked.');
 				}
 
+				this.recordState();
 				const toSelect = tree.deleteNode(selected);
 				if (toSelect === null) {
 					alert('You may not delete the only statement in a branch.');
@@ -232,6 +284,7 @@ export const instance = vue
 					);
 				}
 
+				this.recordState();
 				const toSelect = tree.deleteBranch(head);
 				if (toSelect === null) {
 					return alert('You may not delete the root branch.');
