@@ -19,7 +19,7 @@ function resizeFromBbox(elementId: string, bboxId: string, text: string) {
 		return;
 	}
 	bboxElement.textContent = text;
-	element.style.width = `${bboxElement.scrollWidth}px`;
+	element.style.width = `${bboxElement.textContent.length}ch`;
 }
 
 export const TruthTreeNodeComponent: vue.Component = {
@@ -68,6 +68,12 @@ export const TruthTreeNodeComponent: vue.Component = {
 					return;
 				}
 				resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
+				setTimeout(function(){
+					if (node === null || node.comment === null) {
+						return;
+					}
+					resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
+				}, 50);
 			},
 			immediate: true,
 		},
