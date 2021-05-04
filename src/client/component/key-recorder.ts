@@ -15,6 +15,7 @@ export const KeyRecorder: vue.Component = {
 		event: String,
 		default: Array,
 	},
+	emits: ['on-pressed'],
 	data() {
 		return {
 			keyMap: {
@@ -61,7 +62,7 @@ export const KeyRecorder: vue.Component = {
 
 				hotkeys(toHotkeysString(newVal), (keyEvent: Event) => {
 					keyEvent.preventDefault();
-					this.$emit(event);
+					this.$emit('on-pressed');
 				});
 
 				localStorage.setItem(`shortcuts.${event}`, JSON.stringify(newVal));
@@ -70,7 +71,8 @@ export const KeyRecorder: vue.Component = {
 		},
 	},
 	template: `
-    <input type="text" @focus="pressed.clear()" @keydown="onKeyDown($event)"
+    <input v-bind="$attrs" type="text" @focus="pressed.clear()"
+				@keydown="onKeyDown($event)"
 				@keyup="onKeyUp($event)" :value="recorded.join('+')"
 				class="key-recorder"/>
 		<button @click="recorded = []" class="hidden">

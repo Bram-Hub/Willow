@@ -120,91 +120,91 @@ html(lang='en')
             tr
               td Open file
               td
-                key-recorder(@open-file='openFile' event='open-file' :default='["Control", "o"]')
+                key-recorder(@on-pressed='openFile' event='open-file' :default='["Control", "o"]')
             tr
               td Save file
               td
-                key-recorder(@save-file='saveFile' event='save-file' :default='["Control", "s"]')
+                key-recorder(@on-pressed='saveFile' event='save-file' :default='["Control", "s"]')
             tr
               td Save file as...
               td
-                key-recorder(@save-file-as='saveFileAs' event='save-file-as' :default='["Control", "Shift", "S"]')
+                key-recorder(@on-pressed='saveFileAs' event='save-file-as' :default='["Control", "Shift", "S"]')
             tr
               td Undo
               td
-                key-recorder(@undo='undo' event='undo' :default='["Control", "z"]')
+                key-recorder(@on-pressed='undo' event='undo' :default='["Control", "z"]')
             tr
               td Redo
               td
-                key-recorder(@redo='redo' event='redo' :default='["Control", "y"]')
+                key-recorder(@on-pressed='redo' event='redo' :default='["Control", "y"]')
             tr
               td Toggle comment
               td
-                key-recorder(@toggle-comment='toggleComment' event='toggle-comment' :default='["Control", "/"]')
+                key-recorder(@on-pressed='toggleComment' event='toggle-comment' :default='["Control", "/"]')
             tr
               td Toggle premise
               td
-                key-recorder(@toggle-premise='togglePremise' event='toggle-premise' :default='["Control", "p"]')
+                key-recorder(@on-pressed='togglePremise' event='toggle-premise' :default='["Control", "p"]')
             tr
               td Add statement before
               td
-                key-recorder(@add-statement-before='addStatementBefore' event='add-statement-before' :default='["Control", "b"]')
+                key-recorder(@on-pressed='addStatementBefore' event='add-statement-before' :default='["Control", "b"]')
             tr
               td Add statement after
               td
-                key-recorder(@add-statement-after='addStatementAfter' event='add-statement-after' :default='["Control", "a"]')
+                key-recorder(@on-pressed='addStatementAfter' event='add-statement-after' :default='["Control", "a"]')
             tr
               td Create branch
               td
-                key-recorder(@create-branch='createBranch' event='create-branch' :default='["Control", "Shift", "B"]')
+                key-recorder(@on-pressed='createBranch' event='create-branch' :default='["Control", "Shift", "B"]')
             tr
               td Delete statement
               td
-                key-recorder(@delete-statement='deleteStatement' event='delete-statement' :default='["Control", "d"]')
+                key-recorder(@on-pressed='deleteStatement' event='delete-statement' :default='["Control", "d"]')
             tr
               td Delete branch
               td
-                key-recorder(@delete-branch='deleteBranch' event='delete-branch' :default='["Control", "Shift", "D"]')
+                key-recorder(@on-pressed='deleteBranch' event='delete-branch' :default='["Control", "Shift", "D"]')
             tr
               td Move up
               td
-                key-recorder(@move-up='moveUp' event='move-up' :default='["Up"]')
+                key-recorder(@on-pressed='moveUp' event='move-up' :default='["Up"]')
             tr
               td Move down
               td
-                key-recorder(@move-down='moveDown' event='move-down' :default='["Down"]')
+                key-recorder(@on-pressed='moveDown' event='move-down' :default='["Down"]')
             tr
               td Move up branch
               td
-                key-recorder(@move-up-branch='moveUpBranch' event='move-up-branch' :default='["Control", "Up"]')
+                key-recorder(@on-pressed='moveUpBranch' event='move-up-branch' :default='["Control", "Up"]')
             tr
               td Move down branch
               td
-                key-recorder(@move-down-branch='moveDownBranch' event='move-down-branch' :default='["Control", "Down"]')
+                key-recorder(@on-pressed='moveDownBranch' event='move-down-branch' :default='["Control", "Down"]')
             tr
               td Move up tree
               td
-                key-recorder(@move-up-tree='moveUpTree' event='move-up-tree' :default='["Home"]')
+                key-recorder(@on-pressed='moveUpTree' event='move-up-tree' :default='["Home"]')
             tr
               td Move down tree
               td
-                key-recorder(@move-down-tree='moveDownTree' event='move-down-tree' :default='["End"]')
+                key-recorder(@on-pressed='moveDownTree' event='move-down-tree' :default='["End"]')
             tr
               td Toggle branch expansion
               td
-                key-recorder(@toggle-branch-expansion='toggleBranchExpansion' event='toggle-branch-expansion')
+                key-recorder(@on-pressed='toggleBranchExpansion' event='toggle-branch-expansion')
             tr
               td Collapse all branches
               td
-                key-recorder(@collapse-all-branches='collapseAllBranches' event='collapse-all-branches' :default='["Control", "k", "0"]')
+                key-recorder(@on-pressed='collapseAllBranches' event='collapse-all-branches' :default='["Control", "k", "0"]')
             tr
               td Expand all branches
               td
-                key-recorder(@expand-all-branches='expandAllBranches' event='expand-all-branches' :default='["Control", "k", "j"]')
+                key-recorder(@on-pressed='expandAllBranches' event='expand-all-branches' :default='["Control", "k", "j"]')
             tr
               td Collapse terminated branches
               td
-                key-recorder(@collapse-terminated-branches='collapseTerminatedBranches' event='collapse-terminated-branches')
+                key-recorder(@on-pressed='collapseTerminatedBranches' event='collapse-terminated-branches')
       #substitutions-modal.modal.card(style={display: 'none'})
         +modalCloseButton()
         h2.center Substitutions

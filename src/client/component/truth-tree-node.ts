@@ -1,5 +1,4 @@
 import * as vue from 'vue';
-import {node} from 'webpack';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {Substitutions} from './substitution-recorder';
 
