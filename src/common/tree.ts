@@ -286,9 +286,6 @@ export class TruthTreeNode {
 				continue;
 			}
 
-			console.log('actual branches');
-			console.log(JSON.stringify(branches));
-
 			// Validate if the branches form a correct decomposition
 			if (this.statement.hasDecomposition(branches)) {
 				for (const id of branchIds) {

@@ -81,33 +81,27 @@ export abstract class Statement {
 	 */
 	hasDecomposition(branches: Statement[][]): boolean {
 		const expectedDecomposition = this.decompose();
-		console.log(JSON.stringify(expectedDecomposition));
 
+		// Must have the same number of branches
 		if (branches.length !== expectedDecomposition.length) {
 			return false;
 		}
 
-		// Generate set of statements and compare
 		for (let i = 0; i < branches.length; i++) {
-			const givenBranchSet: Set<Statement> = new Set(branches[i]);
-
-			// Compare each set of statements in expected to each set from given
+			// Every branch of the expected decomp must be represented by
+			// exactly one branch of the given decomp
 			for (let j = 0; j < expectedDecomposition.length; j++) {
 				let match = true;
-				for (const statement of givenBranchSet) {
+
+				for (const expectedStatement of expectedDecomposition[j]) {
 					if (
-						!expectedDecomposition[j].some(expectedStatement =>
-							expectedStatement.equals(statement)
-						)
+						!branches[i].some(statement => statement.equals(expectedStatement))
 					) {
 						match = false;
 						break;
 					}
-					// if (!expectedDecomposition[j].has(statement)) {
-					// 	match = false;
-					// 	break;
-					// }
 				}
+
 				if (match) {
 					branches.splice(i--, 1);
 					expectedDecomposition.splice(j, 1);
