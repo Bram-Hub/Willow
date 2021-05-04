@@ -661,7 +661,7 @@ export class TruthTreeNode {
 					return 'universal_domain_not_decomposed';
 				}
 			} else {
-				// Check if a node from the correct decomposition is in the
+				// Check if a node from the correct decomposition is in the branch
 				let containedInBranch = false;
 				for (const correctlyDecomposedNode of this.correctDecomposition!) {
 					if (openBranch.has(correctlyDecomposedNode)) {
@@ -1275,6 +1275,8 @@ export class TruthTree {
 		if (node.antecedent !== null) {
 			const antecedentNode = this.nodes[node.antecedent];
 			antecedentNode.decomposition.delete(node.id);
+			// Refresh the correct decomposition
+			antecedentNode.correctDecomposition = null;
 		}
 
 		if (!node.isTerminator()) {
