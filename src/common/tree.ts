@@ -596,12 +596,14 @@ export class TruthTreeNode {
 				continue;
 			}
 
-			if (!openTerminatorNode.isOpenTerminator()) {
+			// Technically we only need to check on open branches, but it makes
+			// more sense to give feedback when it's not closed
+			if (openTerminatorNode.isClosedTerminator()) {
 				continue;
 			}
 
-			// Check if this statement is contained in the open branch.
-			if (!this.isAncestorOf(leafId)) {
+			// This statement must be contained in the open branch.
+			if (!this.isAncestorOf(leafId) && leafId !== this.id) {
 				continue;
 			}
 
