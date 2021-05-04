@@ -244,3 +244,7 @@
   text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
+
+.clear-shortcut {
+  color: var(--clear-shortcut)
+}

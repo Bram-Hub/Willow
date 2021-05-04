@@ -133,7 +133,7 @@ export const KeyRecorder: vue.Component = {
 					'shortcut-conflict': hasConflict,
 				}"/>
 		<button @click="recorded = []" class="hidden">
-			<i class="fas fa-trash"></i>
+			<i class="fas fa-trash clear-shortcut"></i>
 		</button>
   `,
 };
