@@ -81,6 +81,7 @@ export abstract class Statement {
 	 */
 	hasDecomposition(branches: Statement[][]): boolean {
 		const expectedDecomposition = this.decompose();
+		console.log(JSON.stringify(expectedDecomposition));
 
 		if (branches.length !== expectedDecomposition.length) {
 			return false;

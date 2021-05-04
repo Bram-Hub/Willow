@@ -286,6 +286,9 @@ export class TruthTreeNode {
 				continue;
 			}
 
+			console.log('actual branches');
+			console.log(JSON.stringify(branches));
+
 			// Validate if the branches form a correct decomposition
 			if (this.statement.hasDecomposition(branches)) {
 				for (const id of branchIds) {
@@ -1165,6 +1168,7 @@ export class TruthTree {
 
 		if (newBranch) {
 			parentNode.children.push(newId);
+			this.leaves.add(newId);
 			parentNode.propogateUniverse(parentNode.universe!, 'self');
 			// Returning parent's ID allows people adding multiple branches at
 			// once to do so without having to click the parent many times.
@@ -1410,6 +1414,11 @@ export class TruthTree {
 				if (!antecedentNode.isAncestorOf(node.id)) {
 					return false;
 				}
+			}
+
+			// Node is a leaf but not tracked as a leaf
+			if (node.children.length === 0 && !this.leaves.has(node.id)) {
+				return false;
 			}
 
 			// Must be antecedent of decomposition
