@@ -1408,17 +1408,22 @@ export class TruthTree {
 
 				// Must be in decomposition of antecedent
 				if (!antecedentNode.decomposition.has(node.id)) {
+					console.log(
+						`${node.id} is not in the decomp of ${antecedentNode.id}`
+					);
 					return false;
 				}
 
 				// Antecedent must be an ancestor of the node
 				if (!antecedentNode.isAncestorOf(node.id)) {
+					console.log(`${antecedentNode.id} is not an ancestor of ${node.id}`);
 					return false;
 				}
 			}
 
 			// Node is a leaf but not tracked as a leaf
 			if (node.children.length === 0 && !this.leaves.has(node.id)) {
+				console.log(`${node.id} is not marked as a leaf`);
 				return false;
 			}
 
@@ -1426,6 +1431,7 @@ export class TruthTree {
 			for (const decomposedId of node.decomposition) {
 				const decomposedNode = this.nodes[decomposedId];
 				if (decomposedNode.antecedent !== node.id) {
+					console.log(`${node.id} is not an antecedent of ${decomposedId}`);
 					return false;
 				}
 			}
