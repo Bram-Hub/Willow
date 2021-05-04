@@ -73,5 +73,8 @@ export const KeyRecorder: vue.Component = {
     <input type="text" @focus="pressed.clear()" @keydown="onKeyDown($event)"
 				@keyup="onKeyUp($event)" :value="recorded.join('+')"
 				class="key-recorder"/>
+		<button @click="recorded = []" class="hidden">
+			<i class="fas fa-trash"></i>
+		</button>
   `,
 };

@@ -68,6 +68,14 @@
   padding: 0px 5px;
 }
 
+#shortcuts-modal td:last-child {
+  white-space: nowrap;
+}
+
+#shortcuts-modal td:last-child > button {
+  margin-left: 5px;
+}
+
 #shortcuts-modal .key-recorder, #substitutions-modal input  {
   width: 120px;
 }
