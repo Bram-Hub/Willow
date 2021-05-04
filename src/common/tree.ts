@@ -8,7 +8,7 @@ import {
 	ExistenceStatement,
 	UniversalStatement,
 } from './statement';
-import {deleteMapping, createNDimensionalMapping} from './util';
+import {deleteMapping, getAssignment, createNDimensionalMapping} from './util';
 
 type Response = string | true;
 
@@ -182,7 +182,7 @@ export class TruthTreeNode {
 			}
 			return this.tree.nodes[this.parent].universe;
 		}
-		return this._universe;
+		return Array.from(this._universe);
 	}
 
 	set universe(newUniverse: Formula[] | null) {
@@ -624,20 +624,30 @@ export class TruthTreeNode {
 
 				// Must instantiate every variable in the universe
 				// This is a rough metric to prevent later calculation.
-				if (
-					decomposedInBranch.size <
-					Math.pow(
-						openTerminatorNode.universe!.length,
-						this.statement.variables.length
-					)
-				) {
-					return 'universal_domain_not_decomposed';
+				// if (
+				// 	decomposedInBranch.size <
+				// 	Math.pow(
+				// 		openTerminatorNode.universe!.length,
+				// 		this.statement.variables.length
+				// 	)
+				// ) {
+				// 	return 'universal_domain_not_decomposed';
+				// }
+
+				const inclusiveUniverse = openTerminatorNode.universe!;
+				if (openTerminatorNode.statement !== null) {
+					const newConstants = openTerminatorNode.statement.getNewConstants(
+						openTerminatorNode.universe!
+					);
+					for (const newConstant of newConstants) {
+						inclusiveUniverse.push(newConstant);
+					}
 				}
 
 				const symbolized = this.statement.symbolized();
 				const uninstantiated = createNDimensionalMapping(
 					this.statement.variables.length,
-					openTerminatorNode.universe!
+					inclusiveUniverse
 				);
 
 				for (const decomposed of decomposedInBranch) {
@@ -657,7 +667,8 @@ export class TruthTreeNode {
 				}
 
 				if (Object.keys(uninstantiated).length !== 0) {
-					return 'universal_domain_not_decomposed';
+					const mapping = getAssignment(uninstantiated);
+					return `universal_domain_not_decomposed ${mapping}`;
 				}
 			} else {
 				// Check if a node from the correct decomposition is in the branch
@@ -1481,6 +1492,9 @@ export class TruthTree {
 	}
 
 	resolveErrorCode(errorCode: string): string {
+		const sections = errorCode.split(' ');
+		errorCode = sections[0];
+
 		switch (errorCode) {
 			case 'not_parsable': {
 				return 'This statement is not parsable.';
@@ -1548,7 +1562,7 @@ export class TruthTree {
 			case 'universal_domain_not_decomposed': {
 				return (
 					'A universal statement must instantiate every variable' +
-					' in the universe of discourse.'
+					` in the universe of discourse (Need to instantiate ${sections[1]})`
 				);
 			}
 			case 'universal_variables_length': {

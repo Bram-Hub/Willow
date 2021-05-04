@@ -60,3 +60,16 @@ function recursiveDeleteMapping(
 		delete map[value];
 	}
 }
+
+export function getAssignment(map: InstantiationMapping): string | null {
+	const variables = Object.keys(map);
+	if (variables.length === 0) {
+		console.log('ERROR: Empty instantiation map being accessed.');
+		return '';
+	}
+	const variable = variables[0];
+	if (Object.keys(map[variable]).length === 0) {
+		return `${variable}`;
+	}
+	return `${variable},${getAssignment(map[variable])}`;
+}
