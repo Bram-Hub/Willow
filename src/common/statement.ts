@@ -92,18 +92,27 @@ export abstract class Statement {
 			// exactly one branch of the given decomp
 			for (let j = 0; j < expectedDecomposition.length; j++) {
 				let match = true;
+				const needToMatch = new Set<number>();
 
 				for (const expectedStatement of expectedDecomposition[j]) {
-					if (
-						!branches[i].some(statement => statement.equals(expectedStatement))
-					) {
+					let innerMatch = false;
+					let index = 0;
+					for (index = 0; index < branches[i].length; ++index) {
+						const statement = branches[i][index];
+						if (statement.equals(expectedStatement)) {
+							innerMatch = true;
+							needToMatch.add(index);
+						}
+					}
+
+					if (!innerMatch) {
 						match = false;
 						break;
 					}
 				}
 
-				if (match) {
-					branches.splice(i--, 1);
+				if (match && needToMatch.size === branches[i].length) {
+					branches.splice(i, 1);
 					expectedDecomposition.splice(j, 1);
 					break;
 				}
