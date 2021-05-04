@@ -114,3 +114,15 @@ button.hidden {
 div.hidden {
   display: none;
 }
+
+table.dual td {
+  white-space: nowrap;
+}
+
+table.dual td:first-child {
+  text-align: left;
+}
+
+table.dual td:last-child {
+  text-align: right;
+}

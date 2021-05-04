@@ -426,6 +426,7 @@ export const instance = vue
 	.use(
 		vuex.createStore({
 			state: {
+				shortcuts: {},
 				developerMode: false,
 				tree: TruthTree.empty(),
 				selected: null,
