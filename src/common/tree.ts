@@ -817,6 +817,7 @@ export class TruthTree {
 	 */
 	clone() {
 		const newTree = new TruthTree();
+		newTree.initialized = false;
 
 		// Copy the nodes
 		for (const node of Object.values(this.nodes)) {
@@ -838,6 +839,7 @@ export class TruthTree {
 
 		// Calculate the universe for each node
 		newTree.recalculateUniverse();
+		newTree.initialized = true;
 
 		return newTree;
 	}
