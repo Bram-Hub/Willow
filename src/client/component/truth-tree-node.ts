@@ -13,21 +13,14 @@ export function getNodeIconClasses(node: TruthTreeNode): string[] {
 	}
 }
 
-function resizeText(id: number, node: TruthTreeNode | null) {
-	if (node === null) {
+function resizeFromBbox(
+	elementId: string,
+	bboxId: string,
+	text: string | null
+) {
+	if (text === null) {
 		return;
 	}
-	resizeFromBbox(`node${id}`, `bbox-node${id}`, node.text);
-}
-
-function resizeComment(id: number, node: TruthTreeNode | null) {
-	if (node === null || node.comment === null) {
-		return;
-	}
-	resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
-}
-
-function resizeFromBbox(elementId: string, bboxId: string, text: string) {
 	const element = document.getElementById(elementId);
 	const bboxElement = document.getElementById(bboxId);
 	if (element === null || bboxElement === null) {
@@ -41,11 +34,6 @@ export const TruthTreeNodeComponent: vue.Component = {
 	name: 'truth-tree-node',
 	props: {
 		id: Number,
-	},
-	data() {
-		return {
-			rendered: false,
-		};
 	},
 	computed: {
 		node() {
@@ -69,22 +57,13 @@ export const TruthTreeNodeComponent: vue.Component = {
 		},
 	},
 	updated() {
-		// Only run this hook once, since resizing is handled by watchers after the
-		// component has been rendered for the first time
-		if (this.rendered as boolean) {
+		const id: number = this.id;
+		const node: TruthTreeNode | null = this.node;
+		if (node === null) {
 			return;
 		}
-		resizeText(this.id as number, this.node as TruthTreeNode | null);
-		resizeComment(this.id as number, this.node as TruthTreeNode | null);
-		(this.rendered as boolean) = true;
-	},
-	watch: {
-		'node.text'() {
-			resizeText(this.id as number, this.node as TruthTreeNode | null);
-		},
-		'node.comment'() {
-			resizeComment(this.id as number, this.node as TruthTreeNode | null);
-		},
+		resizeFromBbox(`node${id}`, `bbox-node${id}`, node.text);
+		resizeFromBbox(`comment${id}`, `bbox-comment${id}`, node.comment);
 	},
 	template: `
     <span v-if="$store.state.developerMode">
