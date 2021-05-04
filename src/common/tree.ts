@@ -551,11 +551,8 @@ export class TruthTreeNode {
 			// Existence statements need to be checked across all branches,
 			// not just the open branches.
 			if (this.statement instanceof ExistenceStatement) {
-				// Collect the decomposed nodes in this branch
-				const branch = openTerminatorNode.getAncestorBranch();
-				// The ancestor branch doesn't contain the terminator node,
-				// but we want to include it for this specific case
-				branch.add(leafId);
+				// Collect the decomposed nodes in this branch (including leaf)
+				const branch = openTerminatorNode.getAncestorBranch(true);
 
 				const decomposedInBranch = new Set<number>();
 				for (const decomposed of this.decomposition) {
@@ -608,7 +605,7 @@ export class TruthTreeNode {
 			}
 
 			// Get the branch ending with this terminator
-			const openBranch = openTerminatorNode.getAncestorBranch();
+			const openBranch = openTerminatorNode.getAncestorBranch(true);
 
 			// Universals are special
 			if (this.statement instanceof UniversalStatement) {
@@ -749,8 +746,11 @@ export class TruthTreeNode {
 	 * the ancestors of this node.
 	 * @returns a set of ids corresponding to this node's ancestors
 	 */
-	private getAncestorBranch(): Set<number> {
+	private getAncestorBranch(includeSelf = false): Set<number> {
 		const branch = new Set<number>();
+		if (includeSelf) {
+			branch.add(this.id);
+		}
 		let node: TruthTreeNode = this.tree.nodes[this.id];
 		while (node.parent !== null) {
 			branch.add(node.parent);
