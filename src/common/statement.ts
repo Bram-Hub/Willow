@@ -112,7 +112,7 @@ export abstract class Statement {
 				}
 
 				if (match && needToMatch.size === branches[i].length) {
-					branches.splice(i, 1);
+					branches.splice(i--, 1);
 					expectedDecomposition.splice(j, 1);
 					break;
 				}
