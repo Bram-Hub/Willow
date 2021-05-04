@@ -167,6 +167,10 @@
   min-width: 200px;
 }
 
+.statement, .comment {
+  font-size: 10pt;
+}
+
 .bbox {
   font-size: 10pt;
   position: absolute;
