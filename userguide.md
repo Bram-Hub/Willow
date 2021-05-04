@@ -6,7 +6,7 @@ Willow is a web-based application for creating and validating truth trees. Truth
 
 ## Opening Willow
 ### Creating a new tree:
-- **Option 1:** Open Willow in a new tab [https://connorjayr.github.io/Willow/](https://connorjayr.github.io/Willow/)
+- **Option 1:** Open Willow in a new tab [https://willow.bram-hub.com](https://willow.bram-hub.com)
 - **Option 2:** Click `File>New`
 
 ### Saving an existing tree:
