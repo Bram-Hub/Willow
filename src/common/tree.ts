@@ -614,10 +614,12 @@ export class TruthTreeNode {
 		}
 
 		let existenceSatisfied = !(this.statement instanceof ExistenceStatement);
+		let errorCode: string | null = null;
 
 		// Check if this statement is decomposed in every open branch that contains it
 		for (const leafId of this.tree.leaves) {
 			const openTerminatorNode = this.tree.nodes[leafId];
+			let leafErrorCode: string | null = null;
 
 			// Existence statements need to be checked across all branches,
 			// not just the open branches.
@@ -689,7 +691,10 @@ export class TruthTreeNode {
 
 				// Each universal must instantiate at least one variable.
 				if (decomposedInBranch.size === 0) {
-					return 'universal_decompose_length';
+					// return 'universal_decompose_length';
+					leafErrorCode = 'universal_decompose_length';
+					errorCode = leafErrorCode;
+					continue;
 				}
 
 				const symbolized = this.statement.symbolized();
@@ -702,21 +707,31 @@ export class TruthTreeNode {
 					const decomposedNode = this.tree.nodes[decomposed];
 					if (decomposedNode.statement === null) {
 						// An empty statement cannot be a decomposition
-						return 'invalid_decomposition';
+						// return 'invalid_decomposition';
+						leafErrorCode = 'invalid_decomposition';
+						break;
 					}
 
 					const assignment = symbolized.getEqualsMap(decomposedNode.statement);
 					if (assignment === false) {
 						// Not an initialization of the antecedent
-						return 'invalid_decomposition';
+						// return 'invalid_decomposition';
+						leafErrorCode = 'invalid_decomposition';
+						break;
 					}
 
 					deleteMapping(uninstantiated, assignment, this.statement.variables);
 				}
 
+				if (leafErrorCode !== null) {
+					errorCode = leafErrorCode;
+					continue;
+				}
+
 				if (Object.keys(uninstantiated).length !== 0) {
 					const mapping = getAssignment(uninstantiated);
-					return `universal_domain_not_decomposed ${mapping}`;
+					// return `universal_domain_not_decomposed ${mapping}`;
+					leafErrorCode = `universal_domain_not_decomposed ${mapping}`;
 				}
 			} else {
 				// Check if a node from the correct decomposition is in the branch
@@ -728,10 +743,32 @@ export class TruthTreeNode {
 					}
 				}
 				if (!containedInBranch) {
-					// This node is not decomposed in every open branch
-					return 'invalid_decomposition';
+					// This node is not decomposed in every non-closed branch
+					leafErrorCode = 'invalid_decomposition';
 				}
 			}
+
+			if (leafErrorCode !== null) {
+				errorCode = leafErrorCode;
+				if (this.tree.options.requireAllBranchesTerminated) {
+					break;
+				}
+				continue;
+			}
+
+			if (
+				leafErrorCode === null &&
+				openTerminatorNode.isOpenTerminator() &&
+				!this.tree.options.requireAllBranchesTerminated
+			) {
+				// No error code for this open terminator + only require one
+				// valid open terminator means it's decomposed correctly.
+				return true;
+			}
+		}
+
+		if (errorCode !== null) {
+			return errorCode;
 		}
 
 		if (!existenceSatisfied) {
