@@ -2,7 +2,7 @@ Willow
 ------
 A web application used for building and assigning truth trees.
 
-You may use Willow at the following URL: [https://connorjayr.github.io/Willow/](https://connorjayr.github.io/Willow/)
+You may use Willow at the following URL: [https://willow.bram-hub.com](https://willow.bram-hub.com)
 
 Completely rewritten and revitalized by
 [Connor Roizman](https://github.com/connorjayr),
@@ -14,7 +14,7 @@ See our [User's Manual](userguide.md).
 
 ### Installation
 
-1. Clone the repository via `git clone https://github.com/connorjayr/Willow.git`.
+1. Clone the repository via `git clone https://github.com/Bram-Hub/Willow.git`.
 
 2. Install project dependencies via `npm ci` from the project root directory.
 
