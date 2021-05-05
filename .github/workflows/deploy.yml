@@ -28,7 +28,7 @@ jobs:
           BASE_URL=${{ secrets.BASE_URL }}
           export BASE_URL
           npm run build
-          pug -O '{commit: "'$GITHUB_SHA'", basedir: "views/", env: {BASE_URL: "https://willow.bram-hub.com"}}' views/index.pug --out public/
+          pug -O '{commit: "'$GITHUB_SHA'", basedir: "views/", env: {BASE_URL: "'$BASE_URL'"}}' views/index.pug --out public/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.1

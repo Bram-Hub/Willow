@@ -122,7 +122,8 @@ export class Formula {
 		// Symbolize each of the args
 		return new Formula(
 			newName,
-			this.args?.map(arg => arg.symbolized(variables, symbol))
+			this.args?.map(arg => arg.symbolized(variables, symbol)),
+			this.isPredicate
 		);
 	}
 

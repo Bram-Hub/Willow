@@ -8,7 +8,7 @@ import {
 	ExistenceStatement,
 	UniversalStatement,
 } from './statement';
-import {deleteMapping, createNDimensionalMapping} from './util';
+import {deleteMapping, getAssignment, createNDimensionalMapping} from './util';
 
 type Response = string | true;
 
@@ -182,7 +182,7 @@ export class TruthTreeNode {
 			}
 			return this.tree.nodes[this.parent].universe;
 		}
-		return this._universe;
+		return Array.from(this._universe);
 	}
 
 	set universe(newUniverse: Formula[] | null) {
@@ -624,20 +624,30 @@ export class TruthTreeNode {
 
 				// Must instantiate every variable in the universe
 				// This is a rough metric to prevent later calculation.
-				if (
-					decomposedInBranch.size <
-					Math.pow(
-						openTerminatorNode.universe!.length,
-						this.statement.variables.length
-					)
-				) {
-					return 'universal_domain_not_decomposed';
+				// if (
+				// 	decomposedInBranch.size <
+				// 	Math.pow(
+				// 		openTerminatorNode.universe!.length,
+				// 		this.statement.variables.length
+				// 	)
+				// ) {
+				// 	return 'universal_domain_not_decomposed';
+				// }
+
+				const inclusiveUniverse = openTerminatorNode.universe!;
+				if (openTerminatorNode.statement !== null) {
+					const newConstants = openTerminatorNode.statement.getNewConstants(
+						openTerminatorNode.universe!
+					);
+					for (const newConstant of newConstants) {
+						inclusiveUniverse.push(newConstant);
+					}
 				}
 
 				const symbolized = this.statement.symbolized();
 				const uninstantiated = createNDimensionalMapping(
 					this.statement.variables.length,
-					openTerminatorNode.universe!
+					inclusiveUniverse
 				);
 
 				for (const decomposed of decomposedInBranch) {
@@ -657,7 +667,8 @@ export class TruthTreeNode {
 				}
 
 				if (Object.keys(uninstantiated).length !== 0) {
-					return 'universal_domain_not_decomposed';
+					const mapping = getAssignment(uninstantiated);
+					return `universal_domain_not_decomposed ${mapping}`;
 				}
 			} else {
 				// Check if a node from the correct decomposition is in the branch
@@ -1408,17 +1419,22 @@ export class TruthTree {
 
 				// Must be in decomposition of antecedent
 				if (!antecedentNode.decomposition.has(node.id)) {
+					console.log(
+						`${node.id} is not in the decomp of ${antecedentNode.id}`
+					);
 					return false;
 				}
 
 				// Antecedent must be an ancestor of the node
 				if (!antecedentNode.isAncestorOf(node.id)) {
+					console.log(`${antecedentNode.id} is not an ancestor of ${node.id}`);
 					return false;
 				}
 			}
 
 			// Node is a leaf but not tracked as a leaf
 			if (node.children.length === 0 && !this.leaves.has(node.id)) {
+				console.log(`${node.id} is not marked as a leaf`);
 				return false;
 			}
 
@@ -1426,6 +1442,7 @@ export class TruthTree {
 			for (const decomposedId of node.decomposition) {
 				const decomposedNode = this.nodes[decomposedId];
 				if (decomposedNode.antecedent !== node.id) {
+					console.log(`${node.id} is not an antecedent of ${decomposedId}`);
 					return false;
 				}
 			}
@@ -1475,6 +1492,9 @@ export class TruthTree {
 	}
 
 	resolveErrorCode(errorCode: string): string {
+		const sections = errorCode.split(' ');
+		errorCode = sections[0];
+
 		switch (errorCode) {
 			case 'not_parsable': {
 				return 'This statement is not parsable.';
@@ -1542,7 +1562,7 @@ export class TruthTree {
 			case 'universal_domain_not_decomposed': {
 				return (
 					'A universal statement must instantiate every variable' +
-					' in the universe of discourse.'
+					` in the universe of discourse (Need to instantiate ${sections[1]})`
 				);
 			}
 			case 'universal_variables_length': {
