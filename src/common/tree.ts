@@ -10,6 +10,12 @@ import {
 } from './statement';
 import {deleteMapping, getAssignment, createNDimensionalMapping} from './util';
 
+// TODO: Response = CorrectnessError | true;
+interface CorrectnessError {
+	errorCode: string;
+	extras: string | null;
+}
+
 type Response = string | true;
 
 interface TreeOptions {
@@ -36,7 +42,7 @@ export class TruthTreeNode {
 	private _correctDecomposition: Set<number> | null = null;
 
 	// For FOL:
-	// The universe of discourse up to (but excluding) this node in the tree
+	// The universe of discourse up to (and including) this node in the tree
 	// If this statement does not introduce any new constants, it is null
 	private _universe: Formula[] | null = null;
 
@@ -163,7 +169,7 @@ export class TruthTreeNode {
 		// Can only guarantee children are correctly initialized if the tree's
 		// initialized flag is set to true
 		if (this.tree.initialized === true) {
-			this.propogateUniverse(this.universe!, 'self');
+			this.calculateUniverse();
 		}
 	}
 
@@ -180,13 +186,87 @@ export class TruthTreeNode {
 				);
 				return [];
 			}
+			// Return the parent's universe
 			return this.tree.nodes[this.parent].universe;
 		}
+		// Return a copy of the universe
 		return Array.from(this._universe);
 	}
 
 	set universe(newUniverse: Formula[] | null) {
 		this._universe = newUniverse;
+	}
+
+	/**
+	 * Calculates which variables are introduced by this statement
+	 * @returns the new formulas instantiated by this
+	 */
+	getInstantiations(): Formula[] {
+		if (this.statement === null) {
+			return [];
+		}
+
+		let universe: Formula[] = [];
+		if (this.parent !== null) {
+			universe = this.tree.nodes[this.parent].universe!;
+		}
+
+		return this.statement.getNewConstants(universe);
+	}
+
+	/**
+	 * Down-propogates the universe, updating as statements introduce new
+	 * constants.
+	 * @param universe the universe to propogate or null if it should propogate
+	 * its parents universe
+	 */
+	calculateUniverse() {
+		this.calculateUniverseHelper(null);
+	}
+
+	private calculateUniverseHelper(universe: Formula[] | null = null) {
+		// If the universe is null, grab the parent's universe so we can begin
+		// propogation starting at this node.
+		if (universe === null) {
+			if (this.parent !== null) {
+				universe = this.tree.nodes[this.parent].universe!;
+			} else {
+				universe = [];
+			}
+		}
+
+		if (this.statement !== null) {
+			// If the statement is non-null, check if it adds new constants
+			const newConstants = this.statement.getNewConstants(universe);
+
+			// Update the universe of this node
+			for (const constant of newConstants) {
+				universe.push(constant);
+			}
+
+			if (newConstants.length > 0 || this.parent === null) {
+				// New constants means create a larger universe. The root must
+				// be non-null as well.
+				this.universe = universe;
+			} else {
+				// No new constants AND not the root => copy the parent
+				this.universe = null;
+			}
+		} else {
+			// Otherwise this node cannot introduce new constants, so just
+			// copy the parent's universe.
+			if (this.parent === null) {
+				// No parent universe to copy, so create an empty universe
+				this.universe = [];
+			} else {
+				this.universe = null;
+			}
+		}
+
+		// Propogate the universe down with a COPY of this universe
+		for (const childId of this.children) {
+			this.tree.nodes[childId].calculateUniverseHelper(Array.from(universe));
+		}
 	}
 
 	/**
@@ -376,15 +456,6 @@ export class TruthTreeNode {
 				return 'invalid_instantiation';
 			}
 
-			// if (antecedentNode.statement instanceof ExistenceStatement) {
-			// 	if (
-			// 		this.statement.getNewConstants(this.universe!).length <
-			// 		antecedentNode.statement.variables.length
-			// 	) {
-			// 		return 'existence_instantiation_length';
-			// 	}
-			// }
-
 			return true;
 		}
 
@@ -567,7 +638,6 @@ export class TruthTreeNode {
 				}
 
 				const decomposedId = [...decomposedInBranch][0];
-
 				const decomposedNode = this.tree.nodes[decomposedId];
 
 				// An empty statement cannot be a decomposition
@@ -584,8 +654,8 @@ export class TruthTreeNode {
 
 				// At least one branch must instantiate new variables
 				if (
-					decomposedNode.statement.getNewConstants(decomposedNode.universe!)
-						.length >= this.statement.variables.length
+					decomposedNode.getInstantiations().length >=
+					this.statement.variables.length
 				) {
 					existenceSatisfied = true;
 				}
@@ -622,32 +692,10 @@ export class TruthTreeNode {
 					return 'universal_decompose_length';
 				}
 
-				// Must instantiate every variable in the universe
-				// This is a rough metric to prevent later calculation.
-				// if (
-				// 	decomposedInBranch.size <
-				// 	Math.pow(
-				// 		openTerminatorNode.universe!.length,
-				// 		this.statement.variables.length
-				// 	)
-				// ) {
-				// 	return 'universal_domain_not_decomposed';
-				// }
-
-				const inclusiveUniverse = openTerminatorNode.universe!;
-				if (openTerminatorNode.statement !== null) {
-					const newConstants = openTerminatorNode.statement.getNewConstants(
-						openTerminatorNode.universe!
-					);
-					for (const newConstant of newConstants) {
-						inclusiveUniverse.push(newConstant);
-					}
-				}
-
 				const symbolized = this.statement.symbolized();
 				const uninstantiated = createNDimensionalMapping(
 					this.statement.variables.length,
-					inclusiveUniverse
+					openTerminatorNode.universe!
 				);
 
 				for (const decomposed of decomposedInBranch) {
@@ -715,41 +763,6 @@ export class TruthTreeNode {
 		}
 
 		return 'This statement is a logical consequence and is decomposed correctly.';
-	}
-
-	/**
-	 * Down-propogates the universe, updating as statements introduce new
-	 * constants.
-	 * @param universe the universe to propogate
-	 * @param changes boolean values representing whether there were new nodes
-	 * initialized from the prev. node or 'self' to check if this node has its
-	 * own universe
-	 */
-	propogateUniverse(universe: Formula[], changes: boolean | 'self') {
-		// If there wasn't a change to the previous universe, set universe to
-		// null in order to mark that it should refer to the parent's universe
-		if (changes === 'self') {
-			changes = this._universe !== null;
-		}
-
-		// Note: this is using _universe instead of universe due to weird JS bug?
-		this._universe = changes ? universe : null;
-
-		const nextUniverse = [...universe];
-
-		// The children of this node have the constants added by this node
-		// in their respective universes
-		if (this.statement !== null) {
-			const newConstants = this.statement.getNewConstants(universe);
-			for (const newConstant of newConstants) {
-				nextUniverse.push(newConstant);
-			}
-			changes = newConstants.length > 0;
-		}
-
-		for (const childId of this.children) {
-			this.tree.nodes[childId].propogateUniverse(nextUniverse, changes);
-		}
 	}
 
 	/**
@@ -851,7 +864,7 @@ export class TruthTree {
 		};
 
 		// Calculate the universe for each node
-		newTree.recalculateUniverse();
+		newTree.calculateUniverse();
 		newTree.initialized = true;
 
 		return newTree;
@@ -864,7 +877,7 @@ export class TruthTree {
 	static empty(): TruthTree {
 		const tree = new TruthTree();
 		tree.nodes[0] = new TruthTreeNode(0, tree);
-		tree.nodes[0].universe = [];
+		tree.nodes[0].calculateUniverse();
 		tree.root = 0;
 		tree.leaves.add(0);
 		return tree;
@@ -927,7 +940,7 @@ export class TruthTree {
 		newTree.options = parsed['options'];
 
 		// Load the universe
-		newTree.nodes[newTree.root].propogateUniverse([], true);
+		newTree.calculateUniverse();
 
 		// Tree has completed initializing
 		newTree.initialized = true;
@@ -1141,8 +1154,10 @@ export class TruthTree {
 		// If the original node was the root, replace it
 		if (this.root === childId) {
 			this.root = newId;
-			newNode.propogateUniverse([], true);
 		}
+
+		// Calculate the universe for the new node
+		newNode.calculateUniverse();
 
 		return newId;
 	}
@@ -1168,7 +1183,9 @@ export class TruthTree {
 		// Create the new node in the tree
 		const newId = this.getNextId();
 		this.nodes[newId] = new TruthTreeNode(newId, this);
-		this.nodes[newId].parent = parentId;
+
+		const newNode = this.nodes[newId];
+		newNode.parent = parentId;
 
 		// Update leaves set
 		if (this.leaves.has(parentId)) {
@@ -1177,9 +1194,13 @@ export class TruthTree {
 		}
 
 		if (newBranch) {
+			// New Branch => just add a new child
 			parentNode.children.push(newId);
+			// The only node in a branch must be a leaf
 			this.leaves.add(newId);
-			parentNode.propogateUniverse(parentNode.universe!, 'self');
+			// Have to calculate the universe for that node
+			newNode.calculateUniverse();
+
 			// Returning parent's ID allows people adding multiple branches at
 			// once to do so without having to click the parent many times.
 			return parentId;
@@ -1199,7 +1220,7 @@ export class TruthTree {
 
 		// Fix parent's children array
 		parentNode.children = [newId];
-		parentNode.propogateUniverse(parentNode.universe!, 'self');
+		newNode.calculateUniverse();
 
 		return newId;
 	}
@@ -1221,18 +1242,6 @@ export class TruthTree {
 			return null;
 		}
 		const node = this.nodes[id];
-
-		// Remove constants added by this node from the universe
-		if (node.statement !== null) {
-			const newConstants = node.statement.getNewConstants(node.universe!);
-			for (const childId of node.children) {
-				// Propogate the universe w/o the constants added by this node
-				this.nodes[childId].propogateUniverse(
-					node.universe!,
-					newConstants.length > 0
-				);
-			}
-		}
 
 		if (node.parent === null) {
 			// If the node has no parent, then it is the root of the tree
@@ -1311,6 +1320,14 @@ export class TruthTree {
 
 		delete this.nodes[id];
 
+		// Update child universes
+		if (node.statement !== null) {
+			for (const childId of node.children) {
+				// Propogate the universe w/o the constants added by this node
+				this.nodes[childId].calculateUniverse();
+			}
+		}
+
 		if (node.children.length === 1) {
 			// If the deleted node has one child, return the id of that child
 			return node.children[0];
@@ -1351,7 +1368,7 @@ export class TruthTree {
 		}
 
 		// Refresh the universe to ensure it's correct before giving a result
-		this.recalculateUniverse();
+		this.calculateUniverse();
 
 		let hasValidOpenTerm = false;
 
@@ -1417,6 +1434,11 @@ export class TruthTree {
 			if (node.antecedent !== null) {
 				const antecedentNode = this.nodes[node.antecedent];
 
+				if (node.antecedent === node.id) {
+					console.log(`${node.id} is its own antecedent.`);
+					return false;
+				}
+
 				// Must be in decomposition of antecedent
 				if (!antecedentNode.decomposition.has(node.id)) {
 					console.log(
@@ -1440,6 +1462,10 @@ export class TruthTree {
 
 			// Must be antecedent of decomposition
 			for (const decomposedId of node.decomposition) {
+				if (decomposedId === node.id) {
+					console.log(`${node.id} is in its own decomposition.`);
+					return false;
+				}
 				const decomposedNode = this.nodes[decomposedId];
 				if (decomposedNode.antecedent !== node.id) {
 					console.log(`${node.id} is not an antecedent of ${decomposedId}`);
@@ -1455,9 +1481,8 @@ export class TruthTree {
 	 * Propogates the universe down from the root node to recalculate the
 	 * universe at all nodes in the tree.
 	 */
-	recalculateUniverse() {
-		const rootNode = this.nodes[this.root];
-		rootNode.propogateUniverse([], true);
+	calculateUniverse() {
+		this.nodes[this.root].calculateUniverse();
 	}
 
 	printTree() {
