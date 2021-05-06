@@ -1,7 +1,7 @@
 import * as vue from 'vue';
 import * as vuex from 'vuex';
 import {TruthTree, TruthTreeNode} from '../common/tree';
-import {KeyRecorder} from './component/key-recorder';
+import {KeyRecorder} from './component/key-recorder.ts';
 import {
 	SubstitutionRecorder,
 	Substitutions,
