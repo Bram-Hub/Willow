@@ -248,3 +248,7 @@
 .clear-shortcut {
   color: var(--clear-shortcut)
 }
+
+.modal-close > i {
+  color: var(--modal-close-btn);
+}
