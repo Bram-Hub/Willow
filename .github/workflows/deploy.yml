@@ -24,11 +24,10 @@ jobs:
           npm install pug-cli -g
 
       - name: Build website
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
         run: |
-          BASE_URL=${{ secrets.BASE_URL }}
-          export BASE_URL
-          NODE_ENV=${{ secrets.NODE_ENV }}
-          export NODE_ENV
           npm run build
           pug -O '{commit: "'$GITHUB_SHA'", basedir: "views/", env: {BASE_URL: "'$BASE_URL'"}}' views/index.pug --out public/
 
