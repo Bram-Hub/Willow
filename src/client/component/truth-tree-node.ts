@@ -1,6 +1,5 @@
 import * as vue from 'vue';
 import {TruthTree, TruthTreeNode, CorrectnessError} from '../../common/tree';
-import {Substitutions} from './substitution-recorder';
 
 export function getNodeIconClasses(node: TruthTreeNode): string[] {
 	const validity = node.isValid();
@@ -50,7 +49,7 @@ export const TruthTreeNodeComponent: vue.Component = {
 		makeSubstitutions() {
 			const node = this.node as TruthTreeNode;
 			for (const [symbol, text] of Object.entries(
-				this.$store.state.substitutions as Substitutions
+				this.$store.state.substitutions
 			)) {
 				if (text.length === 0) {
 					continue;
