@@ -44,7 +44,7 @@ export class Formula {
 			// No args means this must be a constant or an atom
 
 			// Predicates do not belong to the universe
-			if (!this.isPredicate) {
+			if (this.isPredicate) {
 				return constants;
 			}
 
