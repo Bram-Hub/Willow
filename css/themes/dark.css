@@ -34,7 +34,7 @@
     --card-background: #202225;
     /* --card-shadow: rgba(0, 0, 0, 0.5); */
     --clear-shortcut: #ffffff;
-    --modal-close-btn: rgb(221, 221, 221);
+    --modal-close-btn: #ffffff;
 }
 
 /* Black logo gets inverted to white on dark mode */
