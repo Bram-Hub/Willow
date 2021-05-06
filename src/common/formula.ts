@@ -41,7 +41,13 @@ export class Formula {
 		const constants: Formula[] = [];
 
 		if (this.args === null) {
-			// No args means this must be a constant
+			// No args means this must be a constant or an atom
+
+			// Predicates do not belong to the universe
+			if (!this.isPredicate) {
+				return constants;
+			}
+
 			if (!variables.some(variable => variable.equals(this))) {
 				// Not a non-instantiated symbol, so it's a constant
 				constants.push(this);
