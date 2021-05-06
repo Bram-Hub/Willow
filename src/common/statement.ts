@@ -197,12 +197,6 @@ export class AtomicStatement extends Statement {
 		return [];
 	}
 
-	// equals(other: Statement): boolean {
-	// 	return (
-	// 		other instanceof AtomicStatement && this.formula.equals(other.formula)
-	// 	);
-	// }
-
 	getConstants(symbols: Formula[] = []) {
 		return this.formula.getConstants(symbols);
 	}
@@ -282,10 +276,6 @@ export class NotStatement extends UnaryStatement {
 		return [];
 	}
 
-	// equals(other: Statement): boolean {
-	// 	return other instanceof NotStatement && this.operand.equals(other.operand);
-	// }
-
 	symbolized(variables: Formula[], symbol: string) {
 		return new NotStatement(this.operand.symbolized(variables, symbol));
 	}
@@ -332,14 +322,6 @@ export class ConditionalStatement extends BinaryStatement {
 		return [[new NotStatement(this.lhs)], [this.rhs]];
 	}
 
-	// equals(other: Statement) {
-	// 	return (
-	// 		other instanceof ConditionalStatement &&
-	// 		this.lhs.equals(other.lhs) &&
-	// 		this.rhs.equals(other.rhs)
-	// 	);
-	// }
-
 	symbolized(variables: Formula[], symbol: string) {
 		return new ConditionalStatement(
 			this.lhs.symbolized(variables, symbol),
@@ -363,14 +345,6 @@ export class BiconditionalStatement extends BinaryStatement {
 			[new NotStatement(this.lhs), new NotStatement(this.rhs)],
 		];
 	}
-
-	// equals(other: Statement) {
-	// 	return (
-	// 		other instanceof BiconditionalStatement &&
-	// 		this.lhs.equals(other.lhs) &&
-	// 		this.rhs.equals(other.rhs)
-	// 	);
-	// }
 
 	symbolized(variables: Formula[], symbol: string) {
 		return new BiconditionalStatement(
@@ -420,16 +394,6 @@ export class AndStatement extends CommutativeStatement {
 		return [this.operands];
 	}
 
-	// equals(other: Statement) {
-	// 	return (
-	// 		other instanceof AndStatement &&
-	// 		this.operands.length === other.operands.length &&
-	// 		this.operands.every((operand, index) =>
-	// 			operand.equals(other.operands[index])
-	// 		)
-	// 	);
-	// }
-
 	symbolized(variables: Formula[], symbol: string) {
 		return new AndStatement(
 			...this.operands.map(operand => operand.symbolized(variables, symbol))
@@ -449,16 +413,6 @@ export class OrStatement extends CommutativeStatement {
 	decompose() {
 		return this.operands.map(operand => [operand]);
 	}
-
-	// equals(other: Statement) {
-	// 	return (
-	// 		other instanceof OrStatement &&
-	// 		this.operands.length === other.operands.length &&
-	// 		this.operands.every((operand, index) =>
-	// 			operand.equals(other.operands[index])
-	// 		)
-	// 	);
-	// }
 
 	symbolized(variables: Formula[], symbol: string) {
 		return new OrStatement(
@@ -506,16 +460,6 @@ export class ExistenceStatement extends QuantifierStatement {
 		return [[this.symbolized()]];
 	}
 
-	// equals(other: Statement): boolean {
-	// 	return (
-	// 		other instanceof ExistenceStatement &&
-	// 		this.variables.every((variable, index) =>
-	// 			other.variables[index].equals(variable)
-	// 		) &&
-	// 		this.formula.equals(other.formula)
-	// 	);
-	// }
-
 	symbolized(variables: Formula[] = []): Statement {
 		if (variables.length === 0) {
 			// not a nested quantifier
@@ -541,16 +485,6 @@ export class UniversalStatement extends QuantifierStatement {
 	decompose() {
 		return [[this.symbolized()]];
 	}
-
-	// equals(other: Statement): boolean {
-	// 	return (
-	// 		other instanceof UniversalStatement &&
-	// 		this.variables.every((variable, index) =>
-	// 			other.variables[index].equals(variable)
-	// 		) &&
-	// 		this.formula.equals(other.formula)
-	// 	);
-	// }
 
 	symbolized(variables: Formula[] = []): Statement {
 		if (variables.length === 0) {

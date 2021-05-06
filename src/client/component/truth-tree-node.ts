@@ -1,11 +1,15 @@
 import * as vue from 'vue';
-import {TruthTree, TruthTreeNode} from '../../common/tree';
+import {TruthTree, TruthTreeNode, CorrectnessError} from '../../common/tree';
 import {Substitutions} from './substitution-recorder';
 
 export function getNodeIconClasses(node: TruthTreeNode): string[] {
-	if (node.isValid() === 'not_parsable') {
+	const validity = node.isValid();
+	if (
+		validity instanceof CorrectnessError &&
+		validity.errorCode === 'not_parsable'
+	) {
 		return ['fas', 'fa-exclamation-triangle', 'statement-error'];
-	} else if (node.isValid() === true && node.isDecomposed() === true) {
+	} else if (validity === true && node.isDecomposed() === true) {
 		return ['fas', 'fa-check', 'statement-correct'];
 	} else {
 		return ['fas', 'fa-times', 'statement-incorrect'];
