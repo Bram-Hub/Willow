@@ -82,8 +82,7 @@ export const TruthTreeBranchComponent = defineComponent({
 		 * the given one. Note that, with the exception of terminators, a node will
 		 * always be in the decomposition of an ancestor node, not the other way
 		 * around.
-		 * @param id the id
-		 * @returns
+		 * @param id the id of the other node (not the selected one)
 		 */
 		modifyDecomposition(id: number) {
 			// TODO: Document this function more
