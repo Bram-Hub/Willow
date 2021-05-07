@@ -1,4 +1,5 @@
 import * as vue from 'vue';
+import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode, CorrectnessError} from '../../common/tree';
 
 export function getNodeIconClasses(node: TruthTreeNode): string[] {
@@ -32,10 +33,13 @@ function resizeFromBbox(
 	element.style.width = `${bboxElement.scrollWidth}px`;
 }
 
-export const TruthTreeNodeComponent: vue.Component = {
+export const TruthTreeNodeComponent = defineComponent({
 	name: 'truth-tree-node',
 	props: {
-		id: Number,
+		id: {
+			type: Number,
+			required: true,
+		},
 	},
 	computed: {
 		node() {
@@ -96,4 +100,4 @@ export const TruthTreeNodeComponent: vue.Component = {
 		<span :id="'bbox-comment' + this.id" class="bbox comment-bbox"></span>
     <p v-if="node.premise" class="premise-label">Premise</p>
   `,
-};
+});

@@ -1,47 +1,92 @@
-import * as vue from 'vue';
+import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {TruthTreeNodeComponent} from './truth-tree-node';
 
-export const TruthTreeBranchComponent: vue.Component = {
+/**
+ * A Vue component that renders a branch of a truth tree. Note that this
+ * component represents a path whose head is the child of a node with multiple
+ * children and whose tail is the first node in the path with multiple children.
+ * It does not represent a root-to-leaf path. Therefore, all nodes in a branch
+ * are at the same indentation level in the interface.
+ */
+export const TruthTreeBranchComponent = defineComponent({
 	name: 'truth-tree-branch',
 	components: {
+		// A branch is composed of the nodes that span from its head to its tail
 		'truth-tree-node': TruthTreeNodeComponent,
 	},
 	props: {
-		head: Number,
+		// A branch can be uniquely defined by its head
+		head: {
+			type: Number,
+			required: true,
+		},
 	},
 	data() {
 		return {
+			// Whether or not this branch is expanded
 			expanded: true,
-			childBranches: [],
+			// An array that holds references to any branch components rendered by
+			// this component
+			childBranches: [] as any[],
 		};
 	},
 	beforeUpdate() {
 		this.childBranches = [];
 	},
 	computed: {
+		tree(): TruthTree {
+			return this.$store.state.tree;
+		},
+		selected(): number | null {
+			return this.$store.state.selected;
+		},
+		selectedNode(): TruthTreeNode | null {
+			return this.$store.getters.selectedNode;
+		},
+		/**
+		 * Returns the node at the head of this branch.
+		 * @returns the head node of this branch
+		 */
+		headNode(): TruthTreeNode {
+			return this.tree.nodes[this.head];
+		},
+		/**
+		 * Traverses the branch represented by this component. Returns an array
+		 * containing the ids of nodes between the head and tail of this branch
+		 * (inclusive).
+		 * @returns an array of ids of nodes in this branch
+		 */
 		branch() {
-			const tree: TruthTree = this.$store.state.tree;
 			const branch: number[] = [this.head];
-			while (tree.nodes[branch[branch.length - 1]].children.length === 1) {
-				branch.push(tree.nodes[branch[branch.length - 1]].children[0]);
+			while (this.tree.nodes[branch[branch.length - 1]].children.length === 1) {
+				branch.push(this.tree.nodes[branch[branch.length - 1]].children[0]);
 			}
 			return branch;
 		},
-		closedTerminator() {
-			return TruthTree.CLOSED_TERMINATOR;
-		},
-		headNode() {
-			return this.$store.state.tree.nodes[this.head];
-		},
 	},
 	methods: {
-		addChildBranchRef(ref: any) {
+		/**
+		 * Private method used to add references to branch components rendered by
+		 * this component.
+		 * @param ref a reference to the child branch
+		 */
+		addChildBranchRef(ref?: any | null) {
 			if (ref) {
 				this.childBranches.push(ref);
 			}
 		},
+		/**
+		 * Adds or removes a given node from the decomposition of the selected node,
+		 * or vice-versa depending on the position of the selected node relative to
+		 * the given one. Note that, with the exception of terminators, a node will
+		 * always be in the decomposition of an ancestor node, not the other way
+		 * around.
+		 * @param id the id
+		 * @returns
+		 */
 		modifyDecomposition(id: number) {
+			// TODO: Document this function more
 			const selectedNode: TruthTreeNode | null = this.$store.getters
 				.selectedNode;
 
@@ -97,37 +142,51 @@ export const TruthTreeBranchComponent: vue.Component = {
 			}
 			selectedNode.correctDecomposition = null;
 		},
+		/**
+		 * Toggles whether or not this branch is expanded if this branch contains
+		 * the selected node. Otherwise, this just propogates down the tree.
+		 */
 		toggleBranchExpansion() {
-			const selected: number | null = this.$store.state.selected;
-			if (selected === null) {
+			if (this.selected === null) {
 				return alert('You must select a statement before doing this.');
 			}
-			if ((this.branch as number[]).includes(selected)) {
-				(this.expanded as boolean) = !(this.expanded as boolean);
+			if (this.branch.includes(this.selected)) {
+				this.expanded = !this.expanded;
 			} else {
 				for (const childBranch of this.childBranches) {
 					childBranch.toggleBranchExpansion();
 				}
 			}
 		},
+		/**
+		 * Collapses this branch and propogates down the tree so that every branch
+		 * is collapsed.
+		 */
 		collapseAllBranches() {
 			for (const childBranch of this.childBranches) {
-				childBranch.expandAllBranches();
+				childBranch.collapseAllBranches();
 			}
-			(this.expanded as boolean) = false;
+			this.expanded = false;
 		},
+		/**
+		 * Expands this branch and propogates down the tree so that every branch is
+		 * expanded.
+		 */
 		expandAllBranches() {
-			(this.expanded as boolean) = true;
+			this.expanded = true;
 			for (const childBranch of this.childBranches) {
 				childBranch.expandAllBranches();
 			}
 		},
+		/**
+		 * Collapses this branch if it is terminated or if all of its child branches
+		 * are terminated, which is determined by propogating down the tree.
+		 */
 		collapseTerminatedBranches() {
-			const branch: number[] = this.branch;
-			const tail = (this.$store.state.tree as TruthTree).nodes[
-				branch[branch.length - 1]
-			];
 			if (this.childBranches.length === 0) {
+				// If this branch has no child branches, then check if the last node in
+				// this branch (the tail) is a terminator
+				const tail = this.tree.nodes[this.branch[this.branch.length - 1]];
 				if (tail.isTerminator()) {
 					this.expanded = false;
 					return true;
@@ -157,16 +216,17 @@ export const TruthTreeBranchComponent: vue.Component = {
 						@contextmenu.prevent="modifyDecomposition(id)"
 						@click="$store.commit('select', {id: id})"
 						:class="{
-							selected: $store.state.selected === id,
-							antecedent: $store.getters.selectedNode !== null
-									&& $store.getters.selectedNode.antecedent === id,
-							decomposition: $store.getters.selectedNode !== null
-									&& $store.getters.selectedNode.decomposition.has(id),
-							'closing-terminator-decomposition': (
-								$store.getters.selectedNode !== null
-									&& $store.getters.selectedNode.decomposition.has(id)
-									&& $store.getters.selectedNode.text === closedTerminator
-							),
+							selected: selected === id,
+							antecedent:
+								selectedNode !== null &&
+								selectedNode.antecedent === id,
+							decomposition:
+								selectedNode !== null &&
+								selectedNode.decomposition.has(id),
+							'closing-terminator-decomposition':
+								selectedNode !== null &&
+								selectedNode.decomposition.has(id) &&
+								selectedNode.isClosedTerminator(),
 						}">
           <truth-tree-node :id="id"></truth-tree-node>
           <button v-if="index === 0 && headNode.children.length > 0"
@@ -178,8 +238,8 @@ export const TruthTreeBranchComponent: vue.Component = {
           </button>
         </li>
         <template
-            v-if="$store.state.tree.nodes[id].children.length > 1 && expanded"
-            v-for="child in $store.state.tree.nodes[id].children">
+            v-show="tree.nodes[id].children.length > 1 && expanded"
+            v-for="child in tree.nodes[id].children">
           <hr class="branch-line"/>
           <truth-tree-branch :head="child"
 							:ref="addChildBranchRef"></truth-tree-branch>
@@ -190,4 +250,4 @@ export const TruthTreeBranchComponent: vue.Component = {
       </li>
     </ul>
   `,
-};
+});
