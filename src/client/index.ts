@@ -2,10 +2,7 @@ import * as vue from 'vue';
 import * as vuex from 'vuex';
 import {TruthTree, TruthTreeNode} from '../common/tree';
 import {KeyRecorder} from './component/key-recorder';
-import {
-	SubstitutionRecorder,
-	Substitutions,
-} from './component/substitution-recorder';
+import {SubstitutionRecorder} from './component/substitution-recorder';
 import {TruthTreeBranchComponent} from './component/truth-tree-branch';
 import {getNodeIconClasses} from './component/truth-tree-node';
 
@@ -28,10 +25,15 @@ export function showModal(modalId: string) {
 }
 
 interface StoreState {
+	shortcuts: {
+		[action: string]: string;
+	};
+	substitutions: {
+		[symbol: string]: string;
+	};
 	developerMode: boolean;
 	tree: TruthTree;
 	selected: number | null;
-	substitutions: Substitutions;
 }
 
 /**
@@ -427,10 +429,10 @@ export const instance = vue
 		vuex.createStore({
 			state: {
 				shortcuts: {},
+				substitutions: {},
 				developerMode: false,
 				tree: TruthTree.empty(),
 				selected: null,
-				substitutions: {},
 			} as StoreState,
 			getters: {
 				selectedNode(state) {

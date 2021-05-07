@@ -34,16 +34,16 @@ interface KeyMap {
 export const KeyRecorder = defineComponent({
 	name: 'key-recorder',
 	props: {
-		// The 'event' property is used to identify the shortcut in local storage
+		// The `event` property is used to identify the shortcut in local storage
 		event: {
 			type: String,
 			required: true,
 		},
-		// The 'default' property is used to provide a default sequence of keys that
+		// The `default` property is used to provide a default sequence of keys that
 		// triggers this shortcut
 		default: Array as PropType<string[]>,
 	},
-	// This component emits the 'on-pressed' custom event when the keys for this
+	// This component emits the `on-pressed` custom event when the keys for this
 	// shortcut are pressed. The owner of this component should listen for this
 	// event and call any appropriate methods.
 	emits: ['on-pressed'],

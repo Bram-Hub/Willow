@@ -2,7 +2,7 @@ Willow
 ------
 A web application used for building and assigning truth trees.
 
-You may use Willow at the following URL: [https://willow.bram-hub.com](https://willow.bram-hub.com)
+You may use Willow at the following URL: [https://willow.bramhub.com](https://willow.bramhub.com)
 
 Completely rewritten and revitalized by
 [Connor Roizman](https://github.com/connorjayr),
