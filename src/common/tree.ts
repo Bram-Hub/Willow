@@ -263,6 +263,11 @@ export class TruthTreeNode {
 			}
 		}
 
+		// Initialize everything to its parent
+		if (this._universe === undefined) {
+			this._universe = universe;
+		}
+
 		if (this.statement !== null) {
 			// If the statement is non-null, check if it adds new constants
 			const newConstants = this.statement.getNewConstants(universe);
@@ -275,9 +280,6 @@ export class TruthTreeNode {
 			if (newConstants.length > 0 || this.parent === null) {
 				// New constants means create a larger universe. The root must
 				// be non-null as well.
-				if (this._universe === undefined) {
-					this._universe = universe;
-				}
 				this.universe = universe;
 			} else {
 				// No new constants AND not the root => copy the parent
@@ -288,9 +290,6 @@ export class TruthTreeNode {
 			// copy the parent's universe.
 			if (this.parent === null) {
 				// No parent universe to copy, so create an empty universe
-				if (this._universe === undefined) {
-					this._universe = [];
-				}
 				this.universe = [];
 			} else {
 				this.universe = null;
