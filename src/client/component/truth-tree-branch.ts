@@ -236,12 +236,14 @@ export const TruthTreeBranchComponent = defineComponent({
             ]"></i>
           </button>
         </li>
-        <template
-            v-show="tree.nodes[id].children.length > 1 && expanded"
-            v-for="child in tree.nodes[id].children">
-          <hr class="branch-line"/>
-          <truth-tree-branch :head="child"
-							:ref="addChildBranchRef"></truth-tree-branch>
+				<template v-if="tree.nodes[id].children.length > 1">
+					<div
+							v-show="expanded"
+							v-for="child in tree.nodes[id].children">
+						<hr class="branch-line"/>
+						<truth-tree-branch :head="child"
+								:ref="addChildBranchRef"></truth-tree-branch>
+					</div>
         </template>
       </template>
       <li v-if="!expanded && headNode.children.length > 0">
