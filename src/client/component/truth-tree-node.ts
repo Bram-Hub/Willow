@@ -1,4 +1,3 @@
-import * as vue from 'vue';
 import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode, CorrectnessError} from '../../common/tree';
 
