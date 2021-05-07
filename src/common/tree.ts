@@ -52,7 +52,7 @@ export class TruthTreeNode {
 	// For FOL:
 	// The universe of discourse up to (and including) this node in the tree
 	// If this statement does not introduce any new constants, it is null
-	private _universe: Formula[] | null = null;
+	private _universe: Formula[] | null | undefined = undefined;
 
 	/**
 	 * Constructs a new `TruthTreeNode` in a `TruthTree`.
@@ -166,10 +166,10 @@ export class TruthTreeNode {
 	 */
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
-		this.correctDecomposition = null;
+		this._correctDecomposition = null;
 		// Anything that references this is also invalid.
 		if (this.antecedent !== null) {
-			this.tree.nodes[this.antecedent].correctDecomposition = null;
+			this.tree.nodes[this.antecedent]._correctDecomposition = null;
 		}
 
 		// Update the universe of discourse
@@ -186,6 +186,11 @@ export class TruthTreeNode {
 	 * Note that this function guarantees a Formula[]
 	 */
 	get universe(): Formula[] | null {
+		if (this._universe === undefined) {
+			console.log('ERROR: Got an undefined universe.');
+			return null;
+		}
+
 		if (this._universe === null) {
 			if (this.parent === null) {
 				console.log(
@@ -207,7 +212,7 @@ export class TruthTreeNode {
 		// Invalidate the correct decomposition of this statement because
 		// the universe was updated
 		if (this.statement instanceof QuantifierStatement) {
-			this.correctDecomposition = null;
+			this._correctDecomposition = null;
 		}
 
 		// Invalidate the correct decomposition of antecedents that are
@@ -215,7 +220,7 @@ export class TruthTreeNode {
 		if (this.antecedent !== null) {
 			const antecedentNode = this.tree.nodes[this.antecedent];
 			if (antecedentNode.statement instanceof QuantifierStatement) {
-				antecedentNode.correctDecomposition = null;
+				antecedentNode._correctDecomposition = null;
 			}
 		}
 	}
@@ -270,6 +275,9 @@ export class TruthTreeNode {
 			if (newConstants.length > 0 || this.parent === null) {
 				// New constants means create a larger universe. The root must
 				// be non-null as well.
+				if (this._universe === undefined) {
+					this._universe = universe;
+				}
 				this.universe = universe;
 			} else {
 				// No new constants AND not the root => copy the parent
@@ -280,6 +288,9 @@ export class TruthTreeNode {
 			// copy the parent's universe.
 			if (this.parent === null) {
 				// No parent universe to copy, so create an empty universe
+				if (this._universe === undefined) {
+					this._universe = [];
+				}
 				this.universe = [];
 			} else {
 				this.universe = null;
