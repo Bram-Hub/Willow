@@ -2,7 +2,7 @@
 
 
 ## What is Willow and what are truth trees?
-Willow is a web-based application for creating and validating truth trees. Truth trees build uppon the [short truth table method](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-ShortTruthTable.pdf). They work in the same way except when there are no forced truth assignments, the tree branches into two sub-trees. [You may read more about truth trees here.](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-Trees.pdf)
+Willow is a web-based application for creating and validating truth trees. Truth trees build upon the [short truth table method](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-ShortTruthTable.pdf). They work in the same way except when there are no forced truth assignments, the tree branches into two sub-trees. [You may read more about truth trees here.](https://homepages.hass.rpi.edu/heuveb/Teaching/Logic/CompLogic/Web/Presentations/TF-Trees.pdf)
 
 ## Opening Willow
 ### Creating a new tree:
