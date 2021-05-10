@@ -49,15 +49,33 @@ export const TruthTreeNodeComponent = defineComponent({
 	},
 	methods: {
 		getNodeIconClasses: getNodeIconClasses,
-		makeSubstitutions() {
-			const node = this.node as TruthTreeNode;
+		makeSubstitutions(event: FocusEvent) {
+			if (this.node === null) {
+				return;
+			}
+
+			let cursor = 0;
+			const target = event.target;
+			if (target instanceof HTMLInputElement) {
+				cursor = target.selectionStart || 0;
+			}
+
+			let beforeCursor = this.node.text.substring(0, cursor);
+			let afterCursor = this.node.text.substring(cursor);
 			for (const [symbol, text] of Object.entries(
 				this.$store.state.substitutions
 			)) {
 				if (text.length === 0) {
 					continue;
 				}
-				node.text = node.text.replace(text, symbol);
+				beforeCursor = beforeCursor?.replace(text, symbol);
+				afterCursor = afterCursor?.replace(text, symbol);
+			}
+			this.node.text = beforeCursor + afterCursor;
+
+			cursor = beforeCursor?.length || 0;
+			if (target instanceof HTMLInputElement) {
+				setTimeout(() => target.setSelectionRange(cursor, cursor), 0);
 			}
 		},
 	},
@@ -82,7 +100,7 @@ export const TruthTreeNodeComponent = defineComponent({
     <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
     <input :id="'node' + this.id" type="text" v-model="node.text"
         @focus="$store.commit('select', {id: id, focus: false})"
-        @input="makeSubstitutions()"
+        @input="makeSubstitutions($event)"
         :class="{
           'statement': true,
           'open-terminator': node.text === '◯',
