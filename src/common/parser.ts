@@ -9,7 +9,7 @@ import {
 	UniversalStatement,
 	ExistenceStatement,
 } from './statement';
-import {Formula} from './formula';
+import { Formula } from './formula';
 
 class ParseError extends Error {
 	position: number;
@@ -28,7 +28,7 @@ class ParseError extends Error {
 }
 
 abstract class Parser<T> {
-	cache: {[chars: string]: string[]} = {};
+	cache: { [chars: string]: string[] } = {};
 	text = '';
 	position = 0;
 
@@ -195,7 +195,7 @@ abstract class Parser<T> {
 				const rv = (this as any)[rule]();
 				this.consumeWhitespace();
 				return rv;
-			} catch (e) {
+			} catch (e: any) {
 				this.position = initialPosition;
 				if (e.position > lastErrorPosition) {
 					lastException = e;
@@ -214,8 +214,7 @@ abstract class Parser<T> {
 
 		throw new ParseError(
 			lastErrorPosition,
-			`Expected ${lastErrorRules.join(',')} but got ${
-				this.text[lastErrorPosition]
+			`Expected ${lastErrorRules.join(',')} but got ${this.text[lastErrorPosition]
 			}`
 		);
 	}
@@ -302,20 +301,19 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		}
 		throw new ParseError(
 			this.position,
-			`Expected biconditional/conditional operator but got ${
-				this.text[this.position]
+			`Expected biconditional/conditional operator but got ${this.text[this.position]
 			}`
 		);
 	}
 
 	expression() {
 		/*
-        returns one of:
-            - BiconditionalStatement
-            - ConditionalStatement
-            - Tuple? containing [str, Statement]
-            - null
-        */
+		returns one of:
+			- BiconditionalStatement
+			- ConditionalStatement
+			- Tuple? containing [str, Statement]
+			- null
+		*/
 
 		const op = this.maybeKeyword(
 			...PropositionalLogicParser.OPERATORS['iff'],
@@ -346,8 +344,7 @@ export class PropositionalLogicParser extends Parser<Statement> {
 
 		throw new ParseError(
 			this.position,
-			`Expected biconditional/conditional operator but got ${
-				this.text[this.position]
+			`Expected biconditional/conditional operator but got ${this.text[this.position]
 			}`
 		);
 	}
