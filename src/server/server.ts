@@ -3,7 +3,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import * as bodyParser from 'body-parser';
 import {execSync} from 'child_process';
 import * as express from 'express';
 import * as fs from 'fs';
@@ -57,8 +56,8 @@ class Server {
 		this.app.use(morgan('common', {stream: accessLogStream}));
 
 		// Parses the body of POST requests into req.body
-		this.app.use(bodyParser.urlencoded({extended: true}));
-		this.app.use(bodyParser.json());
+		this.app.use(express.urlencoded({extended: true}));
+		this.app.use(express.json());
 
 		// Use Pug.js as the template engine
 		this.app.set('view engine', 'pug');
