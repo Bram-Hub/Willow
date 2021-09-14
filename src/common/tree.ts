@@ -1,5 +1,5 @@
-import { FirstOrderLogicParser } from './parser';
-import { Formula } from './formula';
+import {FirstOrderLogicParser} from './parser';
+import {Formula} from './formula';
 import {
 	Statement,
 	AtomicStatement,
@@ -8,7 +8,7 @@ import {
 	ExistenceStatement,
 	UniversalStatement,
 } from './statement';
-import { deleteMapping, getAssignment, createNDimensionalMapping } from './util';
+import {deleteMapping, getAssignment, createNDimensionalMapping} from './util';
 
 export class CorrectnessError {
 	errorCode: string;
@@ -79,7 +79,7 @@ export class TruthTreeNode {
 
 	static fromJSON(
 		tree: TruthTree,
-		jsonObject: { [key: string]: string | boolean | number | number[] }
+		jsonObject: {[key: string]: string | boolean | number | number[]}
 	): TruthTreeNode {
 		// Check for necessary properties
 		if (!('id' in jsonObject && typeof jsonObject.id === 'number')) {
@@ -195,7 +195,7 @@ export class TruthTreeNode {
 			if (this.parent === null) {
 				console.log(
 					'WARNING: root has no universe! If you see this error,' +
-					'try saving the file and opening it in a new tab.'
+						'try saving the file and opening it in a new tab.'
 				);
 				return [];
 			}
@@ -875,7 +875,7 @@ export class TruthTree {
 	];
 
 	// Inner Representation
-	nodes: { [id: number]: TruthTreeNode } = {};
+	nodes: {[id: number]: TruthTreeNode} = {};
 	private _root: number | undefined;
 	leaves: Set<number> = new Set();
 
@@ -1043,7 +1043,7 @@ export class TruthTree {
 			serializedNodes.push(serializedNode);
 		}
 
-		const serializedTree: { [key: string]: any } = {};
+		const serializedTree: {[key: string]: any} = {};
 		serializedTree['nodes'] = serializedNodes;
 		serializedTree['options'] = this.options;
 

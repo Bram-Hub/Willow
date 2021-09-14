@@ -484,9 +484,8 @@ export const instance = vue
 
 document.querySelectorAll('#toolbar > .dropdown > button').forEach(button => {
 	button.addEventListener('click', () => {
-		const menu = button.parentNode?.querySelector<HTMLElement>(
-			'.dropdown-menu'
-		);
+		const menu =
+			button.parentNode?.querySelector<HTMLElement>('.dropdown-menu');
 		if (menu === null || menu === undefined) {
 			return;
 		}

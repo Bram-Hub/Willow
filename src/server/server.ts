@@ -10,10 +10,8 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as morgan from 'morgan';
 import * as path from 'path';
-import {performance} from 'perf_hooks';
 
 import {logger} from './logger';
-import {TruthTree} from '../common/tree';
 
 /**
  * A singleton class representing the web server.
@@ -103,42 +101,3 @@ class Server {
 }
 
 new Server().launch();
-
-function runTest(testName: string) {
-	const testTree = TruthTree.deserialize(
-		fs.readFileSync(`tests/${testName}.yew`).toString()
-	);
-	testTree.printTree();
-	const start = performance.now();
-	const isCorrect = testTree.isCorrect();
-	const elapsed = (performance.now() - start) / 1000;
-	console.log(
-		`${testName}: ${
-			Object.keys(isCorrect).length === 0
-		} (took ${elapsed.toFixed(5)} seconds)`
-	);
-	return elapsed;
-}
-
-// const tests = [
-// 	'eli1',
-// 	'ben1',
-// 	'ben2',
-// 	'ben3',
-// 	'ben4',
-// 	'connor1',
-// 	'connor2',
-// 	'connor3',
-// 	'jeff1',
-// 	'3a',
-// ];
-
-// const NUM_TESTS = 10;
-// for (const test of tests) {
-// 	let avg = 0;
-// 	for (let i = 0; i < NUM_TESTS; ++i) {
-// 		avg += runTest(test);
-// 	}
-// 	avg /= NUM_TESTS;
-// 	console.log(`${test} averaged ${avg.toFixed(5)} seconds.`);
-// }

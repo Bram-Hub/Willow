@@ -86,8 +86,8 @@ export const TruthTreeBranchComponent = defineComponent({
 		 */
 		modifyDecomposition(id: number) {
 			// TODO: Document this function more
-			const selectedNode: TruthTreeNode | null = this.$store.getters
-				.selectedNode;
+			const selectedNode: TruthTreeNode | null =
+				this.$store.getters.selectedNode;
 
 			if (selectedNode === null || selectedNode.id === id) {
 				return;
@@ -111,9 +111,8 @@ export const TruthTreeBranchComponent = defineComponent({
 					selectedNode.decomposition.add(id);
 
 					if (otherNode.antecedent !== null) {
-						const antecedentNode = this.$store.state.tree.nodes[
-							otherNode.antecedent
-						];
+						const antecedentNode =
+							this.$store.state.tree.nodes[otherNode.antecedent];
 						antecedentNode.decomposition.delete(id);
 						antecedentNode.correctDecomposition = null;
 					}
@@ -130,8 +129,8 @@ export const TruthTreeBranchComponent = defineComponent({
 				} else {
 					// Remove this node from the current antecedent decomposition
 					if (selectedNode.antecedent !== null) {
-						const currentAntecedent: TruthTreeNode = this.$store.state.tree
-							.nodes[selectedNode.antecedent];
+						const currentAntecedent: TruthTreeNode =
+							this.$store.state.tree.nodes[selectedNode.antecedent];
 						currentAntecedent.decomposition.delete(selectedNode.id);
 					}
 					selectedNode.antecedent = id;
