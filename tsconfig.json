@@ -5,7 +5,10 @@
     "test/**/*.ts"
   ],
   "compilerOptions": {
-    "lib": ["DOM", "ES2020"],
+    "lib": [
+      "DOM",
+      "ES2020"
+    ],
     "outDir": "build",
     "rootDir": ".",
     "sourceMap": true,

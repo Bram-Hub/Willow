@@ -11,6 +11,7 @@ import * as morgan from 'morgan';
 import * as path from 'path';
 
 import {logger} from './logger';
+import * as auth from './routes/auth';
 
 /**
  * A singleton class representing the web server.
@@ -85,6 +86,9 @@ class Server {
 					execSync('git rev-parse HEAD').toString().trim(),
 			})
 		);
+		this.app.get('/auth/login', auth.login.get);
+		this.app.post('/auth/login', auth.login.post);
+		this.app.get('/auth/logout', auth.logout.get);
 		this.app.get('*', (req, res) => res.render('error', {code: 404}));
 	}
 
