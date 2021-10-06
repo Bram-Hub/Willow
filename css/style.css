@@ -1,5 +1,5 @@
 /********************/
-/*** GLOBAL RULES ***/
+/**  Global rules  **/
 /********************/
 
 * {
@@ -18,7 +18,7 @@ body {
 }
 
 /**************/
-/*** HEADER ***/
+/**  Header  **/
 /**************/
 #header {
   background-color: var(--header);
@@ -35,7 +35,7 @@ body {
 }
 
 /**************/
-/*** LAYOUT ***/
+/**  Layout  **/
 /**************/
 .container {
   margin: 30px 100px;
@@ -70,6 +70,14 @@ body {
   text-align: right;
 }
 
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
 .card {
   background-color: var(--card-background);
   border-radius: 5px;
@@ -99,6 +107,10 @@ body {
   right: 5px;
 }
 
+.modal-close > i {
+  color: var(--modal-close-btn);
+}
+
 a.hidden {
   color: inherit;
   text-decoration: inherit;
@@ -125,4 +137,68 @@ table.dual td:first-child {
 
 table.dual td:last-child {
   text-align: right;
+}
+
+/***************/
+/**  Toolbar  **/
+/***************/
+#toolbar {
+  background-color: var(--toolbar-background);
+  height: 26px;
+}
+
+#toolbar .dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+#toolbar button {
+  background: none;
+  border: none;
+  color:var(--text-dark);
+}
+
+#toolbar .dropdown > button {
+  padding: 5px 10px;
+}
+
+#toolbar .dropdown > button:hover {
+  background-color: var(--toolbar-dropdown-hover);
+}
+
+#toolbar .dropdown > button > a {
+  color: black;
+  text-decoration: none;
+}
+
+#toolbar .dropdown > .dropdown-menu {
+  box-shadow: 0px 3px 3px var(--toolbar-dropdown-menu-shadow);
+  position: absolute;
+  z-index: 1;
+}
+
+#toolbar .dropdown > .dropdown-menu > .menu-option {
+  background-color: var(--toolbar-dropdown-menu-option);
+  box-sizing: border-box;
+  color: var(--text-dark);
+  cursor: default;
+  display: block;
+  font-size: 10pt;
+  min-width: 100px;
+  padding: 5px 10px;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  width: 100%;
+}
+
+#toolbar .dropdown > .dropdown-menu > .menu-option:hover {
+  background-color: var(--toolbar-dropdown-menu-option-hover);
+  color: var(--text-light);
+}
+
+#toolbar .dropdown > .dropdown-menu > hr {
+  border: none;
+  border-top: 1px solid var(--toolbar-dropdown-menu-dividing-line);
+  margin: 0px;
 }
