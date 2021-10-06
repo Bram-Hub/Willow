@@ -1,3 +1,14 @@
+mixin toolbar()
+  #toolbar
+    block
+    .float-right
+      .dropdown
+        button
+          a(href='/auth/login') Log in
+      .dropdown
+        button
+          a(href='/auth/register') Register
+
 #header
   a(href='/')
     img.logo-img(src=`${env.BASE_URL}/img/logo.png` width='50' type='image/png' alt='Willow logo')

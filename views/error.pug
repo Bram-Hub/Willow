@@ -1,3 +1,9 @@
+-
+  const codes = {
+    401: 'You do not have permission to access this page.',
+    404: 'This page does not exist.',
+  }
+
 doctype html
 html(lang='en')
   head
@@ -5,4 +11,9 @@ html(lang='en')
     include /global/head.pug
   body
     include /global/header.pug
+    #content
+      +toolbar()
+      .center
+        h2.title= code
+        h3.subtitle= codes[code] || 'An unknown error occurred.'
     include /global/footer.pug

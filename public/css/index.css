@@ -1,61 +1,6 @@
-/***************/
-/*** TOOLBAR ***/
-/***************/
-#toolbar {
-  background-color: var(--toolbar-background);
-}
-
-#toolbar > .dropdown {
-  display: inline-block;
-  position: relative;
-}
-
-#toolbar button {
-  background: none;
-  border: none;
-  color:var(--text-dark);
-}
-
-#toolbar > .dropdown > button {
-  padding: 5px 10px;
-}
-
-#toolbar > .dropdown > button:hover {
-  background-color: var(--toolbar-dropdown-hover);
-}
-
-#toolbar > .dropdown > .dropdown-menu {
-  box-shadow: 0px 3px 3px var(--toolbar-dropdown-menu-shadow);
-  position: absolute;
-  z-index: 1;
-}
-
-#toolbar > .dropdown > .dropdown-menu > .menu-option {
-  background-color: var(--toolbar-dropdown-menu-option);
-  box-sizing: border-box;
-  color: var(--text-dark);
-  cursor: default;
-  display: block;
-  font-size: 10pt;
-  min-width: 100px;
-  padding: 5px 10px;
-  text-align: left;
-  text-decoration: none;
-  white-space: nowrap;
-  width: 100%;
-}
-
-#toolbar > .dropdown > .dropdown-menu > .menu-option:hover {
-  background-color: var(--toolbar-dropdown-menu-option-hover);
-  color: var(--text-light);
-}
-
-#toolbar > .dropdown > .dropdown-menu > hr {
-  border: none;
-  border-top: 1px solid var(--toolbar-dropdown-menu-dividing-line);
-  margin: 0px;
-}
-
+/**************/
+/**  Modals  **/
+/**************/
 #options-modal td:last-child {
   text-align: center;
 }
@@ -101,6 +46,9 @@
   margin-right: 30px;
 }
 
+/******************/
+/**  Truth tree  **/
+/******************/
 .branch-line {
   border: 1px solid var(--text-dark);
   margin: 0px;
@@ -246,9 +194,5 @@
 }
 
 .clear-shortcut {
-  color: var(--clear-shortcut)
-}
-
-.modal-close > i {
-  color: var(--modal-close-btn);
+  color: var(--clear-shortcut);
 }

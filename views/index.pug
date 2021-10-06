@@ -7,13 +7,11 @@ html(lang='en')
   head
     title Untitled | Willow
     include /global/head.pug
-    link(href=`${env.BASE_URL}/css/index.css` rel='stylesheet' type='text/css')
-    link(href=`${env.BASE_URL}/css/colors.css` rel='stylesheet' type='text/css')
-    link(href=`${env.BASE_URL}/css/themes/dark.css` rel='stylesheet' type='text/css')
+    link(href='/css/index.css' rel='stylesheet' type='text/css')
   body
     include /global/header.pug
     #content
-      #toolbar
+      +toolbar()
         .dropdown
           button File
           .dropdown-menu(style={display: 'none'})

@@ -5,6 +5,7 @@ dotenv.config();
 
 import {execSync} from 'child_process';
 import * as express from 'express';
+import * as session from 'express-session';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as morgan from 'morgan';
@@ -12,6 +13,7 @@ import * as path from 'path';
 
 import {logger} from './logger';
 import * as auth from './routes/auth';
+import {exit} from 'process';
 
 /**
  * A singleton class representing the web server.
@@ -29,7 +31,7 @@ class Server {
 		if (process.env.HTTPS === 'true') {
 			if (!fs.existsSync('cert/cert.key') || !fs.existsSync('cert/cert.pem')) {
 				throw new Error(
-					'Could not locate HTTPS certificate at cert/cert.key and cert/cert.pem.'
+					'cannot locate HTTPS certificate at cert/cert.key and cert/cert.pem'
 				);
 			}
 			this.server = https.createServer(
@@ -51,10 +53,26 @@ class Server {
 	 * Configures the web server, which includes adding middleware.
 	 */
 	private configure() {
+		// Append logs to logs/access.log
 		const accessLogStream = fs.createWriteStream('logs/access.log', {
 			flags: 'a',
 		});
 		this.app.use(morgan('common', {stream: accessLogStream}));
+
+		const sessionSecret = process.env.SESSION_SECRET;
+		if (sessionSecret === undefined || sessionSecret.length === 0) {
+			throw new Error('environment variable SESSION_SECRET is undefined');
+		}
+		// Use database for session storage
+		this.app.use(
+			session({
+				store: undefined,
+				cookie: {secure: true},
+				resave: false,
+				saveUninitialized: false,
+				secret: sessionSecret as string,
+			})
+		);
 
 		// Parses the body of POST requests into req.body
 		this.app.use(express.urlencoded({extended: true}));
