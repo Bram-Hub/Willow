@@ -107,6 +107,8 @@ class Server {
 		this.app.get('/auth/login', auth.login.get);
 		this.app.post('/auth/login', auth.login.post);
 		this.app.get('/auth/logout', auth.logout.get);
+		this.app.get('/auth/register', auth.register.get);
+		this.app.post('/auth/register', auth.register.post);
 		this.app.get('*', (req, res) => res.render('error', {code: 404}));
 	}
 

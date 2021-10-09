@@ -1,7 +1,7 @@
 doctype html
 html(lang='en')
   head
-    title Log in | Willow
+    title Register | Willow
     include /global/head.pug
     link(href='/css/index.css' rel='stylesheet' type='text/css')
     link(href='/css/colors.css' rel='stylesheet' type='text/css')
@@ -10,7 +10,7 @@ html(lang='en')
     include /global/header.pug
     +toolbar()
     .container.center
-      h2 Log in
+      h2 Register
       form.large-form(method='POST')
         div
           .left
@@ -20,4 +20,8 @@ html(lang='en')
           .left
             label(for='field-password') Password
           input#field-password(name='password' type='password' required)
-        input.btn.btn-primary(type='submit' value='Log in')
+        div
+          .left
+            label(for='field-rcs-id') RCS ID
+          input#field-rcs-id(name='rcs_id' type='text' placeholder='For RPI students')
+        input.btn.btn-primary(type='submit' value='Create account')

@@ -3,6 +3,7 @@
 /********************/
 
 * {
+  box-sizing: border-box;
   font-family: Roboto, sans-serif;
 }
 
@@ -127,15 +128,15 @@ div.hidden {
   display: none;
 }
 
-table.dual td {
+table.dual-table td {
   white-space: nowrap;
 }
 
-table.dual td:first-child {
+table.dual-table td:first-child {
   text-align: left;
 }
 
-table.dual td:last-child {
+table.dual-table td:last-child {
   text-align: right;
 }
 
@@ -201,4 +202,46 @@ table.dual td:last-child {
   border: none;
   border-top: 1px solid var(--toolbar-dropdown-menu-dividing-line);
   margin: 0px;
+}
+
+/*************/
+/**  Forms  **/
+/*************/
+form.large-form > div {
+  margin: 10px auto;
+  width: 300px;
+}
+
+form.large-form label {
+  font-size: 10pt;
+}
+
+form.large-form input {
+  width: 300px;
+}
+
+/***************/
+/**  Buttons  **/
+/***************/
+.btn {
+  border: 1px solid;
+  border-bottom-width: 3px;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: all 0.1s ease-in;
+}
+
+.btn:hover {
+  filter: brightness(0.95);
+}
+
+.btn:active {
+  border-top-width: 3px;
+  border-bottom-width: 1px;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary-dark);
 }
