@@ -1,8 +1,9 @@
-/* If you add a color to this file, make sure to add it in ./themes/dark.css as well */
+/* If you add a color to this file, make sure to add it to ./themes/dark.css as well. */
 
 :root {
     /* Global colors */
     --text-dark: #000000;
+    --text-medium: #808080;
     --text-light: #ffffff;
     --background: #ffffff;
 
@@ -30,7 +31,7 @@
     --status-bar-foreground: #ffffff;
     --status-bar-background: rgba(0, 0, 0, 0.5);
 
-    /* Misc. */
+    /* Miscellaneous */
     --header: #c0e0c0;
     --card-background: #f0f0f0;
     --card-shadow: rgba(0, 0, 0, 0.5);
