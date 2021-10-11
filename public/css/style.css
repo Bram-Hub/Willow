@@ -178,7 +178,7 @@ table.dual-table td:last-child {
 }
 
 #toolbar .dropdown > button > a {
-  color: black;
+  color: var(--text-dark);
   text-decoration: none;
 }
 
