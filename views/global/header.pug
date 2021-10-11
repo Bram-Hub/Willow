@@ -2,12 +2,21 @@ mixin toolbar()
   #toolbar
     block
     .float-right
-      .dropdown
-        button
-          a(href='/auth/login') Log in
-      .dropdown
-        button
-          a(href='/auth/register') Register
+      if _user === undefined
+        .dropdown
+          button
+            a(href=`${env.BASE_URL}/auth/login`) Log in
+        .dropdown
+          button
+            a(href=`${env.BASE_URL}/auth/register`) Register
+      else
+        .dropdown
+          button #{_user.first_name} #{_user.last_name}
+          .dropdown-menu(style={display: 'none'})
+            a.menu-option(href=`${env.BASE_URL}/assignments`) My assignments
+            a.menu-option(href=`${env.BASE_URL}/courses`) My courses
+            hr
+            a.menu-option(href=`${env.BASE_URL}/auth/logout`) Log out
 
 #header
   a(href='/')

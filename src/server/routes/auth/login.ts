@@ -6,12 +6,9 @@ import * as express from 'express';
  * @param res the response sent back to the client
  */
 export function get(req: express.Request, res: express.Response) {
-	res.render('auth/login');
-}
+	if (req.user !== undefined) {
+		return res.redirect('/?error=already_logged_in');
+	}
 
-/**
- * POST /auth/login
- * @param req the request sent from the client
- * @param res the response sent back to the client
- */
-export function post(req: express.Request, res: express.Response) {}
+	res.render('auth/login', {csrfToken: req.csrfToken()});
+}

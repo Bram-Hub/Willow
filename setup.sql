@@ -1,7 +1,26 @@
+-------------------------
+--  connect-pg-simple  --
+-------------------------
+CREATE TABLE "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+	"sess" json NOT NULL,
+	"expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+
+ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+CREATE INDEX "IDX_session_expire" ON "session" ("expire");
+
+--------------
+--  willow  --
+--------------
 CREATE TABLE "users" (
     "email" TEXT PRIMARY KEY,
     "password" TEXT NOT NULL,
-    "role" TEXT NOT NULL DEFAULT 'student',
+    "first_name" TEXT NOT NULL,
+    "last_name" TEXT NOT NULL,
+    "rcs_id" TEXT,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "last_login_at" TIMESTAMP WITH TIME ZONE
 );
@@ -14,12 +33,12 @@ CREATE TABLE "courses" (
 
 CREATE TABLE "instructors" (
     "course_name" TEXT REFERENCES "courses" ("name") ON DELETE CASCADE ON UPDATE CASCADE,
-    "instructor_name" TEXT REFERENCES "users" ("name") ON DELETE CASCADE ON UPDATE CASCADE
+    "instructor_email" TEXT REFERENCES "users" ("email") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE "students" (
     "course_name" TEXT REFERENCES "courses" ("name") ON DELETE CASCADE ON UPDATE CASCADE,
-    "student_name" TEXT REFERENCES "users" ("name") ON DELETE CASCADE ON UPDATE CASCADE
+    "student_email" TEXT REFERENCES "users" ("email") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE "assignments" (
@@ -32,7 +51,7 @@ CREATE TABLE "assignments" (
 );
 
 CREATE TABLE "submissions" (
-    "student_name" TEXT REFERENCES "users" ("name"),
+    "student_email" TEXT REFERENCES "users" ("email"),
     "assignment_name" TEXT,
     "course_name" TEXT,
     "submitted_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

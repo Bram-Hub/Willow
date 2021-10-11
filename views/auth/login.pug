@@ -12,12 +12,14 @@ html(lang='en')
     .container.center
       h2 Log in
       form.large-form(method='POST')
-        div
+        input(name='_csrf' type='hidden' value=csrfToken)
+        .field.field-required
           .left
             label(for='field-email') Email
           input#field-email(name='email' type='email' required)
-        div
+        .field.field-required
           .left
             label(for='field-password') Password
           input#field-password(name='password' type='password' required)
         input.btn.btn-primary(type='submit' value='Log in')
+    include /global/footer.pug

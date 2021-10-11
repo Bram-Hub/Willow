@@ -12,16 +12,26 @@ html(lang='en')
     .container.center
       h2 Register
       form.large-form(method='POST')
-        div
+        input(name='_csrf' type='hidden' value=csrfToken)
+        .field.field-required
           .left
             label(for='field-email') Email
           input#field-email(name='email' type='email' required)
-        div
+        .field.field-required
           .left
             label(for='field-password') Password
           input#field-password(name='password' type='password' required)
-        div
+        .field.field-required
+          .left
+            label(for='field-first-name') First Name
+          input#field-first-name(name='first_name' type='text' required)
+        .field.field-required
+          .left
+            label(for='field-last-name') Last Name
+          input#field-last-name(name='last_name' type='text' required)
+        .field
           .left
             label(for='field-rcs-id') RCS ID
           input#field-rcs-id(name='rcs_id' type='text' placeholder='For RPI students')
         input.btn.btn-primary(type='submit' value='Create account')
+    include /global/footer.pug

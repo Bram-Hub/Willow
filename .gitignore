@@ -4,11 +4,11 @@ logs/*
 !logs/.keep
 
 public/js/index.js
-public/js/index.js.LICENSE.txt
+public/js/toolbar.js
 public/index.html
 
 ###############
-### Node.js ###
+##  Node.js  ##
 ###############
 # Logs
 # logs
@@ -130,6 +130,6 @@ dist
 .pnp.*
 
 ##################
-### TypeScript ###
+##  TypeScript  ##
 ##################
 build/
