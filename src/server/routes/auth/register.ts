@@ -31,7 +31,7 @@ export async function post(req: express.Request, res: express.Response) {
 		await db.query(
 			`
 				INSERT INTO "users" ("email", "password", "first_name", "last_name", "rcs_id")
-					VALUES ($1, CRYPT($2, GEN_SALT('bf')), $3, $4, $5);
+				VALUES ($1, CRYPT($2, GEN_SALT('bf')), $3, $4, $5);
 			`,
 			[
 				body.email,
