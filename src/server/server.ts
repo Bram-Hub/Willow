@@ -107,10 +107,10 @@ class Server {
 				(username, password, done) => {
 					db.query(
 						`
-					SELECT "email", "first_name", "last_name", "rcs_id"
-					FROM "users"
-					WHERE "email" = $1 AND "password" = CRYPT($2, "password")
-				`,
+							SELECT "email", "first_name", "last_name", "rcs_id"
+							FROM "users"
+							WHERE "email" = $1 AND "password" = CRYPT($2, "password")
+						`,
 						[username, password],
 						(err, result) => {
 							if (err) {

@@ -1,6 +1,23 @@
+/**
+ * Shows a modal on the screen. Any other visible modals will be hidden.
+ * @param modalId the id of the modal to be made visible
+ */
+export function showModal(modalId: string) {
+	// Hide any visible modals
+	document
+		.querySelectorAll<HTMLElement>('.modal')
+		.forEach(modal => (modal.style.display = 'none'));
+
+	// Show the desired modal
+	const modal = document.getElementById(modalId);
+	if (modal === null) {
+		return;
+	}
+	modal.style.display = 'initial';
+}
+
 document.querySelectorAll('#toolbar .dropdown > button').forEach(button => {
 	button.addEventListener('click', () => {
-		console.log('clicked');
 		const menu =
 			button.parentNode?.querySelector<HTMLElement>('.dropdown-menu');
 		if (menu === null || menu === undefined) {

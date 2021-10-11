@@ -6,24 +6,6 @@ import {SubstitutionRecorder} from './component/substitution-recorder';
 import {TruthTreeBranchComponent} from './component/truth-tree-branch';
 import {getNodeIconClasses} from './component/truth-tree-node';
 
-/**
- * Shows a modal on the screen. Any other visible modals will be hidden.
- * @param modalId the id of the modal to be made visible
- */
-export function showModal(modalId: string) {
-	// Hide any visible modals
-	document
-		.querySelectorAll<HTMLElement>('.modal')
-		.forEach(modal => (modal.style.display = 'none'));
-
-	// Show the desired modal
-	const modal = document.getElementById(modalId);
-	if (modal === null) {
-		return;
-	}
-	modal.style.display = 'initial';
-}
-
 interface StoreState {
 	shortcuts: {
 		[action: string]: string;
