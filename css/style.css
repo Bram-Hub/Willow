@@ -140,6 +140,16 @@ table.dual-table td:last-child {
   text-align: right;
 }
 
+.title {
+  margin-bottom: 0px;
+}
+
+.subtitle {
+  color: var(--text-medium);
+  font-weight: normal;
+  margin-top: 0px;
+}
+
 /***************/
 /**  Toolbar  **/
 /***************/
@@ -207,7 +217,7 @@ table.dual-table td:last-child {
 /*************/
 /**  Forms  **/
 /*************/
-form.large-form > div {
+form.large-form .field {
   margin: 10px auto;
   width: 300px;
 }
@@ -218,6 +228,11 @@ form.large-form label {
 
 form.large-form input {
   width: 300px;
+}
+
+.field-required label::after {
+  color: var(--field-required);
+  content: "*";
 }
 
 /***************/
