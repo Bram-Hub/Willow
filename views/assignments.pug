@@ -13,7 +13,16 @@ html(lang='en')
       h2 Assignments
       for assignment in assignments
         div
-          h3= assignment.name
-          p= assignment.course_name
-          p= assignment.due_date
+          if assignment.due_date
+            h3 [#{assignment.course_name}] #{assignment.name} -- Due #{assignment.due_date}
+          else
+            h3 [#{assignment.course_name}] #{assignment.name} -- No due date yet
+          if assignment.submitted_at
+            p Submitted at #{assignment.submitted_at}
+            if assignment.correct
+              p Correct tree submitted
+            else
+              p Incorrect tree submitted
+          else
+            p No submission
     include /global/footer.pug
