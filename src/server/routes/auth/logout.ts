@@ -6,5 +6,6 @@ import * as express from 'express';
  * @param res the response sent back to the client
  */
 export function get(req: express.Request, res: express.Response) {
-	req.session.destroy(() => res.redirect('/'));
+	req.logOut();
+	res.redirect('/');
 }
