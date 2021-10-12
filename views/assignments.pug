@@ -14,15 +14,16 @@ html(lang='en')
       for assignment in assignments
         div
           if assignment.due_date
-            h3 [#{assignment.course_name}] #{assignment.name} -- Due #{assignment.due_date}
+            h3 [#{assignment.course_name}] #{assignment.name} -- Due #{assignment.due_date.toLocaleString()}
           else
             h3 [#{assignment.course_name}] #{assignment.name} -- No due date yet
           if assignment.submitted_at
-            p Submitted at #{assignment.submitted_at}
+            - const submission_time = assignment.submitted_at.toLocaleString().split(', ');
+            p Submitted on #{submission_time[0]} at #{submission_time[1]}
             if assignment.correct
-              p Correct tree submitted
+              p Tree submitted is correct
             else
-              p Incorrect tree submitted
+              p Tree submitted is incorrect
           else
-            p No submission
+            p No submission yet
     include /global/footer.pug
