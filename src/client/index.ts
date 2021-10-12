@@ -47,14 +47,9 @@ export const instance = vue
 		data: function () {
 			return {
 				name: 'Untitled',
-				colorTheme: 'system',
 				undoStack: [],
 				redoStack: [],
 			};
-		},
-		mounted() {
-			this.colorTheme = localStorage.getItem('theme');
-			this.setColorTheme();
 		},
 		computed: {
 			tree() {
@@ -374,36 +369,10 @@ export const instance = vue
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
 			},
-			setColorTheme() {
-				let newColorTheme = this.colorTheme;
-				if (newColorTheme === 'system') {
-					newColorTheme = window.matchMedia('(prefers-color-scheme: dark)')
-						.matches
-						? 'dark'
-						: 'light';
-				}
-
-				document.documentElement.setAttribute('data-theme', newColorTheme);
-				this.colorTheme = newColorTheme;
-				localStorage.setItem('theme', this.colorTheme);
-			},
-			toggleTheme() {
-				if (this.colorTheme === 'system') {
-					this.colorTheme = window.matchMedia('(prefers-color-scheme: dark)')
-						.matches
-						? 'light'
-						: 'dark';
-					return;
-				}
-				this.colorTheme = this.colorTheme === 'dark' ? 'light' : 'dark';
-			},
 		},
 		watch: {
 			name(newVal) {
 				window.document.title = `${newVal} | Willow`;
-			},
-			colorTheme() {
-				this.setColorTheme();
 			},
 		},
 	})
