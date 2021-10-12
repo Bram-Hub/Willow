@@ -17,7 +17,9 @@ import {Strategy as LocalStrategy} from 'passport-local';
 import * as path from 'path';
 
 import {logger} from './logger';
+import * as assignments from './routes/assignments';
 import * as auth from './routes/auth';
+import * as courses from './routes/courses';
 import db from './util/database';
 
 /**
@@ -172,6 +174,8 @@ class Server {
 					execSync('git rev-parse HEAD').toString().trim(),
 			})
 		);
+
+		// Authentication definition
 		this.app.get('/auth/login', auth.login.get);
 		this.app.post(
 			'/auth/login',
@@ -183,6 +187,14 @@ class Server {
 		this.app.get('/auth/logout', auth.logout.get);
 		this.app.get('/auth/register', auth.register.get);
 		this.app.post('/auth/register', auth.register.post);
+
+		// Courses definition
+		this.app.get('/courses', courses.get);
+
+		// Assignments definition
+		this.app.get('/assignments', assignments.get);
+
+		// 404
 		this.app.get('*', (req, res) =>
 			res.status(404).render('error', {code: 404})
 		);
