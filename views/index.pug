@@ -261,12 +261,13 @@ html(lang='en')
           +modalCloseButton()
           .container.center
             h2 Submit Assignment
-            form.large-form#submission-form(method='POST' ref='submissionForm' action='/submissions')      
+            form.large-form#submission-form(method='POST' ref='submissionForm' action='/submit')
               input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
+              input(name='course_name' type='hidden' value='' ref='submissionCourseName')
+              input(name='assignment_name' type='hidden' value='' ref='submissionAssignmentName')
               .field.field-required
                 label(for='field-assignment') Assignment
-                select(name='field-assignment' ref='assignmentSelect' @change='updateSubmissionPOST')
-                  option(value='')
+                select#field-assignment(ref='assignmentSelect' @change='updateSubmissionPOST')
                   for assignment in assignments
                     option(label=`[${assignment.course_name}] ${assignment.name}` value=assignment)
               input.btn.btn-primary(type='submit' value='Submit Assignment')

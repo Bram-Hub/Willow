@@ -371,7 +371,8 @@ export const instance = vue
 			},
 			updateSubmissionPOST() {
 				const selected = JSON.parse(this.$refs.assignmentSelect.value);
-				this.$refs.submissionForm.action = `/courses/${selected.course_name}/assignments/${selected.name}`;
+				this.$refs.submissionCourseName.value = selected.course_name;
+				this.$refs.submissionAssignmentName.value = selected.assignment_name;
 			},
 		},
 		watch: {
