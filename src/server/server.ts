@@ -3,7 +3,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import {execSync} from 'child_process';
 import * as connectPgSimple from 'connect-pg-simple';
 import * as csurf from 'csurf';
 import * as express from 'express';
@@ -20,6 +19,8 @@ import {logger} from './logger';
 import * as assignments from './routes/assignments';
 import * as auth from './routes/auth';
 import * as courses from './routes/courses';
+import * as index from './routes/index';
+import * as submissions from './routes/submissions';
 import db from './util/database';
 
 /**
@@ -167,15 +168,10 @@ class Server {
 			);
 		}
 
-		this.app.get('/', (req, res) =>
-			res.render('index', {
-				commit:
-					process.env.HEROKU_SLUG_COMMIT ||
-					execSync('git rev-parse HEAD').toString().trim(),
-			})
-		);
+		// Main page
+		this.app.get('/', index.get);
 
-		// Authentication definition
+		// Authentication
 		this.app.get('/auth/login', auth.login.get);
 		this.app.post(
 			'/auth/login',
@@ -188,11 +184,17 @@ class Server {
 		this.app.get('/auth/register', auth.register.get);
 		this.app.post('/auth/register', auth.register.post);
 
-		// Courses definition
+		// Courses
 		this.app.get('/courses', courses.get);
 
-		// Assignments definition
+		// Assignments
 		this.app.get('/assignments', assignments.get);
+
+		// Submissions
+		this.app.post(
+			'/courses/:courseName/assignments/:assignmentName',
+			submissions.post
+		);
 
 		// 404
 		this.app.get('*', (req, res) =>

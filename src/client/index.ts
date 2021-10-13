@@ -397,6 +397,10 @@ export const instance = vue
 				}
 				this.colorTheme = this.colorTheme === 'dark' ? 'light' : 'dark';
 			},
+			updateSubmissionPOST() {
+				const selected = JSON.parse(this.$refs.assignmentSelect.value);
+				this.$refs.submissionForm.action = `/courses/${selected.course_name}/assignments/${selected.name}`;
+			},
 		},
 		watch: {
 			name(newVal) {

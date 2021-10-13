@@ -1,0 +1,13 @@
+{
+    "title": "PostRequest",
+    "type": "object",
+    "properties": {
+        "tree": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "tree"
+    ]
+}

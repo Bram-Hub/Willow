@@ -23,6 +23,9 @@ html(lang='en')
             hr
             button.menu-option(@click='saveFile') Save
             button.menu-option(@click='saveFileAs') Save as...
+            if _user !== undefined
+              hr
+              button.menu-option(onclick='Willow.showModal("submissions-modal")') Submit tree
             hr
             button.menu-option(onclick='window.close()') Quit
         .dropdown
@@ -255,5 +258,19 @@ html(lang='en')
           div
             h2 About Willow
             p Commit #{commit}
+      if _user !== undefined
+        #submissions-modal.modal.card(style={display: 'none'})
+          +modalCloseButton()
+          .container.center
+            h2 Submit Assignment
+            form.large-form#submission-form(method='POST' ref='submissionForm' action='/submissions')      
+              input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
+              .field.field-required
+                label(for='field-assignment') Assignment
+                select(name='field-assignment' ref='assignmentSelect' @change='updateSubmissionPOST')
+                  option(value='')
+                  for assignment in assignments
+                    option(label=`[${assignment.course_name}] ${assignment.name}` value=assignment)
+              input.btn.btn-primary(type='submit' value='Submit Assignment')
     script(src=`${env.BASE_URL}/js/index.js` type='text/javascript')
     include /global/footer.pug
