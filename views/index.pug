@@ -25,7 +25,7 @@ html(lang='en')
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
               hr
-              button.menu-option(onclick='Willow.showModal("submissions-modal")') Submit tree
+              button.menu-option(onclick='toolbar.showModal("submissions-modal")') Submit tree
             hr
             button.menu-option(onclick='window.close()') Quit
         .dropdown
@@ -60,21 +60,21 @@ html(lang='en')
         .dropdown
           button Evaluate
           .dropdown-menu(style={display: 'none'})
-            button.menu-option(onclick='index.showModal("options-modal")') Options
+            button.menu-option(onclick='toolbar.showModal("options-modal")') Options
             hr
             button.menu-option(@click='checkStatement') Check statement
             button.menu-option(@click='checkTree') Check tree
         .dropdown
           button Settings
           .dropdown-menu(style={display: 'none'})
-            button.menu-option(onclick='index.showModal("shortcuts-modal")') Shortcuts
-            button.menu-option(onclick='index.showModal("substitutions-modal")') Substitutions
+            button.menu-option(onclick='toolbar.showModal("shortcuts-modal")') Shortcuts
+            button.menu-option(onclick='toolbar.showModal("substitutions-modal")') Substitutions
         .dropdown
           button Help
           .dropdown-menu(style={display: 'none'})
             a.menu-option(href='https://github.com/Bram-Hub/Willow/blob/master/userguide.md' target='_blank') User guide
             hr
-            button.menu-option(onclick='index.showModal("about-modal")') About
+            button.menu-option(onclick='toolbar.showModal("about-modal")') About
             hr
             a.menu-option(href='https://github.com/Bram-Hub/Willow/issues' target='_blank') Report a bug
             button.menu-option(@click='toggleDeveloperMode') Toggle developer mode
