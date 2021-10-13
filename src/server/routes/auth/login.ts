@@ -1,14 +1,20 @@
 import * as express from 'express';
+import * as passport from 'passport';
 
-/**
- * GET /auth/login
- * @param req the request sent from the client
- * @param res the response sent back to the client
- */
-export function get(req: express.Request, res: express.Response) {
+export const router = express.Router();
+
+router.get('/', (req, res) => {
 	if (req.user !== undefined) {
 		return res.redirect('/?error=already_logged_in');
 	}
 
 	res.render('auth/login', {csrfToken: req.csrfToken()});
-}
+});
+
+router.post(
+	'/',
+	passport.authenticate('local', {
+		failureRedirect: '/auth/login?error=invalid_credentials',
+		successRedirect: '/',
+	})
+);

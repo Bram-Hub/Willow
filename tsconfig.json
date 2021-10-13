@@ -1,9 +1,10 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
   ],
   "compilerOptions": {
+    "baseUrl": "src/",
     "lib": [
       "DOM",
       "ES2020"
@@ -15,8 +16,8 @@
     "strictNullChecks": true,
     "target": "ES2020",
     "typeRoots": [
-      "@types",
-      "node_modules/@types"
+      "@types/",
+      "node_modules/@types/"
     ],
   }
 }

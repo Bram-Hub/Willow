@@ -1,15 +1,12 @@
+import {execSync} from 'child_process';
 import * as express from 'express';
 
-import {execSync} from 'child_process';
-import {AssignmentsRow, SubmissionsRow} from '../../../types/sql/public';
-import db from '../util/database';
+import {AssignmentsRow, SubmissionsRow} from 'types/sql/public';
+import {pool as db} from 'server/util/database';
 
-/**
- * GET /assignments
- * @param req the request sent from the client
- * @param res the response sent back to the client
- */
-export async function get(req: express.Request, res: express.Response) {
+export const router = express.Router();
+
+router.get('/', async (req, res) => {
 	if (req.user === undefined) {
 		return res.render('index', {
 			commit:
@@ -52,4 +49,4 @@ export async function get(req: express.Request, res: express.Response) {
 			execSync('git rev-parse HEAD').toString().trim(),
 		assignments: assignments,
 	});
-}
+});

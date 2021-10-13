@@ -1,14 +1,11 @@
 import * as express from 'express';
 
-import {CoursesRow} from '../../../types/sql/public';
-import db from '../util/database';
+import {pool as db} from 'server/util/database';
+import {CoursesRow} from 'types/sql/public';
 
-/**
- * GET /courses
- * @param req the request sent from the client
- * @param res the response sent back to the client
- */
-export async function get(req: express.Request, res: express.Response) {
+export const router = express.Router();
+
+router.get('/', async (req, res) => {
 	if (req.user === undefined) {
 		return res.redirect('/');
 	}
@@ -29,4 +26,4 @@ export async function get(req: express.Request, res: express.Response) {
 	).rows;
 
 	res.render('courses', {courses: courses});
-}
+});

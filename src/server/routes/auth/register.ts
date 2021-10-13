@@ -1,24 +1,16 @@
 import * as express from 'express';
 
-import {PostRequest} from '../../../../types/routes/auth/register/post-request';
-import db from '../../util/database';
-import * as schemas from '../../util/schemas';
+import {pool as db} from 'server/util/database';
+import * as schemas from 'server/util/schemas';
+import {PostRequest} from 'types/routes/auth/register/post-request';
 
-/**
- * GET /auth/register
- * @param req the request sent from the client
- * @param res the response sent back to the client
- */
-export function get(req: express.Request, res: express.Response) {
+export const router = express.Router();
+
+router.get('/', (req, res) => {
 	res.render('auth/register', {csrfToken: req.csrfToken()});
-}
+});
 
-/**
- * POST /auth/register
- * @param req the request sent from the client
- * @param res the response sent back to the client
- */
-export async function post(req: express.Request, res: express.Response) {
+router.post('/', async (req, res) => {
 	const validate = schemas.compileFile(
 		'./schemas/routes/auth/register/post-request.json'
 	);
@@ -46,4 +38,4 @@ export async function post(req: express.Request, res: express.Response) {
 	}
 
 	res.redirect('/auth/login');
-}
+});

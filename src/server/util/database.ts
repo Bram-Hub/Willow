@@ -1,3 +1,3 @@
-import {Pool} from 'pg';
+import * as pg from 'pg';
 
-export default new Pool();
+export const pool = new pg.Pool();

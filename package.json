@@ -10,13 +10,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "gts lint",
     "clean": "gts clean",
-    "compile": "npx json2ts -i schemas/ -o types/ && npx tsc && npx webpack",
+    "compile": "npx json2ts -i schemas/ -o src/types/ && npx webpack",
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "debug": "nodemon",
-    "start": "node --inspect -r ts-node/register src/server/server.ts"
+    "start": "npx ts-node -r tsconfig-paths/register src/server/server.ts"
   },
   "repository": {
     "type": "git",
@@ -53,6 +53,7 @@
     "nodemon": "^2.0.13",
     "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
+    "tsconfig-paths": "^3.11.0",
     "typescript": "^4.4.3",
     "webpack-cli": "^4.9.0"
   },

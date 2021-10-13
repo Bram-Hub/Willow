@@ -15,13 +15,13 @@ import * as passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import * as path from 'path';
 
-import {logger} from './logger';
-import * as assignments from './routes/assignments';
-import * as auth from './routes/auth';
-import * as courses from './routes/courses';
-import * as index from './routes/index';
-import * as submissions from './routes/submissions';
-import db from './util/database';
+import {logger} from 'server/logger';
+import {router as assignmentsRouter} from 'server/routes/assignments';
+import {router as authRouter} from 'server/routes/auth';
+import {router as coursesRouter} from 'server/routes/courses';
+import {router as indexRouter} from 'server/routes/index';
+import {router as submitRouter} from 'server/routes/submit';
+import {pool as db} from 'server/util/database';
 
 /**
  * A singleton class representing the web server.
@@ -168,35 +168,13 @@ class Server {
 			);
 		}
 
-		// Main page
-		this.app.get('/', index.get);
+		this.app.use('/', indexRouter);
+		this.app.use('/assignments', assignmentsRouter);
+		this.app.use('/auth', authRouter);
+		this.app.use('/courses', coursesRouter);
+		this.app.use('/submit', submitRouter);
 
-		// Authentication
-		this.app.get('/auth/login', auth.login.get);
-		this.app.post(
-			'/auth/login',
-			passport.authenticate('local', {
-				failureRedirect: '/auth/login?error=invalid_credentials',
-				successRedirect: '/',
-			})
-		);
-		this.app.get('/auth/logout', auth.logout.get);
-		this.app.get('/auth/register', auth.register.get);
-		this.app.post('/auth/register', auth.register.post);
-
-		// Courses
-		this.app.get('/courses', courses.get);
-
-		// Assignments
-		this.app.get('/assignments', assignments.get);
-
-		// Submissions
-		this.app.post(
-			'/courses/:courseName/assignments/:assignmentName',
-			submissions.post
-		);
-
-		// 404
+		// Fallback route displays a 404 error
 		this.app.get('*', (req, res) =>
 			res.status(404).render('error', {code: 404})
 		);
@@ -211,11 +189,9 @@ class Server {
 			) => {
 				logger.error(`${req.method} ${req.path}`);
 				logger.error(err);
-				if (isHttpError(err)) {
-					res.status(err.status).render('error', {code: err.status});
-				} else {
-					res.status(500).render('error', {code: 500});
-				}
+
+				const status = isHttpError(err) ? err.status : 500;
+				res.status(status).render('error', {code: status});
 			}
 		);
 	}

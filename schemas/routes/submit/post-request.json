@@ -1,0 +1,23 @@
+{
+    "title": "PostRequest",
+    "type": "object",
+    "properties": {
+        "course_name": {
+            "type": "string",
+            "minLength": 1
+        },
+        "assignment_name": {
+            "type": "string",
+            "minLength": 1
+        },
+        "tree": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "course_name",
+        "assignment_name",
+        "tree"
+    ]
+}

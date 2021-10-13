@@ -1,6 +1,13 @@
 {
-  "ignore": [".git/", "node_modules/", "build/"],
-  "watch": ["src/"],
-  "exec": "npx webpack && node --inspect -r ts-node/register src/server/server.ts",
+  "ignore": [
+    ".git/",
+    "build/",
+    "node_modules/",
+    "src/types/"
+  ],
+  "watch": [
+    "src/"
+  ],
+  "exec": "npm run compile && npm start",
   "ext": "env,js,json,ts,yml"
 }
