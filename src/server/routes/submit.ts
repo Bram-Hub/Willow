@@ -32,8 +32,6 @@ router.post('/', async (req, res) => {
 	// 	return res.redirect('/?error=invalid_tree');
 	// }
 
-	// TODO: verify that assignment name and course name are valid for this user
-
 	// Add the submission to the database
 	try {
 		await db.query(

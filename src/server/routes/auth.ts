@@ -7,5 +7,7 @@ import {router as registerRouter} from 'server/routes/auth/register';
 export const router = express.Router();
 
 router.use('/login', loginRouter);
+
 router.use('/logout', logoutRouter);
+
 router.use('/register', registerRouter);
