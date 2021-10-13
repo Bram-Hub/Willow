@@ -9,6 +9,7 @@ module.exports = env => {
 		mode: NODE_ENV,
 		entry: {
 			index: './src/client/index.ts',
+			theme: './src/client/theme.ts',
 			toolbar: './src/client/toolbar.ts',
 		},
 		module: {
@@ -39,7 +40,7 @@ module.exports = env => {
 			path: path.join(__dirname, 'public/js/'),
 			filename: '[name].js',
 			libraryTarget: 'var',
-			library: 'Willow',
+			library: '[name]',
 		},
 	};
 	if (NODE_ENV === 'development') {

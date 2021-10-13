@@ -188,6 +188,10 @@ table.dual-table td:last-child {
   z-index: 1;
 }
 
+#toolbar .float-right .dropdown > .dropdown-menu {
+  right: 0px;
+}
+
 #toolbar .dropdown > .dropdown-menu > .menu-option {
   background-color: var(--toolbar-dropdown-menu-option);
   box-sizing: border-box;
