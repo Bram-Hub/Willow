@@ -37,6 +37,10 @@ interface HistoryState {
 	selected: number | null;
 }
 
+declare const assignmentsByCourse: {
+	[courseName: string]: string[];
+};
+
 export const instance = vue
 	.createApp({
 		components: {
@@ -47,6 +51,9 @@ export const instance = vue
 		data: function () {
 			return {
 				name: 'Untitled',
+				assignmentsByCourse: assignmentsByCourse,
+				courseName: '',
+				assignmentName: '',
 				undoStack: [],
 				redoStack: [],
 			};
@@ -368,15 +375,6 @@ export const instance = vue
 			},
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
-			},
-			updateSubmissionPOST() {
-				const selectedAssignment = JSON.parse(
-					this.$refs.assignmentSelect.value
-				);
-
-				this.$refs.submissionAssignmentName.value = selectedAssignment.name;
-				this.$refs.submissionCourseName.value = selectedAssignment.course_name;
-				this.$refs.submitButton.disabled = false;
 			},
 		},
 		watch: {

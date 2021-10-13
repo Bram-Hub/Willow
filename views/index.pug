@@ -8,6 +8,8 @@ html(lang='en')
     title Untitled | Willow
     include /global/head.pug
     link(href='/css/index.css' rel='stylesheet' type='text/css')
+    script(type='text/javascript').
+      const assignmentsByCourse = !{interpolate(assignmentsByCourse)} || {};
   body
     include /global/header.pug
     #content
@@ -25,7 +27,7 @@ html(lang='en')
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
               hr
-              button.menu-option(onclick='toolbar.showModal("submissions-modal")') Submit tree
+              button.menu-option(onclick='toolbar.showModal("submit-modal")') Submit assignment
             hr
             button.menu-option(onclick='window.close()') Quit
         .dropdown
@@ -257,21 +259,25 @@ html(lang='en')
             h2 About Willow
             p Commit #{commit}
       if _user !== undefined
-        #submissions-modal.modal.card(style={display: 'none'})
+        #submit-modal.modal.card(style={display: 'none'})
           +modalCloseButton()
           .container.center
             h2 Submit Assignment
-            form.large-form#submission-form(method='POST' ref='submissionForm' action='/submit')
+            form.large-form#submit-form(method='POST' action='/submit')
               input(name='_csrf' type='hidden' value=csrfToken)
               input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
-              input(name='course_name' type='hidden' value='' ref='submissionCourseName')
-              input(name='assignment_name' type='hidden' value='' ref='submissionAssignmentName')
               .field.field-required
-                label(for='field-assignment') Assignment
-                select#field-assignment(ref='assignmentSelect' @change='updateSubmissionPOST')
-                  option(disabled=true selected=true label='Select an assignment')
-                  for assignment in assignments
-                    option(label=`[${assignment.course_name}] ${assignment.name}` value=assignment)
-              input.btn.btn-primary(type='submit' value='Submit Assignment' ref='submitButton' disabled)
+                .left
+                  label(for='field-course-name') Course
+                select#field-course-name(name='course_name' v-model='courseName' required)
+                  option(value='' disabled selected hidden)
+                  option(v-for='courseName in Object.keys(assignmentsByCourse)' :value='courseName' :key='courseName') {{ courseName }}
+              .field.field-required
+                .left
+                  label(for='field-assignment-name') Assignment
+                select#field-assignment-name(name='assignment_name' v-model='assignmentName' required)
+                  option(value='' disabled selected hidden)
+                  option(v-for='assignmentName in assignmentsByCourse[courseName]' :value='assignmentName' :key='assignmentName') {{ assignmentName }}
+              input.btn.btn-primary(type='submit' value='Submit')
     script(src=`${env.BASE_URL}/js/index.js` type='text/javascript')
     include /global/footer.pug

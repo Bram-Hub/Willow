@@ -20,6 +20,7 @@ import {router as assignmentsRouter} from 'server/routes/assignments';
 import {router as authRouter} from 'server/routes/auth';
 import {router as coursesRouter} from 'server/routes/courses';
 import {router as indexRouter} from 'server/routes/index';
+import {router as preferencesRouter} from 'server/routes/preferences';
 import {router as submitRouter} from 'server/routes/submit';
 import {pool as db} from 'server/util/database';
 
@@ -169,9 +170,15 @@ class Server {
 		}
 
 		this.app.use('/', indexRouter);
+
 		this.app.use('/assignments', assignmentsRouter);
+
 		this.app.use('/auth', authRouter);
+
 		this.app.use('/courses', coursesRouter);
+
+		this.app.use('/preferences', preferencesRouter);
+
 		this.app.use('/submit', submitRouter);
 
 		// Fallback route displays a 404 error
