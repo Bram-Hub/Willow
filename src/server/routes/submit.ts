@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
 	const correct = false;
 	// try {
 	// 	const tree = TruthTree.deserialize(body.tree);
-	// 	correct = tree.isCorrect();
+	// 	correct = tree.isCorrect().value;
 
 	// 	// TODO: validate that the tree matches the options / premises of the assignment
 	// } catch (err) {
@@ -56,6 +56,7 @@ router.post('/', async (req, res) => {
 			]
 		);
 	} catch (err) {
+		console.log(err);
 		return res.redirect('/?error=submission_error');
 	}
 

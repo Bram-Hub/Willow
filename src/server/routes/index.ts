@@ -48,5 +48,6 @@ router.get('/', async (req, res) => {
 			process.env.HEROKU_SLUG_COMMIT ||
 			execSync('git rev-parse HEAD').toString().trim(),
 		assignments: assignments,
+		csrfToken: req.csrfToken(),
 	});
 });

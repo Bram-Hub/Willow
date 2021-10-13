@@ -8,6 +8,11 @@ export interface InstantiationMapping {
 	[variable: string]: InstantiationMapping;
 }
 
+export interface EvaluationResponse {
+	value: boolean;
+	message: string;
+}
+
 export function createNDimensionalMapping(
 	num_dims: number,
 	universe: Formula[]

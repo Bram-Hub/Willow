@@ -8,7 +8,12 @@ import {
 	ExistenceStatement,
 	UniversalStatement,
 } from './statement';
-import {deleteMapping, getAssignment, createNDimensionalMapping} from './util';
+import {
+	deleteMapping,
+	getAssignment,
+	createNDimensionalMapping,
+	EvaluationResponse,
+} from './util';
 
 export class CorrectnessError {
 	errorCode: string;
@@ -1423,9 +1428,13 @@ export class TruthTree {
 	 * Determines whether or not this truth tree is correct.
 	 * @returns true if this truth tree is correct, false otherwise
 	 */
-	isCorrect(): string {
+	isCorrect(): EvaluationResponse {
 		if (!this.checkRepresentation()) {
-			return 'This tree is malformed -- please save this tree and contact a developer.';
+			return {
+				value: false,
+				message:
+					'This tree is malformed -- please save this tree and contact a developer.',
+			};
 		}
 
 		// Refresh the universe to ensure it's correct before giving a result
@@ -1438,14 +1447,14 @@ export class TruthTree {
 			// All nodes must be valid
 			const nodeValidity = node.isValid();
 			if (nodeValidity !== true) {
-				return 'This tree is incorrect.';
+				return {value: false, message: 'This tree is incorrect.'};
 			}
 
 			if (this.leaves.has(node.id)) {
 				if (this.options.requireAllBranchesTerminated) {
 					// Require all leaves to be terminators
 					if (!node.isTerminator()) {
-						return 'Every branch must be terminated.';
+						return {value: false, message: 'Every branch must be terminated.'};
 					}
 				} else {
 					// Otherwise track if there is a valid open terminator.
@@ -1459,7 +1468,7 @@ export class TruthTree {
 		// If there is a satisfied open branch, then the tree is correct.
 		// This condition always fails if requireAllBranchesTerminated is true
 		if (hasValidOpenTerm) {
-			return 'This tree is correct!';
+			return {value: true, message: 'This tree is correct!'};
 		}
 
 		// Otherwise, every leaf must be a terminator of some kind
@@ -1468,16 +1477,18 @@ export class TruthTree {
 
 			if (!leaf.isTerminator()) {
 				if (this.options.requireAllBranchesTerminated) {
-					return (
-						'Every branch must be closed or there must be at' +
-						' least one open branch.'
-					);
+					return {
+						value: false,
+						message:
+							'Every branch must be closed or there must be at' +
+							' least one open branch.',
+					};
 				}
-				return 'Every branch must be terminated.';
+				return {value: false, message: 'Every branch must be terminated.'};
 			}
 		}
 
-		return 'This tree is correct!';
+		return {value: true, message: 'This tree is correct!'};
 	}
 
 	/**

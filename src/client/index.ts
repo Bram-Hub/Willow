@@ -364,15 +364,19 @@ export const instance = vue
 				alert(selectedNode.getFeedback());
 			},
 			checkTree() {
-				alert((this.tree as TruthTree).isCorrect());
+				alert((this.tree as TruthTree).isCorrect().message);
 			},
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
 			},
 			updateSubmissionPOST() {
-				const selected = JSON.parse(this.$refs.assignmentSelect.value);
-				this.$refs.submissionCourseName.value = selected.course_name;
-				this.$refs.submissionAssignmentName.value = selected.assignment_name;
+				const selectedAssignment = JSON.parse(
+					this.$refs.assignmentSelect.value
+				);
+
+				this.$refs.submissionAssignmentName.value = selectedAssignment.name;
+				this.$refs.submissionCourseName.value = selectedAssignment.course_name;
+				this.$refs.submitButton.disabled = false;
 			},
 		},
 		watch: {

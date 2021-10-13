@@ -262,14 +262,16 @@ html(lang='en')
           .container.center
             h2 Submit Assignment
             form.large-form#submission-form(method='POST' ref='submissionForm' action='/submit')
+              input(name='_csrf' type='hidden' value=csrfToken)
               input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
               input(name='course_name' type='hidden' value='' ref='submissionCourseName')
               input(name='assignment_name' type='hidden' value='' ref='submissionAssignmentName')
               .field.field-required
                 label(for='field-assignment') Assignment
                 select#field-assignment(ref='assignmentSelect' @change='updateSubmissionPOST')
+                  option(disabled=true selected=true label='Select an assignment')
                   for assignment in assignments
                     option(label=`[${assignment.course_name}] ${assignment.name}` value=assignment)
-              input.btn.btn-primary(type='submit' value='Submit Assignment')
+              input.btn.btn-primary(type='submit' value='Submit Assignment' ref='submitButton' disabled)
     script(src=`${env.BASE_URL}/js/index.js` type='text/javascript')
     include /global/footer.pug
