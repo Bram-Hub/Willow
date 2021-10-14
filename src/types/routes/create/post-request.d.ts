@@ -6,6 +6,10 @@
  */
 
 export interface PostRequest {
+  course_name: string;
+  assignment_name: string;
   tree: string;
+  due_date: string;
+  time_due: string;
   [k: string]: unknown;
 }

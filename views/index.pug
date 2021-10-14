@@ -26,6 +26,10 @@ html(lang='en')
             button.menu-option(@click='saveFile') Save
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
+              //- change to admin-only
+              hr
+              button.menu-option(onclick='toolbar.showModal("create-modal")') Create assignment
+            if _user !== undefined
               hr
               button.menu-option(onclick='toolbar.showModal("submit-modal")') Submit assignment
             hr
@@ -279,5 +283,34 @@ html(lang='en')
                   option(value='' disabled selected hidden)
                   option(v-for='assignmentName in assignmentsByCourse[courseName]' :value='assignmentName' :key='assignmentName') {{ assignmentName }}
               input.btn.btn-primary(type='submit' value='Submit')
+        if _user !== undefined
+          //- Change this to admin-only in the future
+          #create-modal.modal.card(style={display: 'none'})
+            +modalCloseButton()
+            .container.center
+              h2 Create Assignment
+              form.large-form#create-form(method='POST' action='/create')
+                input(name='_csrf' type='hidden' value=csrfToken)
+                input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
+                .field.field-required
+                  .left
+                    label(for='field-course-name') Course
+                  select#field-course-name(name='course_name' v-model='courseName' required)
+                    option(value='' disabled selected hidden)                  
+                    //- Change to all courses that you have control over
+                    option(v-for='courseName in Object.keys(assignmentsByCourse)' :value='courseName' :key='courseName') {{ assignmentsByCourse[courseName].displayName }}
+                .field.field-required
+                  .left
+                    label(for='field-assignment-name') Assignment
+                  input#field-assignment-name(name='assignment_name' required)
+                .field
+                  .left
+                    label(for='field-due-date') Due Date
+                  input#field-due-date(type='date' name='due_date')
+                .field
+                  .left
+                    label(for='field-time-due') Time Due
+                  input#field-due-date(type='time' name='time_due')
+                input.btn.btn-primary(type='submit' value='Submit')
     script(src=`${env.BASE_URL}/js/index.js` type='text/javascript')
     include /global/footer.pug

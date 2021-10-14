@@ -43,8 +43,8 @@ router.get('/', async (req, res) => {
 						"submissions"."submitted_at" DESC NULLS LAST
 				) AS "submission_table"
 				ORDER BY
-					"submission_table"."submitted_at" DESC NULLS LAST,
-					"submission_table"."due_date" ASC NULLS LAST
+					"submission_table"."due_date" ASC NULLS LAST,
+					"submission_table"."submitted_at" DESC NULLS FIRST
 			`,
 			[req.user.email]
 		)

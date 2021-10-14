@@ -19,6 +19,7 @@ import {logger} from 'server/logger';
 import {router as assignmentsRouter} from 'server/routes/assignments';
 import {router as authRouter} from 'server/routes/auth';
 import {router as coursesRouter} from 'server/routes/courses';
+import {router as createRouter} from 'server/routes/create';
 import {router as indexRouter} from 'server/routes/index';
 import {router as preferencesRouter} from 'server/routes/preferences';
 import {router as submitRouter} from 'server/routes/submit';
@@ -176,6 +177,8 @@ class Server {
 		this.app.use('/auth', authRouter);
 
 		this.app.use('/courses', coursesRouter);
+
+		this.app.use('/create', createRouter);
 
 		this.app.use('/preferences', preferencesRouter);
 
