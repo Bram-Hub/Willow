@@ -30,7 +30,11 @@ router.get('/', async (req, res) => {
 					ON "assignments"."course_name" = "courses"."name"
 				INNER JOIN "students"
 					ON "courses"."name" = "students"."course_name"
-				WHERE "students"."student_email" = $1
+				WHERE "students"."student_email" = $1 AND
+					(
+						CURRENT_TIMESTAMP <= "assignments"."due_date"
+							OR "assignments"."due_date" IS NULL
+					)
 				ORDER BY
 					"assignments"."course_name" ASC,
 					"assignments"."due_date" DESC NULLS LAST,
