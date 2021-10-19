@@ -28,7 +28,7 @@ html(lang='en')
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
               hr
-              if Object.keys(assignmentsByCourse).length > 0
+              if Object.keys(coursesInstructing).length > 0
                 button.menu-option(onclick='toolbar.showModal("create-modal")') Create assignment
               button.menu-option(onclick='toolbar.showModal("submit-modal")') Submit assignment
             hr
@@ -282,7 +282,7 @@ html(lang='en')
                   option(value='' disabled selected hidden)
                   option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName' :key='assignmentName') {{ assignmentName }}
               input.btn.btn-primary(type='submit' value='Submit')
-        if Object.keys(assignmentsByCourse).length > 0
+        if Object.keys(coursesInstructing).length > 0
           #create-modal.modal.card(style={display: 'none'})
             +modalCloseButton()
             .container.center
