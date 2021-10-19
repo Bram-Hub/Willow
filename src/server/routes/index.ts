@@ -62,11 +62,35 @@ router.get('/', async (req, res) => {
 		assignmentsByCourse[courseName].assignments.push(assignment.name);
 	}
 
+	const instructingCourses: Pick<CoursesRow, 'name' | 'display_name'>[] = (
+		await db.query(
+			`
+			SELECT
+				COALESCE("courses"."display_name", "instructors"."course_name")
+					AS "display_name",
+				"instructors"."course_name"
+			FROM "instructors"
+			INNER JOIN "courses"
+				ON "courses"."name" = "instructors"."course_name"
+			WHERE "instructors"."instructor_email" = $1
+		`,
+			[req.user.email]
+		)
+	).rows;
+
+	const coursesInstructing: {
+		[courseName: string]: string;
+	} = {};
+	for (const course of instructingCourses) {
+		coursesInstructing[course.name] = course.display_name!;
+	}
+
 	res.render('index', {
 		commit:
 			process.env.HEROKU_SLUG_COMMIT ||
 			execSync('git rev-parse HEAD').toString().trim(),
 		assignmentsByCourse: assignmentsByCourse,
+		coursesInstructing: coursesInstructing,
 		csrfToken: req.csrfToken(),
 	});
 });

@@ -41,6 +41,10 @@ declare const assignmentsByCourse: {
 	[courseName: string]: string[];
 };
 
+declare const coursesInstructing: {
+	[courseName: string]: string;
+};
+
 export const instance = vue
 	.createApp({
 		components: {
@@ -52,6 +56,7 @@ export const instance = vue
 			return {
 				name: 'Untitled',
 				assignmentsByCourse: assignmentsByCourse,
+				coursesInstructing: coursesInstructing,
 				courseName: '',
 				assignmentName: '',
 				undoStack: [],

@@ -25,6 +25,24 @@ router.post('/', async (req, res) => {
 	}
 	const body: PostRequest = req.body as any;
 
+	// Validate that the user is an instructor for the course
+	const isInstructor =
+		(
+			await db.query(
+				`
+			SELECT "instructors"."course_name"
+			FROM "instructors"
+			INNER JOIN "courses"
+				ON "courses"."name" = "instructors"."course_name"
+			WHERE "instructors"."instructor_email" = $1
+		`
+			)
+		).rowCount === 1;
+
+	if (!isInstructor) {
+		return res.status(403).render('error', {code: 403});
+	}
+
 	// Add the submission to the database
 	try {
 		if (body.due_date.length === 0) {

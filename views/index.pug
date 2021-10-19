@@ -10,6 +10,7 @@ html(lang='en')
     link(href='/css/index.css' rel='stylesheet' type='text/css')
     script(type='text/javascript').
       const assignmentsByCourse = !{interpolate(assignmentsByCourse)} || {};
+      const coursesInstructing = !{interpolate(coursesInstructing)} || {};
   body
     include /global/header.pug
     #content
@@ -27,8 +28,7 @@ html(lang='en')
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
               hr
-              if _user !== undefined
-                //- change to admin-only
+              if Object.keys(assignmentsByCourse).length > 0
                 button.menu-option(onclick='toolbar.showModal("create-modal")') Create assignment
               button.menu-option(onclick='toolbar.showModal("submit-modal")') Submit assignment
             hr
@@ -282,8 +282,7 @@ html(lang='en')
                   option(value='' disabled selected hidden)
                   option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName' :key='assignmentName') {{ assignmentName }}
               input.btn.btn-primary(type='submit' value='Submit')
-        if _user !== undefined
-          //- Change this to admin-only in the future
+        if Object.keys(assignmentsByCourse).length > 0
           #create-modal.modal.card(style={display: 'none'})
             +modalCloseButton()
             .container.center
@@ -295,9 +294,8 @@ html(lang='en')
                   .left
                     label(for='field-course-name') Course
                   select#field-course-name(name='course_name' v-model='courseName' required)
-                    option(value='' disabled selected hidden)                  
-                    //- Change to all courses that you have control over
-                    option(v-for='courseName in Object.keys(assignmentsByCourse)' :value='courseName' :key='courseName') {{ assignmentsByCourse[courseName].displayName }}
+                    option(value='' disabled selected hidden)
+                    option(v-for='courseName in Object.keys(coursesInstructing)' :value='courseName' :key='courseName') {{ coursesInstructing[courseName] }}
                 .field.field-required
                   .left
                     label(for='field-assignment-name') Assignment
