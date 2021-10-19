@@ -22,14 +22,41 @@ router.post('/', async (req, res) => {
 	const body: PostRequest = req.body as any;
 
 	// Validate the tree
-	let correct = false;
+	let tree: TruthTree;
 	try {
-		const tree = TruthTree.deserialize(body.tree);
-		correct = tree.isCorrect().value;
-
-		// TODO: validate that the tree matches the options / premises of the assignment
+		tree = TruthTree.deserialize(body.tree);
 	} catch (err) {
 		return res.redirect('/?error=invalid_tree');
+	}
+
+	const rows = (
+		await db.query(
+			`
+			SELECT "assignments"."tree"
+			FROM "assignments"
+			WHERE "assignments"."course_name" = $1
+				AND "assignments"."name" = $2
+			LIMIT 1
+		`,
+			[body.course_name, body.assignment_name]
+		)
+	).rows;
+
+	if (rows.length === 0) {
+		// Course or Assignment does not exist
+		return res.redirect('/?error=submission_error');
+	}
+
+	let assignedTree: TruthTree;
+	try {
+		assignedTree = TruthTree.deserialize(JSON.stringify(rows[0]['tree']));
+	} catch (err) {
+		return res.redirect('/?error=assignment_created_with_malformed_tree');
+	}
+
+	const valid = tree.extends(assignedTree);
+	if (!valid) {
+		return res.redirect('/?error=does_not_match_assignment');
 	}
 
 	// Add the submission to the database
@@ -50,7 +77,7 @@ router.post('/', async (req, res) => {
 				body.assignment_name,
 				body.course_name,
 				body.tree,
-				correct,
+				tree.isCorrect().value,
 			]
 		);
 	} catch (err) {

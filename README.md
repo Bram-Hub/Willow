@@ -16,9 +16,9 @@ See our [User's Manual](userguide.md).
 
 1. Clone the repository via `git clone https://github.com/Bram-Hub/Willow.git`.
 
-2. Install project dependencies via `npm ci` from the project root directory.
+2. Install `nodejs` version 14+ and install project dependencies via `npm ci` from the project root directory.
 
-3. Create an env file `cp .env.template .env`
+3. Create an env file `cp .env.template .env` and configure the following options
 
 Variable|Description
 --- | ---
@@ -27,7 +27,7 @@ HTTPS|If the program is being run on an https server
 PORT|The port to launch the program on.
 BASE_URL|The base url for example "http://localhost:8080"
 
-5. Launch the application using `npm run <command>` with one of the commands in the table below.
+4. Launch the application using `npm run <command>` with one of the commands in the table below.
 
 Command |Use
 --- | ---

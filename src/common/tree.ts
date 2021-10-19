@@ -1492,6 +1492,114 @@ export class TruthTree {
 	}
 
 	/**
+	 * Determines whether or not this tree extends `base`, defined as having the same starting branches as base
+	 * @param base the "base" tree to extend from
+	 * @returns true if this tree extends `base`, false otherwise
+	 */
+	extends(base: TruthTree): boolean {
+		// Require all options to be the same
+		if (this.options.lockedOptions !== base.options.lockedOptions) {
+			return false;
+		}
+		if (
+			this.options.requireAllBranchesTerminated !==
+			base.options.requireAllBranchesTerminated
+		) {
+			return false;
+		}
+		if (
+			this.options.requireAtomicContradiction !==
+			base.options.requireAtomicContradiction
+		) {
+			return false;
+		}
+
+		// Require the "tops of branches" to be the same
+		return this.extendsHelper(this.root, base.root, base);
+	}
+
+	private extendsHelper(
+		thisNodeId: number,
+		baseNodeId: number,
+		base: TruthTree
+	): boolean {
+		// Get this branch from both trees
+		let thisNode = this.getNode(thisNodeId)!;
+		let baseNode: TruthTreeNode = base.getNode(baseNodeId)!;
+
+		let baseBranchExhausted = baseNode.children.length !== 1;
+		let isLastBeforeSplit = thisNode.children.length !== 1;
+
+		// Traverse the current branch across both trees in tandem
+		while (thisNode.children.length === 1 || isLastBeforeSplit) {
+			if (thisNode.statement !== null) {
+				// Assigned nodes always have a statement
+				if (
+					!baseBranchExhausted &&
+					thisNode.statement.equals(baseNode.statement!)
+				) {
+					if (thisNode.premise !== baseNode.premise) {
+						return false;
+					}
+
+					if (baseNode.children.length === 1) {
+						baseNode = base.getNode(baseNode.children[0])!;
+					} else {
+						baseBranchExhausted = true;
+					}
+				} else {
+					// Any statement that doesn't match the assigned cannot be a premise
+					// (students cannot add their own premises)
+					if (thisNode.premise) {
+						return false;
+					}
+				}
+			}
+
+			if (isLastBeforeSplit) {
+				break;
+			}
+
+			thisNode = this.getNode(thisNode.children[0])!;
+			isLastBeforeSplit = thisNode.children.length !== 1;
+		}
+
+		// This branch must include all of the nodes from the base branch
+		if (!baseBranchExhausted) {
+			return false;
+		}
+
+		// If baseNode has no more children, we are at the end of this subtree, so we can just
+		// check for student-added premises now
+		if (baseNode.children.length === 0) {
+			for (const thisChildId of thisNode.children) {
+				if (!this.extendsHelper(thisChildId, baseNode.id, base)) {
+					return false;
+				}
+			}
+		} else {
+			// Must branch the same number of times as assigned
+			if (baseNode.children.length !== thisNode.children.length) {
+				return false;
+			}
+			for (let index = 0; index < thisNode.children.length; ++index) {
+				// The subtree must match (with the same order!)
+				if (
+					!this.extendsHelper(
+						thisNode.children[index],
+						baseNode.children[index],
+						base
+					)
+				) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Checks to make sure representation invariants are held; if they are not
 	 * held then the tree could potentially be evaluated incorrectly.
 	 * @returns whether or not the tree is valid

@@ -38,7 +38,8 @@ CREATE TABLE "instructors" (
 
 CREATE TABLE "students" (
     "course_name" TEXT REFERENCES "courses" ("name") ON DELETE CASCADE ON UPDATE CASCADE,
-    "student_email" TEXT REFERENCES "users" ("email") ON DELETE CASCADE ON UPDATE CASCADE
+    "student_email" TEXT REFERENCES "users" ("email") ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY ("course_name", "student_email")
 );
 
 CREATE TABLE "assignments" (
@@ -58,5 +59,7 @@ CREATE TABLE "submissions" (
     "tree" JSONB,
     "correct" BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY ("assignment_name", "course_name")
-        REFERENCES "assignments" ("name", "course_name") ON DELETE CASCADE ON UPDATE CASCADE
+        REFERENCES "assignments" ("name", "course_name") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("course_name", "student_email")
+        REFERENCES "students" ("course_name", "student_email") ON DELETE CASCADE ON UPDATE CASCADE
 );

@@ -26,11 +26,10 @@ html(lang='en')
             button.menu-option(@click='saveFile') Save
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
-              //- change to admin-only
               hr
-              button.menu-option(onclick='toolbar.showModal("create-modal")') Create assignment
-            if _user !== undefined
-              hr
+              if _user !== undefined
+                //- change to admin-only
+                button.menu-option(onclick='toolbar.showModal("create-modal")') Create assignment
               button.menu-option(onclick='toolbar.showModal("submit-modal")') Submit assignment
             hr
             button.menu-option(onclick='window.close()') Quit
