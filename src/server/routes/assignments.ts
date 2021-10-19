@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import {pool as db} from 'server/util/database';
-import {AssignmentsRow, SubmissionsRow} from 'types/sql/public';
+import {AssignmentsRow, CoursesRow, SubmissionsRow} from 'types/sql/public';
 
 export const router = express.Router();
 
@@ -14,14 +14,16 @@ router.get('/', async (req, res) => {
 		AssignmentsRow,
 		'name' | 'course_name' | 'due_date'
 	> &
-		Pick<SubmissionsRow, 'correct' | 'submitted_at'>)[] = (
+		Pick<SubmissionsRow, 'correct' | 'submitted_at'> &
+		Pick<CoursesRow, 'display_name'>)[] = (
 		await db.query(
 			`
 				SELECT * FROM (
 					SELECT DISTINCT ON ("assignments"."name", "assignments"."course_name")
 						"assignments"."name",
 						COALESCE("courses"."display_name", "assignments"."course_name")
-							AS "course_name",
+							AS "display_name",
+						"assignments"."course_name",
 						"assignments"."due_date",
 						"submissions"."submitted_at",
 						"submissions"."correct"

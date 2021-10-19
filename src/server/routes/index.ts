@@ -85,6 +85,73 @@ router.get('/', async (req, res) => {
 		coursesInstructing[course.name] = course.display_name!;
 	}
 
+	// Handle assignment query
+	const queryKeys = Object.keys(req.query);
+	if (
+		queryKeys.length > 0 &&
+		queryKeys.includes('assignment') &&
+		queryKeys.includes('course') &&
+		queryKeys.includes('version') &&
+		typeof req.query['assignment'] === 'string' &&
+		typeof req.query['course'] === 'string' &&
+		typeof req.query['version'] === 'string' &&
+		['original', 'latest'].includes(req.query['version'])
+	) {
+		const assignmentName = req.query['assignment'];
+		const courseName = req.query['course'];
+
+		let rows = [];
+
+		if (req.query['version'] === 'original') {
+			rows = (
+				await db.query(
+					`
+						SELECT "assignments"."tree"
+						FROM "assignments"
+						WHERE "assignments"."course_name" = $1
+							AND "assignments"."name" = $2
+						LIMIT 1
+					`,
+					[courseName, assignmentName]
+				)
+			).rows;
+		} else if (req.query['version'] === 'latest') {
+			rows = (
+				await db.query(
+					`
+						SELECT "submissions"."tree"
+						FROM "submissions"
+						WHERE "submissions"."course_name" = $1
+							AND "submissions"."assignment_name" = $2
+							AND "submissions"."student_email" = $3
+						ORDER BY "submissions"."submitted_at" DESC
+						LIMIT 1
+					`,
+					[courseName, assignmentName, req.user.email]
+				)
+			).rows;
+		}
+
+		// Invalid input (or no prev. submissions) may return 0 rows,
+		// in which case pretend there is no query
+		if (rows.length === 1) {
+			const assignedTreeData = {
+				name: assignmentName,
+				tree: rows[0]['tree'],
+			};
+
+			return res.render('index', {
+				commit:
+					process.env.HEROKU_SLUG_COMMIT ||
+					execSync('git rev-parse HEAD').toString().trim(),
+				assignmentsByCourse: assignmentsByCourse,
+				coursesInstructing: coursesInstructing,
+				assignedTreeData: assignedTreeData,
+				csrfToken: req.csrfToken(),
+			});
+		}
+	}
+
 	res.render('index', {
 		commit:
 			process.env.HEROKU_SLUG_COMMIT ||

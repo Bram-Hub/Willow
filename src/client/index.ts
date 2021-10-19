@@ -45,6 +45,13 @@ declare const coursesInstructing: {
 	[courseName: string]: string;
 };
 
+declare const assignedTreeData:
+	| {
+			name: string;
+			tree: object;
+	  }
+	| undefined;
+
 export const instance = vue
 	.createApp({
 		components: {
@@ -57,6 +64,7 @@ export const instance = vue
 				name: 'Untitled',
 				assignmentsByCourse: assignmentsByCourse,
 				coursesInstructing: coursesInstructing,
+				assignedTreeData: assignedTreeData,
 				courseName: '',
 				assignmentName: '',
 				undoStack: [],
@@ -381,6 +389,29 @@ export const instance = vue
 			toggleDeveloperMode() {
 				this.$store.commit('toggleDeveloperMode');
 			},
+		},
+		mounted: function () {
+			if (this.assignedTreeData === undefined) {
+				return;
+			}
+			try {
+				const name = this.assignedTreeData['name'];
+				const assignedTree = this.assignedTreeData['tree'];
+
+				(this.undoStack as HistoryState[]) = [];
+				(this.redoStack as HistoryState[]) = [];
+				this.$store.commit('select', {id: null});
+				this.$store.commit(
+					'setTree',
+					TruthTree.deserialize(JSON.stringify(assignedTree))
+				);
+				this.name = name;
+			} catch (err) {
+				alert(
+					'The assigned tree was malformed. Contact your instructor to resolve this issue.'
+				);
+				console.error(err);
+			}
 		},
 		watch: {
 			name(newVal) {

@@ -11,6 +11,7 @@ html(lang='en')
     script(type='text/javascript').
       const assignmentsByCourse = !{interpolate(assignmentsByCourse)} || {};
       const coursesInstructing = !{interpolate(coursesInstructing)} || {};
+      const assignedTreeData = !{interpolate(assignedTreeData)} || undefined;
   body
     include /global/header.pug
     #content

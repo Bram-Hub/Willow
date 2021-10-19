@@ -13,10 +13,13 @@ html(lang='en')
       h2 Assignments
       for assignment in assignments
         div
-          if assignment.due_date
-            h3 [#{assignment.course_name}] #{assignment.name} -- Due #{assignment.due_date.toLocaleString()}
-          else
-            h3 [#{assignment.course_name}] #{assignment.name} -- No due date yet
+          h3
+            //- TODO: add a method to select different versions in UI
+            a(href='/?course=' + assignment.course_name + '&assignment=' + assignment.name + '&version=original') [#{assignment.display_name}] #{assignment.name}
+            if assignment.due_date
+              p Due #{assignment.due_date.toLocaleString()}
+            else
+              p No due date yet
           if assignment.submitted_at
             - const submission_time = assignment.submitted_at.toLocaleString().split(', ');
             p Submitted on #{submission_time[0]} at #{submission_time[1]}
