@@ -1,5 +1,6 @@
 import * as express from 'express';
 
+import {TruthTree} from 'common/tree';
 import {pool as db} from 'server/util/database';
 import * as schemas from 'server/util/schemas';
 import {PostRequest} from 'types/routes/create/post-request';
@@ -11,11 +12,6 @@ router.post('/', async (req, res) => {
 	if (req.user === undefined) {
 		return res.redirect('/?error=not_logged_in');
 	}
-
-	// TODO: Only admins can submit
-	// if (req.user === undefined) {
-	// 	return res.redirect('/?error=not_admin');
-	// }
 
 	const validate = schemas.compileFile(
 		'./schemas/routes/create/post-request.json'
@@ -30,18 +26,39 @@ router.post('/', async (req, res) => {
 		(
 			await db.query(
 				`
-			SELECT "instructors"."course_name"
-			FROM "instructors"
-			INNER JOIN "courses"
-				ON "courses"."name" = "instructors"."course_name"
-			WHERE "instructors"."instructor_email" = $1
-		`
+				SELECT "instructors"."course_name"
+				FROM "instructors"
+				INNER JOIN "courses"
+					ON "courses"."name" = "instructors"."course_name"
+				WHERE "instructors"."instructor_email" = $1
+			`,
+				[req.user.email]
 			)
 		).rowCount === 1;
 
 	if (!isInstructor) {
 		return res.status(403).render('error', {code: 403});
 	}
+
+	// Validate that the tree is valid tree to assign
+
+	const tree = TruthTree.deserialize(body.tree);
+	// Remove all empty nodes
+	const nodeIds = Object.keys(tree.nodes).map(id => parseInt(id));
+	for (const nodeId of nodeIds) {
+		const node = tree.getNode(nodeId)!;
+		if (node.text.trim() === '') {
+			if (tree.deleteNode(nodeId) === null) {
+				return res.redirect('/?error=tree_not_assignable');
+			}
+		}
+	}
+	// Must be well-formed
+	if (!tree.checkRepresentation()) {
+		return res.redirect('/?error=malformed_tree_on_create');
+	}
+	// All nodes must have statements
+	Object.values(tree.nodes).every(node => node.statement !== null);
 
 	// Add the submission to the database
 	try {

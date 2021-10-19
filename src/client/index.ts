@@ -66,7 +66,6 @@ export const instance = vue
 				coursesInstructing: coursesInstructing,
 				assignedTreeData: assignedTreeData,
 				courseName: '',
-				assignmentName: '',
 				undoStack: [],
 				redoStack: [],
 			};

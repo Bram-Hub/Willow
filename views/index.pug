@@ -281,13 +281,14 @@ html(lang='en')
                   label(for='field-assignment-name') Assignment
                 select#field-assignment-name(name='assignment_name' v-model='assignmentName' required)
                   option(value='' disabled selected hidden)
-                  option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName' :key='assignmentName') {{ assignmentName }}
+                  option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName') {{ assignmentName }}
               input.btn.btn-primary(type='submit' value='Submit')
         if Object.keys(coursesInstructing).length > 0
           #create-modal.modal.card(style={display: 'none'})
             +modalCloseButton()
             .container.center
               h2 Create Assignment
+              span The assignment will give your current tree as the starting tree to students.
               form.large-form#create-form(method='POST' action='/create')
                 input(name='_csrf' type='hidden' value=csrfToken)
                 input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
@@ -296,7 +297,7 @@ html(lang='en')
                     label(for='field-course-name') Course
                   select#field-course-name(name='course_name' v-model='courseName' required)
                     option(value='' disabled selected hidden)
-                    option(v-for='courseName in Object.keys(coursesInstructing)' :value='courseName' :key='courseName') {{ coursesInstructing[courseName] }}
+                    option(v-for='courseName in Object.keys(coursesInstructing)' :value='courseName') {{ coursesInstructing[courseName] }}
                 .field.field-required
                   .left
                     label(for='field-assignment-name') Assignment

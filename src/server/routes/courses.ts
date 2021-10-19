@@ -10,8 +10,10 @@ router.get('/', async (req, res) => {
 		return res.redirect('/');
 	}
 
+	// TODO: these two queries can probably be one query...
+
 	// Retrieve all courses of which this user is a student
-	const courses: Pick<CoursesRow, 'display_name'>[] = (
+	const studentCourses: Pick<CoursesRow, 'display_name'>[] = (
 		await db.query(
 			`
 				SELECT COALESCE("courses"."display_name", "courses"."name") AS "display_name"
@@ -25,5 +27,23 @@ router.get('/', async (req, res) => {
 		)
 	).rows;
 
-	res.render('courses', {courses: courses});
+	// Retrieve all courses of which this user is an instructor
+	const instructorCourses: Pick<CoursesRow, 'display_name'>[] = (
+		await db.query(
+			`
+				SELECT COALESCE("courses"."display_name", "courses"."name") AS "display_name"
+				FROM "courses"
+				INNER JOIN "instructors"
+					ON "courses"."name" = "instructors"."course_name"
+				WHERE "instructors"."instructor_email" = $1
+				ORDER BY "courses"."created_at" DESC
+			`,
+			[req.user.email]
+		)
+	).rows;
+
+	res.render('courses', {
+		studentCourses: studentCourses,
+		instructorCourses: instructorCourses,
+	});
 });

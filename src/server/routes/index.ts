@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
 			SELECT
 				COALESCE("courses"."display_name", "instructors"."course_name")
 					AS "display_name",
-				"instructors"."course_name"
+				"instructors"."course_name" AS "name"
 			FROM "instructors"
 			INNER JOIN "courses"
 				ON "courses"."name" = "instructors"."course_name"

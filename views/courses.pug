@@ -10,8 +10,15 @@ html(lang='en')
     include /global/header.pug
     +toolbar()
     .container.center
-      h2 Courses
-      for course in courses
-        div
-          h3= course.display_name
+      h1 Courses
+        if Object.keys(instructorCourses).length > 0
+          h2 As Instructor:
+          for course in instructorCourses
+            div
+              h3= course.display_name
+        if Object.keys(studentCourses).length > 0
+          h2 As Student:
+          for course in studentCourses
+            div
+              h3= course.display_name
     include /global/footer.pug
