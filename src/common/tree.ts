@@ -27,6 +27,85 @@ export class CorrectnessError {
 	toString() {
 		return this.errorCode;
 	}
+
+	getErrorMessage(): string {
+		switch (this.errorCode) {
+			case 'not_parsable': {
+				return 'This statement is not parsable.';
+			}
+			case 'not_logical_consequence': {
+				return (
+					'This statement is not a logical consequence of a ' +
+					'statement that occurs before it.'
+				);
+			}
+			case 'invalid_instantiation': {
+				return 'This statement does not instantiate the statement it references';
+			}
+			case 'existence_instantiation_length': {
+				return 'Each variable in an existence statement must instantiate a new constant.';
+			}
+			case 'open_decomposed': {
+				return 'An open terminator must reference no statements.';
+			}
+			case 'open_contradiction': {
+				return 'This branch contains a contradiction.';
+			}
+			case 'open_invalid_ancestor': {
+				return 'This branch contains an invalid statement.';
+			}
+			case 'closed_reference_length': {
+				return 'A closing terminator must reference exactly two statements.';
+			}
+			case 'closed_reference_invalid': {
+				return 'The referenced statements must be valid.';
+			}
+			case 'closed_not_atomic': {
+				return (
+					'The referenced statements must consist of a literal' +
+					' and its negation'
+				);
+			}
+			case 'closed_not_ancestor': {
+				return (
+					'A closing terminator must only reference statements' +
+					' that occur before it.'
+				);
+			}
+			case 'closed_not_contradiction': {
+				return (
+					'The referenced statements must consist of a statement' +
+					' and its negation'
+				);
+			}
+			case 'terminator_not_last': {
+				return 'No statements can occur in a branch after a terminator.';
+			}
+			case 'reference_not_after': {
+				return 'A statement must decompose into statements that occur after it.';
+			}
+			case 'invalid_decomposition': {
+				return 'This statement is not decomposed correctly.';
+			}
+			case 'universal_decompose_length': {
+				return 'A universal statement must be decomposed at least once.';
+			}
+			case 'universal_domain_not_decomposed': {
+				return (
+					'A universal statement must instantiate every variable' +
+					` in the universe of discourse (Need to instantiate ${error.extras})`
+				);
+			}
+			case 'universal_variables_length': {
+				return (
+					'Universals with multiple variables cannot be evaluated' +
+					' yet; please split into multiple universal statements.'
+				);
+			}
+		}
+
+		return 'Unknown error code. Contact a developer :)';
+	}
 }
 
 type Response = CorrectnessError | true;
@@ -817,11 +896,11 @@ export class TruthTreeNode {
 	getFeedback(): string {
 		const validity = this.isValid();
 		if (validity !== true) {
-			return this.tree.resolveCorrectnessError(validity);
+			return validity.getErrorMessage();
 		}
 		const decomp = this.isDecomposed();
 		if (decomp !== true) {
-			return this.tree.resolveCorrectnessError(decomp);
+			return decomp.getErrorMessage();
 		}
 
 		if (this.premise) {
@@ -1700,84 +1779,5 @@ export class TruthTree {
 		for (const childId of current.children) {
 			this.printTreeHelper(childId, depth + 1);
 		}
-	}
-
-	resolveCorrectnessError(error: CorrectnessError): string {
-		switch (error.errorCode) {
-			case 'not_parsable': {
-				return 'This statement is not parsable.';
-			}
-			case 'not_logical_consequence': {
-				return (
-					'This statement is not a logical consequence of a ' +
-					'statement that occurs before it.'
-				);
-			}
-			case 'invalid_instantiation': {
-				return 'This statement does not instantiate the statement it references';
-			}
-			case 'existence_instantiation_length': {
-				return 'Each variable in an existence statement must instantiate a new constant.';
-			}
-			case 'open_decomposed': {
-				return 'An open terminator must reference no statements.';
-			}
-			case 'open_contradiction': {
-				return 'This branch contains a contradiction.';
-			}
-			case 'open_invalid_ancestor': {
-				return 'This branch contains an invalid statement.';
-			}
-			case 'closed_reference_length': {
-				return 'A closing terminator must reference exactly two statements.';
-			}
-			case 'closed_reference_invalid': {
-				return 'The referenced statements must be valid.';
-			}
-			case 'closed_not_atomic': {
-				return (
-					'The referenced statements must consist of a literal' +
-					' and its negation'
-				);
-			}
-			case 'closed_not_ancestor': {
-				return (
-					'A closing terminator must only reference statements' +
-					' that occur before it.'
-				);
-			}
-			case 'closed_not_contradiction': {
-				return (
-					'The referenced statements must consist of a statement' +
-					' and its negation'
-				);
-			}
-			case 'terminator_not_last': {
-				return 'No statements can occur in a branch after a terminator.';
-			}
-			case 'reference_not_after': {
-				return 'A statement must decompose into statements that occur after it.';
-			}
-			case 'invalid_decomposition': {
-				return 'This statement is not decomposed correctly.';
-			}
-			case 'universal_decompose_length': {
-				return 'A universal statement must be decomposed at least once.';
-			}
-			case 'universal_domain_not_decomposed': {
-				return (
-					'A universal statement must instantiate every variable' +
-					` in the universe of discourse (Need to instantiate ${error.extras})`
-				);
-			}
-			case 'universal_variables_length': {
-				return (
-					'Universals with multiple variables cannot be evaluated' +
-					' yet; please split into multiple universal statements.'
-				);
-			}
-		}
-
-		return 'Unknown error code. Contact a developer :)';
 	}
 }
