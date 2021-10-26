@@ -93,7 +93,7 @@ export class CorrectnessError {
 			case 'universal_domain_not_decomposed': {
 				return (
 					'A universal statement must instantiate every variable' +
-					` in the universe of discourse (Need to instantiate ${error.extras})`
+					` in the universe of discourse (Need to instantiate ${this.extras})`
 				);
 			}
 			case 'universal_variables_length': {
