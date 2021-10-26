@@ -54,9 +54,11 @@ export class TruthTreeNode {
 	decomposition: Set<number> = new Set();
 	private _correctDecomposition: Set<number> | null = null;
 
-	// For FOL:
-	// The universe of discourse up to (and including) this node in the tree
-	// If this statement does not introduce any new constants, it is null
+	/**
+	 * For use in First Order Logic validation:
+	 * The universe of discourse up to (and including) this node in the tree.
+	 * If this statement does not introduce any new constants, it is null.
+	 */
 	private _universe: Formula[] | null | undefined = undefined;
 
 	/**
@@ -250,13 +252,17 @@ export class TruthTreeNode {
 	/**
 	 * Down-propogates the universe, updating as statements introduce new
 	 * constants.
-	 * @param universe the universe to propogate or null if it should propogate
-	 * its parents universe
 	 */
 	calculateUniverse() {
 		this.calculateUniverseHelper(null);
 	}
 
+	/**
+	 * Down-propogates the universe, updating as statements introduce new constants
+	 *
+	 * @param universe the universe to propogate or null if it should propogate
+	 * its parents universe
+	 */
 	private calculateUniverseHelper(universe: Formula[] | null = null) {
 		// If the universe is null, grab the parent's universe so we can begin
 		// propogation starting at this node.
