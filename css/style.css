@@ -184,8 +184,13 @@ table.dual-table td:last-child {
 
 #toolbar .dropdown > .dropdown-menu {
   box-shadow: 0px 3px 3px var(--toolbar-dropdown-menu-shadow);
+  display: none;
   position: absolute;
   z-index: 1;
+}
+
+#toolbar[data-active] .dropdown[data-active] > .dropdown-menu {
+  display: block;
 }
 
 #toolbar .float-right .dropdown > .dropdown-menu {
