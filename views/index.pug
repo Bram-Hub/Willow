@@ -210,6 +210,14 @@ html(lang='en')
               td Collapse terminated branches
               td
                 key-recorder(@on-pressed='collapseTerminatedBranches' event='collapse-terminated-branches')
+            tr
+              td Check statement
+              td
+                key-recorder(@on-pressed='checkStatement' event='check-statement' :default='["Control", ","]')
+            tr
+              td Check tree
+              td
+                key-recorder(@on-pressed='checkTree' event='check-tree' :default='["Control", "."]')
       #substitutions-modal.modal.card(style={display: 'none'})
         +modalCloseButton()
         h2.center Substitutions
