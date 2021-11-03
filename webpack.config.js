@@ -9,6 +9,7 @@ module.exports = env => {
 		mode: NODE_ENV,
 		entry: {
 			index: './src/client/index.ts',
+			preferences: './src/client/preferences.ts',
 			theme: './src/client/theme.ts',
 			toolbar: './src/client/toolbar.ts',
 		},

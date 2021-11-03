@@ -7,4 +7,13 @@ html(lang='en')
     include /global/header.pug
     +toolbar()
     .container.center
+      h2 Preferences
+      form#preferences-form.large-form
+        .field
+          .left
+            label(for='field-theme') Theme
+          select#field-theme(v-model='theme')
+            option(value='light') Light
+            option(value='dark') Dark
     include /global/footer.pug
+    script(src=`${env.BASE_URL}/js/preferences.js` type='text/javascript')

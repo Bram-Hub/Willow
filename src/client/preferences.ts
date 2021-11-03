@@ -1,0 +1,19 @@
+import * as vue from 'vue';
+
+declare const theme: any;
+
+export const instance = vue
+	.createApp({
+		data: function () {
+			return {
+				theme: localStorage.getItem('theme') || 'light',
+			};
+		},
+		watch: {
+			theme(newVal: string) {
+				localStorage.setItem('theme', newVal);
+				theme.updateTheme();
+			},
+		},
+	})
+	.mount('#preferences-form');
