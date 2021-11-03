@@ -16,37 +16,30 @@ export function showModal(modalId: string) {
 	modal.style.display = 'initial';
 }
 
-document.querySelectorAll('#toolbar .dropdown > button').forEach(button => {
-	button.addEventListener('click', () => {
-		const menu =
-			button.parentNode?.querySelector<HTMLElement>('.dropdown-menu');
-		if (menu === null || menu === undefined) {
-			return;
-		}
+window.addEventListener('click', event => {
+	const toolbar = document.getElementById('toolbar');
+	if (toolbar === null) {
+		return;
+	}
 
-		// Toggle the visibility of the dropdown menu when the button is clicked
-		menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-		// Hide all other dropdown menus
-		document
-			.querySelectorAll<HTMLElement>('#toolbar .dropdown > .dropdown-menu')
-			.forEach(otherMenu => {
-				if (menu === otherMenu) {
-					return;
-				}
-				otherMenu.style.display = 'none';
-			});
-	});
+	if (
+		event.target instanceof Element &&
+		event.target.matches('#toolbar .dropdown > button')
+	) {
+		toolbar.toggleAttribute('data-active');
+	} else {
+		toolbar.removeAttribute('data-active');
+	}
 });
 
-window.addEventListener('click', event => {
-	// Hide any visible dropdown menus if anything besides a dropdown button is
-	// clicked
-	if (
-		!(event.target instanceof Element) ||
-		!event.target.matches('#toolbar .dropdown > button')
-	) {
-		document
-			.querySelectorAll<HTMLElement>('#toolbar .dropdown > .dropdown-menu')
-			.forEach(menu => (menu.style.display = 'none'));
-	}
+const dropdowns = document.querySelectorAll<HTMLElement>('#toolbar .dropdown');
+dropdowns.forEach(dropdown => {
+	dropdown.addEventListener('mouseenter', event => {
+		dropdowns.forEach(dropdown => dropdown.removeAttribute('data-active'));
+
+		const target = event.target;
+		if (target instanceof HTMLElement) {
+			target.setAttribute('data-active', '');
+		}
+	});
 });

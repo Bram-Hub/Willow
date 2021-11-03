@@ -12,7 +12,7 @@ mixin toolbar()
       else
         .dropdown
           button #{_user.first_name} #{_user.last_name}
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             a.menu-option(href=`${env.BASE_URL}/assignments`) My assignments
             a.menu-option(href=`${env.BASE_URL}/courses`) My courses
             hr

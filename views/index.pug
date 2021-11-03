@@ -18,7 +18,7 @@ html(lang='en')
       +toolbar()
         .dropdown
           button File
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             a.menu-option(href=`${env.BASE_URL}` target='_blank') New
             hr
             button.menu-option(@click='openFile') Open
@@ -36,7 +36,7 @@ html(lang='en')
             button.menu-option(onclick='window.close()') Quit
         .dropdown
           button Edit
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             button.menu-option(@click='undo') Undo
             button.menu-option(@click='redo') Redo
             hr
@@ -51,7 +51,7 @@ html(lang='en')
             button.menu-option(@click='deleteBranch') Delete branch
         .dropdown
           button Navigate
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             button.menu-option(@click='moveUp') Move up
             button.menu-option(@click='moveDown') Move down
             button.menu-option(@click='moveUpBranch') Move up branch
@@ -65,19 +65,19 @@ html(lang='en')
             button.menu-option(@click='collapseTerminatedBranches') Collapse terminated branches
         .dropdown
           button Evaluate
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             button.menu-option(onclick='toolbar.showModal("options-modal")') Options
             hr
             button.menu-option(@click='checkStatement') Check statement
             button.menu-option(@click='checkTree') Check tree
         .dropdown
           button Settings
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             button.menu-option(onclick='toolbar.showModal("shortcuts-modal")') Shortcuts
             button.menu-option(onclick='toolbar.showModal("substitutions-modal")') Substitutions
         .dropdown
           button Help
-          .dropdown-menu(style={display: 'none'})
+          .dropdown-menu
             a.menu-option(href='https://github.com/Bram-Hub/Willow/blob/master/userguide.md' target='_blank') User guide
             hr
             button.menu-option(onclick='toolbar.showModal("about-modal")') About
