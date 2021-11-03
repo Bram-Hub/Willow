@@ -1,13 +1,14 @@
-export function updateTheme() {
-	// Default to the system theme
-	let theme = localStorage.getItem('theme') || 'system';
+/**
+ * Updates the theme on this page.
+ * @param theme the theme name
+ */
+export function updateTheme(theme: string) {
 	if (theme === 'system') {
 		theme = window.matchMedia('(prefers-color-scheme: dark)').matches
 			? 'dark'
 			: 'light';
 	}
-
 	document.documentElement.setAttribute('data-theme', theme);
-	localStorage.setItem('theme', theme);
 }
-updateTheme();
+
+updateTheme(localStorage.getItem('theme') || 'system');
