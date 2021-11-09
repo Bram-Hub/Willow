@@ -7,10 +7,10 @@
 
 export type PostRequest =
   | {
-      email?: string;
+      email: string;
       [k: string]: unknown;
     }
   | {
-      password?: string;
+      password: string;
       [k: string]: unknown;
     };

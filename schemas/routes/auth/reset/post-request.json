@@ -9,7 +9,10 @@
                     "type": "string",
                     "format": "email"
                 }
-            }
+            },
+            "required": [
+                "email"
+            ]
         },
         {
             "type": "object",
@@ -18,7 +21,10 @@
                     "type": "string",
                     "minLength": 1
                 }
-            }
+            },
+            "required": [
+                "password"
+            ]
         }
     ]
 }
