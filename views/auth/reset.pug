@@ -1,0 +1,27 @@
+doctype html
+html(lang='en')
+  head
+    title Reset Password | Willow
+    include /global/head.pug
+    link(href='/css/index.css' rel='stylesheet' type='text/css')
+    link(href='/css/colors.css' rel='stylesheet' type='text/css')
+    link(href='/css/themes/dark.css' rel='stylesheet' type='text/css')
+  body
+    include /global/header.pug
+    +toolbar()
+    .container.center
+      form.large-form(method='POST')
+        if _user !== undefined
+          h2 Change password
+          .field.field-required
+            .left
+              label(for='field-password') New password
+            input#field-password(name='password' type='text' required)
+        else
+          h2 Reset password
+          .field.field-required
+            .left
+              label(for='field-email') Email
+            input#field-email(name='email' type='email' required)
+        input.btn.btn-primary(type='submit' value='Reset')
+    include /global/footer.pug

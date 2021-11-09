@@ -7,6 +7,10 @@ import {PostRequest} from 'types/routes/auth/register/post-request';
 export const router = express.Router();
 
 router.get('/', (req, res) => {
+	if (req.user !== undefined) {
+		return res.redirect('/?error=already_logged_in');
+	}
+
 	res.render('auth/register', {csrfToken: req.csrfToken()});
 });
 

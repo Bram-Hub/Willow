@@ -136,7 +136,8 @@ router.get('/', async (req, res) => {
 		// in which case pretend there is no query
 		if (rows.length === 1) {
 			const assignedTreeData = {
-				name: assignmentName,
+				assignmentName: assignmentName,
+				courseName: courseName,
 				tree: rows[0]['tree'],
 			};
 

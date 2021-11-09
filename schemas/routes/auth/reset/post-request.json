@@ -1,0 +1,24 @@
+{
+    "title": "PostRequest",
+    "type": "object",
+    "oneOf": [
+        {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                }
+            }
+        },
+        {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        }
+    ]
+}
