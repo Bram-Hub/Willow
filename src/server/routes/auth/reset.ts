@@ -3,10 +3,20 @@ import * as express from 'express';
 import * as schemas from 'server/util/schemas';
 import {pool as db} from 'server/util/database';
 import {PostRequest} from 'types/routes/auth/reset/post-request';
+import {UsersRow} from 'types/sql/public';
 
 export const router = express.Router();
 
 router.get('/', (req, res) => {
+	if (Object.keys(req.query).includes('token')) {
+		const token = req.query['token'] as string;
+
+		return res.render('auth/reset', {
+			csrfToken: req.csrfToken(),
+			uuidToken: token,
+		});
+	}
+
 	res.render('auth/reset', {csrfToken: req.csrfToken()});
 });
 
@@ -35,22 +45,63 @@ router.post('/', async (req, res) => {
 			).rowCount === 1;
 
 		if (!userHasEmail) {
-			// TODO: make this more user-friendly / apparent to user
+			// TODO: Make this more user-friendly / apparent to user
 			return res.redirect('/auth/reset/?error=email_not_found');
 		}
 
-		// TODO: send the email
+		// TODO: Generate a unique token and store it in the db
 
-		// TODO: make this more user-friendly / apparent to user
+		const tokenContainer: Pick<UsersRow, 'token'> = (
+			await db.query(
+				`
+					UPDATE "users"
+					SET "token" = GEN_RANDOM_UUID(), "token_created_at" = CURRENT_TIMESTAMP
+					WHERE "users"."email" = $1
+					RETURNING "token"
+				`,
+				[body.email]
+			)
+		).rows[0];
+
+		// TODO: Send the email
+
+		// TODO: Make this more user-friendly / apparent to user
 		return res.redirect('/auth/login');
 	}
 
-	// Any other type of request on this page requires you to be logged in
-	if (req.user === undefined) {
-		return res.redirect('/auth/reset/?error=not_logged_in');
-	}
-
 	if (Object.keys(body).includes('password')) {
+		let email;
+		if (req.user !== undefined) {
+			// If user is logged in, use that account
+			email = req.user.email;
+		} else {
+			if (!Object.keys(req.query).includes('token')) {
+				return res.redirect('/auth/reset/?error=no_token');
+			}
+			// Otherwise, require a token
+			const token = req.query['token'] as string;
+
+			const emails: Pick<UsersRow, 'email'>[] = (
+				await db.query(
+					`
+						SELECT "users"."email"
+						FROM "users"
+						WHERE (
+							"users"."token" = $1 AND
+							AGE(CURRENT_TIMESTAMP, "users"."token_created_at") <= INTERVAL '1 day'
+						)
+					`,
+					[token]
+				)
+			).rows;
+
+			if (emails.length !== 1) {
+				return res.redirect('/auth/reset/?error=token_invalid');
+			}
+
+			email = emails[0].email;
+		}
+
 		// Set the new password in the db
 		await db.query(
 			`
@@ -58,10 +109,13 @@ router.post('/', async (req, res) => {
 				SET "password"=CRYPT($2, GEN_SALT('bf'))
 				WHERE "users"."email" = $1
 			`,
-			[req.user.email, body.password]
+			[email, body.password]
 		);
 
-		// TODO: make this more user-friendly / apparent to user
+		// TODO: Make this more user-friendly / apparent to user
+		if (req.user === undefined) {
+			return res.redirect('/auth/login');
+		}
 		return res.redirect('/?info=password_changed');
 	}
 

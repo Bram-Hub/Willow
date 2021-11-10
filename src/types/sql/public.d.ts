@@ -6,6 +6,8 @@ export interface UsersRow {
 	rcs_id: string | null;
 	created_at: Date;
 	last_login_at: Date | null;
+	token: string;
+	token_created_at: Date | null;
 }
 
 export interface CoursesRow {
