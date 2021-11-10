@@ -278,22 +278,12 @@ html(lang='en')
                 .left
                   label(for='field-course-name') Course
                 select#field-course-name(name='course_name' v-model='courseName' required)
-                  if assignedTreeData !== undefined
-                    template(v-for='courseName in Object.keys(assignmentsByCourse)')
-                      option(v-if='courseName === assignedTreeData.courseName' :value='courseName' selected) {{ courseName }}
-                      option(v-else :value='courseName') {{ courseName }}
-                  else
-                    option(v-for='courseName in Object.keys(assignmentsByCourse)' :value='courseName' :key='courseName') {{ assignmentsByCourse[courseName].displayName }}
+                  option(v-for='courseName in Object.keys(assignmentsByCourse)' :value='courseName' :key='courseName') {{ assignmentsByCourse[courseName].displayName }}
               .field.field-required
                 .left
                   label(for='field-assignment-name') Assignment 
                 select#field-assignment-name(name='assignment_name' v-model='assignmentName' required)
-                  if assignedTreeData !== undefined
-                    template(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments')
-                      option(v-if='assignmentName === assignedTreeData.assignmentName' :value='assignmentName' selected) {{ assignmentName }}
-                      option(v-else :value='assignmentName') {{ assignmentName }}
-                  else
-                    option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName') {{ assignmentName }}
+                  option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName') {{ assignmentName }}
               input.btn.btn-primary(type='submit' value='Submit')
         if Object.keys(coursesInstructing).length > 0
           #create-modal.modal.card(style={display: 'none'})
