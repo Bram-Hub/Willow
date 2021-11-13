@@ -47,7 +47,8 @@ declare const coursesInstructing: {
 
 declare const assignedTreeData:
 	| {
-			name: string;
+			assignmentName: string;
+			courseName: string;
 			tree: object;
 	  }
 	| undefined;
@@ -65,7 +66,8 @@ export const instance = vue
 				assignmentsByCourse: assignmentsByCourse,
 				coursesInstructing: coursesInstructing,
 				assignedTreeData: assignedTreeData,
-				courseName: '',
+				assignmentName: this.assignmentName || '',
+				courseName: this.courseName || '',
 				undoStack: [],
 				redoStack: [],
 			};
@@ -394,8 +396,9 @@ export const instance = vue
 				return;
 			}
 			try {
-				const name = this.assignedTreeData['name'];
-				const assignedTree = this.assignedTreeData['tree'];
+				const assignmentName = this.assignedTreeData.assignmentName;
+				const courseName = this.assignedTreeData.courseName;
+				const assignedTree = this.assignedTreeData.tree;
 
 				(this.undoStack as HistoryState[]) = [];
 				(this.redoStack as HistoryState[]) = [];
@@ -404,7 +407,9 @@ export const instance = vue
 					'setTree',
 					TruthTree.deserialize(JSON.stringify(assignedTree))
 				);
-				this.name = name;
+				this.name = assignmentName;
+				this.assignmentName = assignmentName;
+				this.courseName = courseName;
 			} catch (err) {
 				alert(
 					'The assigned tree was malformed. Contact your instructor to resolve this issue.'

@@ -60,6 +60,10 @@ router.post('/', async (req, res) => {
 	// All nodes must have statements
 	Object.values(tree.nodes).every(node => node.statement !== null);
 
+	// Lock the options
+	tree.options.lockedOptions = true;
+	const serializedTree = tree.serialize();
+
 	// Add the submission to the database
 	try {
 		if (body.due_date.length === 0) {
@@ -76,7 +80,7 @@ router.post('/', async (req, res) => {
 						$3
 					)
 				`,
-				[body.assignment_name, body.course_name, body.tree]
+				[body.assignment_name, body.course_name, serializedTree]
 			);
 		} else {
 			const date_parts = body.due_date.split('-');
@@ -113,7 +117,7 @@ router.post('/', async (req, res) => {
 				[
 					body.assignment_name,
 					body.course_name,
-					body.tree,
+					serializedTree,
 					due_date.toLocaleString(),
 				]
 			);

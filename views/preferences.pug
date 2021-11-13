@@ -13,6 +13,7 @@ html(lang='en')
           .left
             label(for='field-theme') Theme
           select#field-theme(v-model='theme')
+            option(value='system') Use system default
             option(value='light') Light
             option(value='dark') Dark
     include /global/footer.pug

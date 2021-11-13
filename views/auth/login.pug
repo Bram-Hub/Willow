@@ -22,4 +22,5 @@ html(lang='en')
             label(for='field-password') Password
           input#field-password(name='password' type='password' required)
         input.btn.btn-primary(type='submit' value='Log in')
+      a(href=`${env.BASE_URL}/auth/reset`) Forgot password
     include /global/footer.pug

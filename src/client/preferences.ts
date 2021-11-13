@@ -12,7 +12,7 @@ export const instance = vue
 		watch: {
 			theme(newVal: string) {
 				localStorage.setItem('theme', newVal);
-				theme.updateTheme();
+				theme.updateTheme(newVal);
 			},
 		},
 	})
