@@ -10,7 +10,7 @@ import {
 } from './statement';
 import {
 	deleteMapping,
-	getAssignment,
+	getFirstUnassigned,
 	createNDimensionalMapping,
 	EvaluationResponse,
 } from './util';
@@ -817,11 +817,14 @@ export class TruthTreeNode {
 				}
 
 				const symbolized = this.statement.symbolized();
+
+				// Form every possible assignment of constants for this universal
 				const uninstantiated = createNDimensionalMapping(
 					this.statement.variables.length,
 					leafNode.universe!
 				);
 
+				// Remove every assignment from our mapping that appears in the branch
 				for (const decomposed of decomposedInBranch) {
 					const decomposedNode = this.tree.nodes[decomposed];
 					if (decomposedNode.statement === null) {
@@ -845,8 +848,10 @@ export class TruthTreeNode {
 					continue;
 				}
 
+				// If there are still assignments left, then we did not instantiate every
+				// possible assignment of constants in this branch
 				if (Object.keys(uninstantiated).length !== 0) {
-					const mapping = getAssignment(uninstantiated);
+					const mapping = getFirstUnassigned(uninstantiated);
 					leafError = new CorrectnessError(
 						'universal_domain_not_decomposed',
 						mapping

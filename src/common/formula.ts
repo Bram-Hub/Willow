@@ -113,19 +113,21 @@ export class Formula {
 	}
 
 	/**
-	 * Symbolizes the given variables in the formula.
+	 * Replaces each instance of a variable in this Formula with a modified version,
+	 * as specified by the symbol argument. 
 	 * @param variables the variables to modify
 	 * @param symbol the symbol that modifies the variables
 	 */
 	symbolized(variables: Formula[], symbol: string): Formula {
 		let newName = this.name;
 
-		// Symbolize the predicate if necessary
+		// If this Formula matches one of those in the variables list, symbolize it
+		// by prepending the symbol to the name
 		if (variables.some(variable => variable.name === this.name)) {
 			newName = `${symbol}${this.name}`;
 		}
 
-		// Symbolize each of the args
+		// Now recursively symbolize each of the arguments
 		return new Formula(
 			newName,
 			this.args?.map(arg => arg.symbolized(variables, symbol)),
@@ -156,6 +158,11 @@ class FormulaEquivalenceEvaluator {
 		this.assignment = assignment;
 	}
 
+	/**
+	 * Checks whether or not the two Formulas match, treating replacement symbols
+	 * as wildcards that match everything.
+	 * @returns whether or not the two arguments are equivalent
+	 */
 	checkEquivalence(): boolean {
 		return this.checkEquivalenceHelper(this.lhs, this.rhs);
 	}
@@ -194,7 +201,8 @@ class FormulaEquivalenceEvaluator {
 	}
 
 	/**
-	 *
+	 * Checks if the arguments have a substitution via a replacement symbol.
+	 * This function only checks the name and ignores its arguments.
 	 * @param lhs the first item to compare
 	 * @param rhs the second item to compare
 	 * @returns null if there is a conflicting replacement, true if there is a
@@ -203,6 +211,7 @@ class FormulaEquivalenceEvaluator {
 	private getReplacement(lhs: Formula, rhs: Formula): boolean | null {
 		let variable: string | null = null;
 		let value: Formula | null = null;
+
 
 		for (const arg of [lhs, rhs]) {
 			const predicate = arg.name;

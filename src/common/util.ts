@@ -13,6 +13,16 @@ export interface EvaluationResponse {
 	message: string;
 }
 
+/**
+ * Recursively creates an N-dimensional map for the given universe. Each
+ * constant in the universe is a key which maps to an (N-1)-dimensional map.
+ * Effectively, if there are |U| elements in the universe, then the N-dimensional
+ * map will have |U|^N elements.
+ * 
+ * @param num_dims N - the number of dimensions (variables)
+ * @param universe U - the set of constants
+ * @returns an N-dimensional map representing every N-tuple of the elements in the universe
+ */
 export function createNDimensionalMapping(
 	num_dims: number,
 	universe: Formula[]
@@ -30,6 +40,13 @@ export function createNDimensionalMapping(
 	return map;
 }
 
+/**
+ * Recursively deletes an assignment of constants to variables from the given map.
+ * This function will delete any maps with zero elements.
+ * @param map the N-dimensional map to remove from
+ * @param assignment the map from variable to constant
+ * @param variables the order that the variables have been assigned
+ */
 export function deleteMapping(
 	map: InstantiationMapping,
 	assignment: AssignmentMap,
@@ -45,36 +62,45 @@ function recursiveDeleteMapping(
 	variableIndex: number
 ) {
 	const variable = variables[variableIndex];
-	const value = assignment[variable.toString()].toString();
+	const assignedValue = assignment[variable.toString()].toString();
 
 	// If this assignment is already satisfied, stop early
-	if (!Object.keys(map).includes(value)) {
-		return;
+	if (!Object.keys(map).includes(assignedValue)) {
+		return Object.keys(map).length;
 	}
 
+	// Recurse if we haven't gotten to the end
 	if (variableIndex < variables.length - 1) {
-		recursiveDeleteMapping(
-			map[value],
+		const leftOver = recursiveDeleteMapping(
+			map[assignedValue],
 			assignment,
 			variables,
 			variableIndex + 1
 		);
+
+		// We deleted the last element in this 
+		if (leftOver === 0) {
+			delete map[assignedValue];
+		}
 	}
 
-	if (Object.keys(map[value]).length === 0) {
-		delete map[value];
-	}
+	return Object.keys(map).length;
 }
 
-export function getAssignment(map: InstantiationMapping): string | null {
-	const variables = Object.keys(map);
-	if (variables.length === 0) {
+/**
+ * Gets the first tuple of constants in the instantiation map
+ * @param map the map representing the set of all possible tuples of constants
+ * @returns the (arbitrarily) first tuple of constants in the instantiation map
+ */
+export function getFirstUnassigned(map: InstantiationMapping): string | null {
+	const constants = Object.keys(map);
+	if (constants.length === 0) {
 		console.log('ERROR: Empty instantiation map being accessed.');
 		return '';
 	}
-	const variable = variables[0];
-	if (Object.keys(map[variable]).length === 0) {
-		return `${variable}`;
+	const constant = constants[0];
+	if (Object.keys(map[constant]).length === 0) {
+		return `${constant}`;
 	}
-	return `${variable},${getAssignment(map[variable])}`;
+	return `${constant},${getFirstUnassigned(map[constant])}`;
 }
