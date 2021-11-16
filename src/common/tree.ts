@@ -1608,6 +1608,15 @@ export class TruthTree {
 		return this.extendsHelper(this.root, base.root, base);
 	}
 
+	/**
+	 * Recursively checks branches of the assigned and submitted trees for
+	 * structural and premise matching.
+	 * @param thisNodeId node id of the head of the branch from submitted tree
+	 * @param baseNodeId node id of the head of the branch from assigned tree
+	 * @param base the assigned tree
+	 * @returns whether or not the submitted tree's branch has the same structure
+	 * and premises as the assigned tree
+	 */
 	private extendsHelper(
 		thisNodeId: number,
 		baseNodeId: number,
@@ -1617,21 +1626,26 @@ export class TruthTree {
 		let thisNode = this.getNode(thisNodeId)!;
 		let baseNode: TruthTreeNode = base.getNode(baseNodeId)!;
 
-		let baseBranchExhausted = baseNode.children.length !== 1;
+		// There is always at least one node in the base branch
+		let baseBranchExhausted = false;
 		let isLastBeforeSplit = thisNode.children.length !== 1;
 
 		// Traverse the current branch across both trees in tandem
 		while (thisNode.children.length === 1 || isLastBeforeSplit) {
+			// Assigned nodes always have a statement
 			if (thisNode.statement !== null) {
-				// Assigned nodes always have a statement
+				// If the base branch still has assigned nodes to match and this node matches
 				if (
 					!baseBranchExhausted &&
 					thisNode.statement.equals(baseNode.statement!)
 				) {
+					// Since it matches an assigned node, they either both are or are not premises
 					if (thisNode.premise !== baseNode.premise) {
 						return false;
 					}
 
+					// Get the next base node if it exists
+					// Otherwise mark the base branch as exhausted
 					if (baseNode.children.length === 1) {
 						baseNode = base.getNode(baseNode.children[0])!;
 					} else {
@@ -1647,11 +1661,11 @@ export class TruthTree {
 			}
 
 			if (isLastBeforeSplit) {
-				break;
+				isLastBeforeSplit = false;
+			} else {
+				thisNode = this.getNode(thisNode.children[0])!;
+				isLastBeforeSplit = thisNode.children.length !== 1;
 			}
-
-			thisNode = this.getNode(thisNode.children[0])!;
-			isLastBeforeSplit = thisNode.children.length !== 1;
 		}
 
 		// This branch must include all of the nodes from the base branch
