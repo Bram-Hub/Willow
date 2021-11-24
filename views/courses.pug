@@ -3,7 +3,7 @@ html(lang='en')
   head
     title My Courses | Willow
     include /global/head.pug
-    link(href='/css/index.css' rel='stylesheet' type='text/css')
+    link(href='/css/courses.css' rel='stylesheet' type='text/css')
     link(href='/css/colors.css' rel='stylesheet' type='text/css')
     link(href='/css/themes/dark.css' rel='stylesheet' type='text/css')
   body
@@ -11,14 +11,27 @@ html(lang='en')
     +toolbar()
     .container.center
       h1 Courses
-        if Object.keys(instructorCourses).length > 0
+      if Object.keys(coursesAsInstructor).length > 0
+        .course-group
           h2 As Instructor:
-          for course in instructorCourses
-            div
-              h3= course.display_name
-        if Object.keys(studentCourses).length > 0
+          .courses
+            for course in coursesAsInstructor
+              .course
+                .card
+                  h3= course.display_name
+                  .btn-container
+                    a.btn.btn-primary(href=`/courses/${encodeURIComponent(course.name)}/roster`) #[i.fas.fa-users] Roster
+                    a.btn.btn-primary(href=`/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
+      if Object.keys(coursesAsStudent).length > 0
+        .course-group
           h2 As Student:
-          for course in studentCourses
-            div
-              h3= course.display_name
+          .courses
+            for course in coursesAsStudent
+              .course
+                .card
+                  h3= course.display_name
+                  .btn-container
+                    a.btn.btn-primary(href=`/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
+      if Object.keys(coursesAsInstructor).length === 0 && Object.keys(coursesAsStudent).length === 0
+        p.subtitle You are not in any courses. Contact the instructor for your course if you believe this is a mistake.
     include /global/footer.pug

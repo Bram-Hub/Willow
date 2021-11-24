@@ -10,8 +10,7 @@ html(lang='en')
     link(href='/css/index.css' rel='stylesheet' type='text/css')
     script(type='text/javascript').
       const assignmentsByCourse = !{interpolate(assignmentsByCourse)} || {};
-      const coursesInstructing = !{interpolate(coursesInstructing)} || {};
-      const assignedTreeData = !{interpolate(assignedTreeData)} || undefined;
+      const assignment = !{interpolate(assignment)} || undefined;
   body
     include /global/header.pug
     #content
@@ -29,7 +28,7 @@ html(lang='en')
             button.menu-option(@click='saveFileAs') Save as...
             if _user !== undefined
               hr
-              if Object.keys(coursesInstructing).length > 0
+              if Object.keys(coursesAsInstructor).length > 0
                 button.menu-option(onclick='toolbar.showModal("create-modal")') Create assignment
               button.menu-option(onclick='toolbar.showModal("submit-modal")') Submit assignment
             hr
@@ -273,45 +272,45 @@ html(lang='en')
             h2 Submit Assignment
             form.large-form#submit-form(method='POST' action='/submit')
               input(name='_csrf' type='hidden' value=csrfToken)
+              //- TODO: serialize the tree on form submit instead of using v-bind
               input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
               .field.field-required
                 .left
                   label(for='field-course-name') Course
                 select#field-course-name(name='course_name' v-model='courseName' required)
-                  option(v-for='courseName in Object.keys(assignmentsByCourse)' :value='courseName' :key='courseName') {{ assignmentsByCourse[courseName].displayName }}
+                  option(v-for='course in Object.keys(assignmentsByCourse)' :value='course' :key='course') {{ assignmentsByCourse[course].displayName }}
               .field.field-required
                 .left
-                  label(for='field-assignment-name') Assignment 
+                  label(for='field-assignment-name') Assignment
                 select#field-assignment-name(name='assignment_name' v-model='assignmentName' required)
-                  option(v-for='assignmentName in assignmentsByCourse[courseName]?.assignments' :value='assignmentName') {{ assignmentName }}
+                  template(v-if="courseName in assignmentsByCourse")
+                    option(v-for='assignmentName in assignmentsByCourse[courseName].assignments' :value='assignmentName') {{ assignmentName }}
+                  option(v-else value='' disabled selected hidden)
               input.btn.btn-primary(type='submit' value='Submit')
-        if Object.keys(coursesInstructing).length > 0
-          #create-modal.modal.card(style={display: 'none'})
-            +modalCloseButton()
-            .container.center
-              h2 Create Assignment
-              span The assignment will give your current tree as the starting tree to students.
-              form.large-form#create-form(method='POST' action='/create')
-                input(name='_csrf' type='hidden' value=csrfToken)
-                input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
-                .field.field-required
-                  .left
-                    label(for='field-course-name') Course
-                  select#field-course-name(name='course_name' v-model='courseName' required)
-                    option(value='' disabled selected hidden)
-                    option(v-for='courseName in Object.keys(coursesInstructing)' :value='courseName') {{ coursesInstructing[courseName] }}
-                .field.field-required
-                  .left
-                    label(for='field-assignment-name') Assignment
-                  input#field-assignment-name(name='assignment_name' required)
-                .field
-                  .left
-                    label(for='field-due-date') Due Date
-                  input#field-due-date(type='date' name='due_date')
-                .field
-                  .left
-                    label(for='field-time-due') Time Due
-                  input#field-due-date(type='time' name='time_due')
-                input.btn.btn-primary(type='submit' value='Submit')
+        #create-modal.modal.card(style={display: 'none'})
+          +modalCloseButton()
+          .container.center
+            h2 Create Assignment
+            span The assignment will require students to complete this tree.
+            form.large-form#create-form(method='POST' action='/create')
+              input(name='_csrf' type='hidden' value=csrfToken)
+              //- TODO: serialize the tree on form submit instead of using v-bind
+              input(name='tree' type='hidden' :value='$store.state.tree.serialize()')
+              .field.field-required
+                .left
+                  label(for='field-course-name') Course
+                select#field-course-name(name='course_name' required)
+                  option(value='' disabled hidden selected)
+                  for course in coursesAsInstructor
+                    option(value=course.name)= course.display_name
+              .field.field-required
+                .left
+                  label(for='field-assignment-name') Assignment
+                input#field-assignment-name(name='assignment_name' type='text' required)
+              .field
+                .left
+                  label(for='field-due-date') Due Date
+                input#field-due-date(name='due_date' type='datetime-local')
+              input.btn.btn-primary(type='submit' value='Create')
     script(src=`${env.BASE_URL}/js/index.js` type='text/javascript')
     include /global/footer.pug

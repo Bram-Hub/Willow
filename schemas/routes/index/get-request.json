@@ -1,0 +1,26 @@
+{
+    "title": "GetRequest",
+    "type": "object",
+    "properties": {
+        "assignment": {
+            "type": "string",
+            "minLength": 1
+        },
+        "course": {
+            "type": "string",
+            "minLength": 1
+        },
+        "version": {
+            "type": "string",
+            "enum": [
+                "original",
+                "latest"
+            ]
+        }
+    },
+    "required": [
+        "assignment",
+        "course",
+        "version"
+    ]
+}

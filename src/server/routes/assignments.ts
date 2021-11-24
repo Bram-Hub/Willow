@@ -6,6 +6,7 @@ import {AssignmentsRow, CoursesRow, SubmissionsRow} from 'types/sql/public';
 export const router = express.Router();
 
 router.get('/', async (req, res) => {
+	// Only logged in users can view assignments
 	if (req.user === undefined) {
 		return res.redirect('/');
 	}
@@ -19,10 +20,15 @@ router.get('/', async (req, res) => {
 		await db.query(
 			`
 				SELECT * FROM (
-					SELECT DISTINCT ON ("assignments"."name", "assignments"."course_name")
+					SELECT DISTINCT ON (
 						"assignments"."name",
-						COALESCE("courses"."display_name", "assignments"."course_name")
-							AS "display_name",
+						"assignments"."course_name"
+					)
+						"assignments"."name",
+						COALESCE(
+							"courses"."display_name",
+							"assignments"."course_name"
+						) AS "display_name",
 						"assignments"."course_name",
 						"assignments"."due_date",
 						"submissions"."submitted_at",
@@ -32,21 +38,19 @@ router.get('/', async (req, res) => {
 						ON "assignments"."course_name" = "courses"."name"
 					INNER JOIN "students"
 						ON "courses"."name" = "students"."course_name"
-					LEFT JOIN "submissions"
-						ON (
-							"submissions"."assignment_name" = "assignments"."name" AND
-							"submissions"."course_name" = "courses"."name"
-						)
-					WHERE
-						"students"."student_email" = $1
+					LEFT JOIN "submissions" ON (
+						"submissions"."assignment_name" = "assignments"."name"
+							AND "submissions"."course_name" = "courses"."name"
+					)
+					WHERE "students"."student_email" = $1
 					ORDER BY
-						"assignments"."name" ASC,
-						"assignments"."course_name" ASC,
-						"submissions"."submitted_at" DESC NULLS LAST
-				) AS "submission_table"
+						"assignments"."name",
+						"assignments"."course_name",
+						"submissions"."submitted_at" DESC
+				) AS "assignments_with_latest_submission"
 				ORDER BY
-					"submission_table"."due_date" ASC NULLS LAST,
-					"submission_table"."submitted_at" DESC NULLS FIRST
+					"assignments_with_latest_submission"."due_date",
+					"assignments_with_latest_submission"."submitted_at" DESC
 			`,
 			[req.user.email]
 		)

@@ -65,7 +65,7 @@ export const KeyRecorder = defineComponent({
 			// The recorded sequence of keys that trigger this shortcut
 			recorded:
 				// TODO: Check that the user did not manually set the value in local
-				//			 storage in order to break the type cast
+				//       storage in order to break the type cast
 				(JSON.parse(
 					localStorage.getItem(`shortcuts.${this.event}`) || 'null'
 				) as string[] | null) ||
@@ -88,8 +88,8 @@ export const KeyRecorder = defineComponent({
 		 */
 		hasConflict() {
 			const recorded: string[] = this.recorded;
-			// If there is no key sequence, then do not consider this shortcut to
-			// have a conflict (even if there is another one that does not have a key
+			// If there is no key sequence, then do not consider this shortcut to have
+			// a conflict (even if there is another one that does not have a key
 			// sequence)
 			if (recorded.length === 0) {
 				return false;

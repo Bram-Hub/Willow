@@ -8,7 +8,8 @@ export class Formula {
 	isPredicate = false;
 
 	/**
-	 * Constructs a new `Formula`, which is represented by a predicate and its arguments.
+	 * Constructs a new `Formula`, which is represented by a predicate and its
+	 * arguments.
 	 * @param name the function symbol in the formula or the variable itself
 	 * @param args the arguments for this symbol or null if it is a variable
 	 * @param isPredicate whether or not the Formula is a predicate

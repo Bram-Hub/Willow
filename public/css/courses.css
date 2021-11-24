@@ -1,0 +1,22 @@
+.course-group > h2 {
+    text-align: left;
+}
+
+.courses {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.course {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 33.33%;
+}
+
+.course h3 {
+    margin-top: 5px;
+}
+
+.course .btn-container {
+    justify-content: center;
+}

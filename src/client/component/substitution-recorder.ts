@@ -22,7 +22,7 @@ export const SubstitutionRecorder = defineComponent({
 			// The text that gets replaced with the logic symbol
 			text:
 				// TODO: Check that the user did not manually set the value in local
-				//			 storage in order to break the type cast
+				//       storage in order to break the type cast
 				(JSON.parse(
 					localStorage.getItem(`substitutions.${this.symbol}`) || 'null'
 				) as string | null) ||

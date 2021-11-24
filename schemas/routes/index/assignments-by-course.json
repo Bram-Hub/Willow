@@ -1,0 +1,25 @@
+{
+  "title": "AssignmentsByCourse",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "assignments": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "displayName": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "assignments",
+      "displayName"
+    ],
+    "additionalProperties": false
+  }
+}

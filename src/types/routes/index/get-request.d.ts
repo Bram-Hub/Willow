@@ -5,10 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface PostRequest {
-  course_name: string;
-  assignment_name: string;
-  tree: string;
-  due_date?: string;
+export interface GetRequest {
+  assignment: string;
+  course: string;
+  version: "original" | "latest";
   [k: string]: unknown;
 }

@@ -123,8 +123,8 @@ export abstract class Statement {
 	}
 
 	/**
-	 * Replaces the given variables from the argument within the statement to a symbolized version
-	 * as specified by the other argument.
+	 * Replaces the given variables from the argument within the statement to a
+	 * symbolized version as specified by the other argument.
 	 * @param variables the variables to symbolize
 	 * @param symbol the special symbol to modify the variables
 	 */

@@ -11,25 +11,51 @@ import {
 } from './statement';
 import {Formula} from './formula';
 
+/**
+ * An error that occurs when parsing an expression.
+ */
 class ParseError extends Error {
+	/**
+	 * The position at which the error occurred.
+	 */
 	position: number;
+
+	/**
+	 * An explanation of the error.
+	 */
 	message: string;
 
+	/**
+	 * Constructs a new `ParseError`.
+	 * @param position the position at which the error occurred
+	 * @param message an explanation of the error
+	 */
 	constructor(position: number, message: string) {
 		super(`${message} at position ${position}`);
 		this.position = position;
 		this.message = message;
 
-		// Set it to be a ParseError instead of an Error, thanks TypeScript!
 		// Without this, throwing an instance of ParseError appears as an Error in
-		// the console.
+		// the console
 		Object.setPrototypeOf(this, ParseError.prototype);
 	}
 }
 
+/**
+ * A generic parser.
+ */
 abstract class Parser<T> {
 	cache: {[chars: string]: string[]} = {};
+
+	/**
+	 * The text to currently being parsed.
+	 */
 	text = '';
+
+	/**
+	 * The READ position; i.e., the position in `text` that is currently being
+	 * read.
+	 */
 	position = 0;
 
 	/**
@@ -45,14 +71,15 @@ abstract class Parser<T> {
 	}
 
 	/**
-	 * Defined by the derived class to represent the starting term in any CFG.
+	 * Represents the starting term in the context-free grammar.
 	 */
 	abstract start(): T;
 
 	/**
-	 * Ensures that the given string completely matched the pattern as provided by the CFG. If the
-	 * text does not completely match any pattern, it is not within the generated language of the
-	 * CFG.
+	 * Asserts that the parsed text completely matched the patterns defined by
+	 * the context-free grammar. If the text does not completely match any
+	 * pattern, it is not within the generated language of the context-free
+	 * grammar.
 	 */
 	assertEnd() {
 		if (this.position < this.text.length) {
@@ -261,17 +288,26 @@ abstract class Parser<T> {
 }
 
 /**
- * Provides a parser for the following LL(1) Propositional Logic Grammar:
- * start           -> expr_gen
- * expr_gen        -> or_expr_gen expr
- * expr            -> "iff" or_expr_gen expr       | "implies" or_expr_gen expr    | eps
- * or_expr_gen     -> and_expr_gen or_expr
- * or_expr         -> "or" and_expr_gen or_expr                                    | eps
- * and_expr_gen    -> unary_expr and_expr
- * and_expr        -> "and" unary_expr and_expr      | eps
- * unary_expr        -> "not" unary_expr               | "(" expr_gen ")"              | id
+ * Provides a parser for the following LL(1) propositional logic grammar:
+ * start        -> expr_gen
+ * expr_gen     -> or_expr_gen expr
+ * expr         -> "iff" or_expr_gen expr
+ *                   | "implies" or_expr_gen expr
+ *                   | eps
+ * or_expr_gen  -> and_expr_gen or_expr
+ * or_expr      -> "or" and_expr_gen or_expr
+ *                   | eps
+ * and_expr_gen -> unary_expr and_expr
+ * and_expr     -> "and" unary_expr and_expr
+ *                   | eps
+ * unary_expr   -> "not" unary_expr
+ *                   | "(" expr_gen ")"
+ *                   | id
  */
 export class PropositionalLogicParser extends Parser<Statement> {
+	/**
+	 * Stores the valid text representations of the supported operators.
+	 */
 	static readonly OPERATORS = {
 		iff: ['↔', '<->', '%', 'iff', 'equiv'],
 		implies: ['→', '->', '$', 'implies', 'only if'],
@@ -473,29 +509,33 @@ export class PropositionalLogicParser extends Parser<Statement> {
 }
 
 /**
- * Provides a parser for the following LL(1) Propositional Logic Grammar:
- * start			-> expr_gen
- * expr_gen			-> or_expr_gen expr
- * expr				-> "iff" or_expr_gen expr
- * 					 | "implies" or_expr_gen expr
- * 					 | eps
- * or_expr_gen		-> and_expr_gen or_expr
- * or_expr			-> "or" and_expr_gen or_expr
- * 					 | eps
- * and_expr_gen		-> unary_expr and_expr
- * and_expr			-> "and" unary_expr and_expr
- *					 | eps
- * unary_expr		-> "not" unary_expr
- * 					 | "forall" id_list unary_expr
- * 					 | "exists" id_list unary_expr
- * 					 | "(" expr_gen ")"
+ * A parser for first-order logic expressions. The LL(1) first-order logic
+ * grammar is:
+ * start        -> expr_gen
+ * expr_gen     -> or_expr_gen expr
+ * expr         -> "iff" or_expr_gen expr
+ *                   | "implies" or_expr_gen expr
+ *                   | eps
+ * or_expr_gen  -> and_expr_gen or_expr
+ * or_expr      -> "or" and_expr_gen or_expr
+ *                   | eps
+ * and_expr_gen -> unary_expr and_expr
+ * and_expr     -> "and" unary_expr and_expr
+ *                   | eps
+ * unary_expr   -> "not" unary_expr
+ *                   | "forall" id_list unary_expr
+ *                   | "exists" id_list unary_expr
+ *                   | "(" expr_gen ")"
  *                   | predicate
- * predicate		-> capitalLetter formula
- * formula			-> formula formula_tail
- * formula_tail		-> ( formula )
- * 					 | eps
+ * predicate    -> capitalLetter formula
+ * formula      -> formula formula_tail
+ * formula_tail -> ( formula )
+ * 					         | eps
  */
 export class FirstOrderLogicParser extends PropositionalLogicParser {
+	/**
+	 * Stores the valid text representations of the supported operators.
+	 */
 	static readonly OPERATORS = {
 		forall: ['∀', 'forall'],
 		exists: ['∃', 'exists'],

@@ -34,10 +34,7 @@ export class CorrectnessError {
 				return 'This statement is not parsable.';
 			}
 			case 'not_logical_consequence': {
-				return (
-					'This statement is not a logical consequence of a ' +
-					'statement that occurs before it.'
-				);
+				return 'This statement is not a logical consequence of a statement that occurs before it.';
 			}
 			case 'invalid_instantiation': {
 				return 'This statement does not instantiate the statement it references';
@@ -61,22 +58,13 @@ export class CorrectnessError {
 				return 'The referenced statements must be valid.';
 			}
 			case 'closed_not_atomic': {
-				return (
-					'The referenced statements must consist of a literal' +
-					' and its negation'
-				);
+				return 'The referenced statements must consist of a literal and its negation.';
 			}
 			case 'closed_not_ancestor': {
-				return (
-					'A closing terminator must only reference statements' +
-					' that occur before it.'
-				);
+				return 'A closing terminator must only reference statements that occur before it.';
 			}
 			case 'closed_not_contradiction': {
-				return (
-					'The referenced statements must consist of a statement' +
-					' and its negation'
-				);
+				return 'The referenced statements must consist of a statement and its negation.';
 			}
 			case 'terminator_not_last': {
 				return 'No statements can occur in a branch after a terminator.';
@@ -91,16 +79,10 @@ export class CorrectnessError {
 				return 'A universal statement must be decomposed at least once.';
 			}
 			case 'universal_domain_not_decomposed': {
-				return (
-					'A universal statement must instantiate every variable' +
-					` in the universe of discourse (Need to instantiate ${this.extras})`
-				);
+				return `A universal statement must instantiate every variable in the universe of discourse (${this.extras} not instantiated).`;
 			}
 			case 'universal_variables_length': {
-				return (
-					'Universals with multiple variables cannot be evaluated' +
-					' yet; please split into multiple universal statements.'
-				);
+				return 'Universals with multiple variables cannot be evaluated yet; please split into multiple universal statements.';
 			}
 		}
 
@@ -245,10 +227,11 @@ export class TruthTreeNode {
 	/**
 	 * Sets the statement of this node equal to the new statement.
 	 *
-	 * Since it's a new statement, the correct decomposition calculated for this node is
-	 * invalidated. The antecedent (the node that possibly contains this node in its correct
-	 * decomposition) also has its correct decomposition invalidated since the change to this node
-	 * could make or break that "correct decomposition."
+	 * Since it's a new statement, the correct decomposition calculated for this
+	 * node is invalidated. The antecedent (the node that possibly contains this
+	 * node in its correct decomposition) also has its correct decomposition
+	 * invalidated since the change to this node could make or break that
+	 * "correct decomposition."
 	 */
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
@@ -280,8 +263,7 @@ export class TruthTreeNode {
 		if (this._universe === null) {
 			if (this.parent === null) {
 				console.log(
-					'WARNING: root has no universe! If you see this error,' +
-						'try saving the file and opening it in a new tab.'
+					'WARNING: Root has no universe! If you see this error, try saving the file and opening it in a new tab.'
 				);
 				return [];
 			}
@@ -337,7 +319,8 @@ export class TruthTreeNode {
 	}
 
 	/**
-	 * Down-propogates the universe, updating as statements introduce new constants
+	 * Down-propogates the universe, updating as statements introduce new
+	 * constants
 	 *
 	 * @param universe the universe to propogate or null if it should propogate
 	 * its parents universe
@@ -446,13 +429,14 @@ export class TruthTreeNode {
 
 			// The decomposition does not include the current node's parent
 
-			// Collect the branches that make up the decomposition including this node.
+			// Collect the branches that make up the decomposition including
+			// this node.
 			const branches: number[][] = [];
 			let isCorrect = true;
 
 			for (const childId of this.tree.nodes[node.parent].children) {
-				// If this child has already been visited, then this branch is already explored
-				// but this should never happen
+				// If this child has already been visited, then this branch is
+				// already explored; but, this should never happen
 				if (visited.has(childId)) {
 					throw new Error('Reached an already visited node in child branch.');
 				}
@@ -462,12 +446,14 @@ export class TruthTreeNode {
 				let isLastBeforeSplit = current.children.length !== 1;
 
 				while (current.children.length === 1 || isLastBeforeSplit) {
-					// Only add nodes that are marked as part of the decomposition.
+					// Only add nodes that are marked as part of the
+					// decomposition.
 					if (this.decomposition.has(current.id)) {
 						// This node has now been visited
 						visited.add(current.id);
 
-						// Invalid/empty statements cannot form part of a correct decomposition
+						// Invalid/empty statements cannot form part of a
+						// correct decomposition
 						if (current.statement === null) {
 							isCorrect = false;
 						} else if (isCorrect) {
@@ -577,8 +563,8 @@ export class TruthTreeNode {
 		}
 
 		if (this.statement === null) {
-			// If the text could not be parsed into a statement, then the statement is
-			// valid if and only if the text is empty
+			// If the text could not be parsed into a statement, then the
+			// statement is valid if and only if the text is empty
 			if (this.text.trim().length === 0) {
 				return true;
 			}
@@ -629,8 +615,8 @@ export class TruthTreeNode {
 
 	/**
 	 * Determines whether or not this node is valid assuming it is an open
-	 * terminator. An open terminator is valid if and only if every statement from
-	 * the root of the tree to the terminator is both valid and decomposed.
+	 * terminator. An open terminator is valid if and only if every statement
+	 * from the root of the tree to the terminator is both valid and decomposed.
 	 * @returns true if this open terminator is valid, false otherwise
 	 */
 	private isOpenTerminatorValid(): Response {
@@ -657,7 +643,8 @@ export class TruthTreeNode {
 					return new CorrectnessError('open_contradiction');
 				}
 
-				// Otherwise, store this statement for possible future contradictions
+				// Otherwise, store this statement for possible future
+				// contradictions
 				if (ancestorStatement instanceof AtomicStatement) {
 					contradictionMap.add(new NotStatement(ancestorStatement).toString());
 				} else {
@@ -683,8 +670,9 @@ export class TruthTreeNode {
 
 	/**
 	 * Determines whether or not this node is valid assuming it is a closed
-	 * terminator. A closed terminator is valid if and only if the two statements
-	 * that it references are a literal and its negation and are both valid.
+	 * terminator. A closed terminator is valid if and only if the two
+	 * statements that it references are a literal and its negation and are both
+	 * valid.
 	 * @returns true if this closed terminator is valid, false otherwise
 	 */
 	private isClosedTerminatorValid(): Response {
@@ -715,8 +703,8 @@ export class TruthTreeNode {
 					return new CorrectnessError('closed_not_atomic');
 				}
 
-				// The referenced statements must also be ancestors of the closed
-				// terminator and valid
+				// The referenced statements must also be ancestors of the
+				// closed terminator and valid
 				const ancestorBranch = this.getAncestorBranch();
 				for (const id of this.decomposition) {
 					if (!ancestorBranch.has(id)) {
@@ -739,8 +727,8 @@ export class TruthTreeNode {
 	}
 
 	/**
-	 * Determines whether or not this statement is fully decomposed in every open
-	 * branch.
+	 * Determines whether or not this statement is fully decomposed in every
+	 * open branch.
 	 * @returns true if this statement is decomposed, false otherwise
 	 */
 	isDecomposed(): Response {
@@ -767,7 +755,8 @@ export class TruthTreeNode {
 			return true;
 		}
 
-		// Every node in the decomposition must be in a child branch of this node.
+		// Every node in the decomposition must be in a child branch of this
+		// node.
 		for (const decomposedId of this.decomposition) {
 			if (!this.isAncestorOf(decomposedId)) {
 				return new CorrectnessError('reference_not_after');
@@ -877,8 +866,8 @@ export class TruthTreeNode {
 			}
 
 			if (leafError === null) {
-				// If we have a valid open terminator and don't require all branches
-				// to be terminated, then we can just return that it works!
+				// If we have a valid open terminator and don't require all branches to
+				// be terminated, then we can just return that it works!
 				if (
 					leafNode.isOpenTerminator() &&
 					!this.tree.options.requireAllBranchesTerminated
@@ -969,14 +958,14 @@ export class TruthTree {
 		TruthTree.CLOSED_TERMINATOR,
 	];
 
-	// Inner Representation
+	// Inner representation
 	nodes: {[id: number]: TruthTreeNode} = {};
 	private _root: number | undefined;
 	leaves: Set<number> = new Set();
 
 	initialized = true;
 
-	// These options control which truth tree extensions to allow.
+	// Controls which truth tree extensions are allowed
 	options: TreeOptions = {
 		requireAtomicContradiction: true,
 		requireAllBranchesTerminated: true,
@@ -1182,8 +1171,8 @@ export class TruthTree {
 	 * Returns the id of the node at the bottom of the branch containing a given
 	 * node.
 	 * @param id the id of the node used to locate the branch
-	 * @returns the id of the node at the bottom of the branch containing the node
-	 * whose id is `id`
+	 * @returns the id of the node at the bottom of the branch containing the
+	 * node whose id is `id`
 	 */
 	getBranchTail(id?: number | null) {
 		let current = this.getNode(id);
@@ -1211,8 +1200,8 @@ export class TruthTree {
 		// a premise
 		let queue = [root];
 		while (queue.length > 0) {
-			// queue is non-empty, so we can guarantee that shift() does not return
-			// undefined
+			// queue is non-empty, so we can guarantee that shift() does not
+			// return undefined
 			const node = this.getNode(queue.shift());
 			if (node === null) {
 				continue;
@@ -1238,7 +1227,8 @@ export class TruthTree {
 			return null;
 		}
 
-		// Move down the tree, preferring the leftmost child if there are multiple
+		// Move down the tree, preferring the leftmost child if there are
+		// multiple
 		while (node.children.length > 0) {
 			node = this.nodes[node.children[0]];
 		}
@@ -1258,7 +1248,8 @@ export class TruthTree {
 			return null;
 		}
 
-		// Move down the tree, preferring the rightmost child if there are multiple
+		// Move down the tree, preferring the rightmost child if there are
+		// multiple
 		while (node.children.length > 0) {
 			node = this.nodes[node.children[node.children.length - 1]];
 		}
@@ -1383,12 +1374,12 @@ export class TruthTree {
 
 	/**
 	 * Deletes a node. A node can only be deleted if it is not the root of a
-	 * branch with multiple children; in other words, this function cannot delete
-	 * the only node in a branch.
+	 * branch with multiple children; in other words, this function cannot
+	 * delete the only node in a branch.
 	 * @param id the id of the node to delete
-	 * @returns null if the node could not be deleted; otherwise, if the node has
-	 * one child, returns the id of that child; if the node has multiple children,
-	 * returns the id of the deleted node's parent
+	 * @returns null if the node could not be deleted; otherwise, if the node
+	 * has one child, returns the id of that child; if the node has multiple
+	 * children, returns the id of the deleted node's parent
 	 */
 	deleteNode(id: number): number | null {
 		if (!(id in this.nodes)) {
@@ -1406,8 +1397,8 @@ export class TruthTree {
 				return null;
 			}
 
-			// The node has no parent and exactly one child, so delete this node (and
-			// make its sole child the new root of the tree)
+			// The node has no parent and exactly one child, so delete this node
+			// (and make its sole child the new root of the tree)
 			this.nodes[node.children[0]].parent = null;
 			this._root = node.children[0];
 		} else {
@@ -1532,7 +1523,8 @@ export class TruthTree {
 
 		let hasValidOpenTerm = false;
 
-		// All nodes always have to be valid in order for the tree to be correct.
+		// All nodes always have to be valid in order for the tree to be
+		// correct.
 		for (const node of Object.values(this.nodes)) {
 			// All nodes must be valid
 			const nodeValidity = node.isValid();
@@ -1570,8 +1562,7 @@ export class TruthTree {
 					return {
 						value: false,
 						message:
-							'Every branch must be closed or there must be at' +
-							' least one open branch.',
+							'Every branch must be closed or there must be at least one open branch.',
 					};
 				}
 				return {value: false, message: 'Every branch must be terminated.'};
@@ -1582,29 +1573,22 @@ export class TruthTree {
 	}
 
 	/**
-	 * Determines whether or not this tree extends `base`, defined as having the same starting branches as base
-	 * @param base the "base" tree to extend from
+	 * Determines whether or not this tree extends `base`, which occurs when
+	 * this tree contains all of the branches of `base` (likely with additional
+	 * nodes).
+	 * @param base the original tree
 	 * @returns true if this tree extends `base`, false otherwise
 	 */
 	extends(base: TruthTree): boolean {
 		// Require all options to be the same
-		if (this.options.lockedOptions !== base.options.lockedOptions) {
-			return false;
-		}
-		if (
-			this.options.requireAllBranchesTerminated !==
-			base.options.requireAllBranchesTerminated
-		) {
-			return false;
-		}
-		if (
-			this.options.requireAtomicContradiction !==
-			base.options.requireAtomicContradiction
-		) {
+		const sameOptions = (
+			Object.keys(this.options) as (keyof TreeOptions)[]
+		).every(option => this.options[option] === base.options[option]);
+		if (!sameOptions) {
 			return false;
 		}
 
-		// Require the "tops of branches" to be the same
+		// Require the branches of this tree to extend those of `base`
 		return this.extendsHelper(this.root, base.root, base);
 	}
 
@@ -1652,8 +1636,8 @@ export class TruthTree {
 						baseBranchExhausted = true;
 					}
 				} else {
-					// Any statement that doesn't match the assigned cannot be a premise
-					// (students cannot add their own premises)
+					// Any statement that doesn't match the assigned cannot be
+					// a premise (i.e., students cannot add their own premises)
 					if (thisNode.premise) {
 						return false;
 					}
@@ -1673,8 +1657,8 @@ export class TruthTree {
 			return false;
 		}
 
-		// If baseNode has no more children, we are at the end of this subtree, so we can just
-		// check for student-added premises now
+		// If baseNode has no more children, we are at the end of this subtree,
+		// so we can just check for student-added premises now
 		if (baseNode.children.length === 0) {
 			for (const thisChildId of thisNode.children) {
 				if (!this.extendsHelper(thisChildId, baseNode.id, base)) {

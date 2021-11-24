@@ -1,8 +1,12 @@
 import {execSync} from 'child_process';
 import * as express from 'express';
 
-import {AssignmentsRow, CoursesRow} from 'types/sql/public';
 import {pool as db} from 'server/util/database';
+import * as schemas from 'server/util/schemas';
+import {Assignment} from 'types/routes/index/assignment';
+import {AssignmentsByCourse} from 'types/routes/index/assignments-by-course';
+import {GetRequest} from 'types/routes/index/get-request';
+import {AssignmentsRow, CoursesRow, SubmissionsRow} from 'types/sql/public';
 
 export const router = express.Router();
 
@@ -16,9 +20,11 @@ router.get('/', async (req, res) => {
 	}
 
 	// Retrieve all assignments that are not past due for the courses of which the user is a student
-	const assignments: (Pick<AssignmentsRow, 'name' | 'course_name'> &
-		Pick<CoursesRow, 'display_name'>)[] = (
-		await db.query(
+	const assignments = (
+		await db.query<
+			Pick<AssignmentsRow, 'name' | 'course_name'> &
+				Pick<CoursesRow, 'display_name'>
+		>(
 			`
 				SELECT
 					"assignments"."name",
@@ -30,11 +36,10 @@ router.get('/', async (req, res) => {
 					ON "assignments"."course_name" = "courses"."name"
 				INNER JOIN "students"
 					ON "courses"."name" = "students"."course_name"
-				WHERE "students"."student_email" = $1 AND
-					(
-						CURRENT_TIMESTAMP <= "assignments"."due_date"
-							OR "assignments"."due_date" IS NULL
-					)
+				WHERE "students"."student_email" = $1 AND (
+					CURRENT_TIMESTAMP <= "assignments"."due_date"
+						OR "assignments"."due_date" IS NULL
+				)
 				ORDER BY
 					"assignments"."course_name" ASC,
 					"assignments"."due_date" DESC NULLS LAST,
@@ -45,12 +50,7 @@ router.get('/', async (req, res) => {
 	).rows;
 
 	// Partition the assignment names by course
-	const assignmentsByCourse: {
-		[courseName: string]: {
-			assignments: string[];
-			displayName: string;
-		};
-	} = {};
+	const assignmentsByCourse: AssignmentsByCourse = {};
 	for (const assignment of assignments) {
 		const courseName = assignment.course_name;
 		if (!(courseName in assignmentsByCourse)) {
@@ -62,103 +62,70 @@ router.get('/', async (req, res) => {
 		assignmentsByCourse[courseName].assignments.push(assignment.name);
 	}
 
-	const instructingCourses: Pick<CoursesRow, 'name' | 'display_name'>[] = (
-		await db.query(
+	const coursesAsInstructor = (
+		await db.query<Pick<CoursesRow, 'name' | 'display_name'>>(
 			`
-			SELECT
-				COALESCE("courses"."display_name", "instructors"."course_name")
-					AS "display_name",
-				"instructors"."course_name" AS "name"
-			FROM "instructors"
-			INNER JOIN "courses"
-				ON "courses"."name" = "instructors"."course_name"
-			WHERE "instructors"."instructor_email" = $1
-		`,
+				SELECT
+					COALESCE("courses"."display_name", "courses"."name") AS "display_name",
+					"courses"."name"
+				FROM "instructors"
+				INNER JOIN "courses" ON "courses"."name" = "instructors"."course_name"
+				WHERE "instructors"."instructor_email" = $1
+			`,
 			[req.user.email]
 		)
 	).rows;
 
-	const coursesInstructing: {
-		[courseName: string]: string;
-	} = {};
-	for (const course of instructingCourses) {
-		coursesInstructing[course.name] = course.display_name!;
-	}
-
-	// Handle assignment query
-	const queryKeys = Object.keys(req.query);
-	if (
-		queryKeys.length > 0 &&
-		queryKeys.includes('assignment') &&
-		queryKeys.includes('course') &&
-		queryKeys.includes('version') &&
-		typeof req.query['assignment'] === 'string' &&
-		typeof req.query['course'] === 'string' &&
-		typeof req.query['version'] === 'string' &&
-		['original', 'latest'].includes(req.query['version'])
-	) {
-		const assignmentName = req.query['assignment'];
-		const courseName = req.query['course'];
-
-		let rows = [];
-
-		if (req.query['version'] === 'original') {
-			rows = (
-				await db.query(
+	let assignment: Assignment | undefined = undefined;
+	const validate = schemas.compileFile(
+		'./schemas/routes/index/get-request.json'
+	);
+	if (validate(req.query)) {
+		const query: GetRequest = req.query as any;
+		let tree: string | undefined = undefined;
+		if (query.version === 'original') {
+			tree = (
+				await db.query<Pick<AssignmentsRow, 'tree'>>(
 					`
-						SELECT "assignments"."tree"
+						SELECT "tree"
 						FROM "assignments"
-						WHERE "assignments"."course_name" = $1
-							AND "assignments"."name" = $2
-						LIMIT 1
+						WHERE "name" = $1 AND "course_name" = $2
 					`,
-					[courseName, assignmentName]
+					[query.assignment, query.course]
 				)
-			).rows;
-		} else if (req.query['version'] === 'latest') {
-			rows = (
-				await db.query(
+			).rows.shift()?.tree;
+		} else {
+			// query.version === 'latest'
+			tree = (
+				await db.query<Pick<SubmissionsRow, 'tree'>>(
 					`
-						SELECT "submissions"."tree"
+						SELECT "tree"
 						FROM "submissions"
-						WHERE "submissions"."course_name" = $1
-							AND "submissions"."assignment_name" = $2
-							AND "submissions"."student_email" = $3
-						ORDER BY "submissions"."submitted_at" DESC
+						WHERE "student_email" = $1
+							AND "assignment_name" = $2
+							AND "course_name" = $3
+						ORDER BY "submitted_at" DESC
 						LIMIT 1
 					`,
-					[courseName, assignmentName, req.user.email]
+					[req.user.email, query.assignment, query.course]
 				)
-			).rows;
+			).rows.shift()?.tree;
 		}
 
-		// Invalid input (or no prev. submissions) may return 0 rows,
-		// in which case pretend there is no query
-		if (rows.length === 1) {
-			const assignedTreeData = {
-				assignmentName: assignmentName,
-				courseName: courseName,
-				tree: rows[0]['tree'],
-			};
-
-			return res.render('index', {
-				commit:
-					process.env.HEROKU_SLUG_COMMIT ||
-					execSync('git rev-parse HEAD').toString().trim(),
-				assignmentsByCourse: assignmentsByCourse,
-				coursesInstructing: coursesInstructing,
-				assignedTreeData: assignedTreeData,
-				csrfToken: req.csrfToken(),
-			});
-		}
+		assignment = {
+			name: query.assignment,
+			courseName: query.course,
+			tree: tree,
+		};
 	}
 
-	res.render('index', {
+	return res.render('index', {
 		commit:
 			process.env.HEROKU_SLUG_COMMIT ||
 			execSync('git rev-parse HEAD').toString().trim(),
 		assignmentsByCourse: assignmentsByCourse,
-		coursesInstructing: coursesInstructing,
+		coursesAsInstructor: coursesAsInstructor,
+		assignment: assignment,
 		csrfToken: req.csrfToken(),
 	});
 });

@@ -10,13 +10,14 @@ router.get('/', async (req, res) => {
 		return res.redirect('/');
 	}
 
-	// TODO: these two queries can probably be one query...
-
 	// Retrieve all courses of which this user is a student
-	const studentCourses: Pick<CoursesRow, 'display_name'>[] = (
+	const coursesAsStudent: Pick<CoursesRow, 'name' | 'display_name'>[] = (
 		await db.query(
 			`
-				SELECT COALESCE("courses"."display_name", "courses"."name") AS "display_name"
+				SELECT
+					"courses"."name",
+					COALESCE("courses"."display_name", "courses"."name")
+						AS "display_name"
 				FROM "courses"
 				INNER JOIN "students"
 					ON "courses"."name" = "students"."course_name"
@@ -28,10 +29,13 @@ router.get('/', async (req, res) => {
 	).rows;
 
 	// Retrieve all courses of which this user is an instructor
-	const instructorCourses: Pick<CoursesRow, 'display_name'>[] = (
+	const coursesAsInstructor: Pick<CoursesRow, 'name' | 'display_name'>[] = (
 		await db.query(
 			`
-				SELECT COALESCE("courses"."display_name", "courses"."name") AS "display_name"
+				SELECT
+					"courses"."name",
+					COALESCE("courses"."display_name", "courses"."name")
+						AS "display_name"
 				FROM "courses"
 				INNER JOIN "instructors"
 					ON "courses"."name" = "instructors"."course_name"
@@ -43,7 +47,7 @@ router.get('/', async (req, res) => {
 	).rows;
 
 	res.render('courses', {
-		studentCourses: studentCourses,
-		instructorCourses: instructorCourses,
+		coursesAsStudent: coursesAsStudent,
+		coursesAsInstructor: coursesAsInstructor,
 	});
 });

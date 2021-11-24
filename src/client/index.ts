@@ -5,6 +5,8 @@ import {KeyRecorder} from './component/key-recorder';
 import {SubstitutionRecorder} from './component/substitution-recorder';
 import {TruthTreeBranchComponent} from './component/truth-tree-branch';
 import {getNodeIconClasses} from './component/truth-tree-node';
+import {Assignment} from '../types/routes/index/assignment';
+import {AssignmentsByCourse} from 'types/routes/index/assignments-by-course';
 
 interface StoreState {
 	shortcuts: {
@@ -37,19 +39,13 @@ interface HistoryState {
 	selected: number | null;
 }
 
-declare const assignmentsByCourse: {
-	[courseName: string]: string[];
-};
+declare const assignmentsByCourse: AssignmentsByCourse;
 
-declare const coursesInstructing: {
-	[courseName: string]: string;
-};
-
-declare const assignedTreeData:
+declare const assignment:
 	| {
-			assignmentName: string;
+			name: string;
 			courseName: string;
-			tree: object;
+			tree?: string;
 	  }
 	| undefined;
 
@@ -62,12 +58,11 @@ export const instance = vue
 		},
 		data: function () {
 			return {
-				name: 'Untitled',
+				assignment: assignment,
+				name: assignment?.name || 'Untitled',
 				assignmentsByCourse: assignmentsByCourse,
-				coursesInstructing: coursesInstructing,
-				assignedTreeData: assignedTreeData,
-				assignmentName: this.assignmentName || '',
-				courseName: this.courseName || '',
+				courseName: assignment?.courseName || '',
+				assignmentName: assignment?.name || '',
 				undoStack: [],
 				redoStack: [],
 			};
@@ -392,29 +387,19 @@ export const instance = vue
 			},
 		},
 		mounted: function () {
-			if (this.assignedTreeData === undefined) {
-				return;
-			}
-			try {
-				const assignmentName = this.assignedTreeData.assignmentName;
-				const courseName = this.assignedTreeData.courseName;
-				const assignedTree = this.assignedTreeData.tree;
-
-				(this.undoStack as HistoryState[]) = [];
-				(this.redoStack as HistoryState[]) = [];
-				this.$store.commit('select', {id: null});
-				this.$store.commit(
-					'setTree',
-					TruthTree.deserialize(JSON.stringify(assignedTree))
-				);
-				this.name = assignmentName;
-				this.assignmentName = assignmentName;
-				this.courseName = courseName;
-			} catch (err) {
-				alert(
-					'The assigned tree was malformed. Contact your instructor to resolve this issue.'
-				);
-				console.error(err);
+			const tree = (this.assignment as Assignment | undefined)?.tree;
+			if (tree !== undefined) {
+				try {
+					this.$store.commit(
+						'setTree',
+						TruthTree.deserialize(JSON.stringify(assignment?.tree))
+					);
+				} catch (err) {
+					alert(
+						'The assigned tree could not be opened. Contact your instructor to resolve this issue.'
+					);
+					console.error(err);
+				}
 			}
 		},
 		watch: {
@@ -458,7 +443,7 @@ export const instance = vue
 						if (payload.delay) {
 							// Focus on the text box corresponding to the selected node
 							// NOTE: We must use setTimeout if `delay` is true; for instance,
-							// 			 immediately after a node is created, but before it is
+							//       immediately after a node is created, but before it is
 							//       rendered in the DOM
 							setTimeout(() => focusOnNode(payload.id), 0);
 						} else {

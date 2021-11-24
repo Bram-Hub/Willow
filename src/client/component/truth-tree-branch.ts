@@ -196,7 +196,7 @@ export const TruthTreeBranchComponent = defineComponent({
 					if (!childBranch.collapseTerminatedBranches()) {
 						collapse = false;
 						// NOTE: Do not break outside of for loop, since we still need to
-						// 			 call collapseTerminatedBranches() for all child branches
+						//       call collapseTerminatedBranches() for all child branches
 					}
 				}
 				if (collapse) {
