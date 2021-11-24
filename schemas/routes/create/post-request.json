@@ -15,8 +15,7 @@
             "minLength": 1
         },
         "due_date": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
         }
     },
     "required": [
