@@ -2,22 +2,26 @@ import * as express from 'express';
 
 import * as schemas from 'server/util/schemas';
 import {pool as db} from 'server/util/database';
+import {GetRequest} from 'types/routes/auth/reset/get-request';
 import {PostRequest} from 'types/routes/auth/reset/post-request';
 import {UsersRow} from 'types/sql/public';
 
 export const router = express.Router();
 
 router.get('/', (req, res) => {
-	if (Object.keys(req.query).includes('token')) {
-		const token = req.query['token'] as string;
+	const validate = schemas.compileFile(
+		'./schemas/routes/auth/reset/get-request.json'
+	);
 
-		return res.render('auth/reset', {
-			csrfToken: req.csrfToken(),
-			uuidToken: token,
-		});
+	if (!validate(req.body)) {
+		return res.render('auth/reset', {csrfToken: req.csrfToken()});
 	}
+	const body: GetRequest = req.body as any;
 
-	res.render('auth/reset', {csrfToken: req.csrfToken()});
+	res.render('auth/reset', {
+		csrfToken: req.csrfToken(),
+		uuidToken: body.token,
+	});
 });
 
 router.post('/', async (req, res) => {
@@ -51,8 +55,8 @@ router.post('/', async (req, res) => {
 
 		// TODO: Generate a unique token and store it in the db
 
-		const tokenContainer: Pick<UsersRow, 'token'> = (
-			await db.query(
+		const tokenContainer = (
+			await db.query<Pick<UsersRow, 'reset_token'>>(
 				`
 					UPDATE "users"
 					SET "token" = GEN_RANDOM_UUID(), "token_created_at" = CURRENT_TIMESTAMP

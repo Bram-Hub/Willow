@@ -23,7 +23,7 @@ CREATE TABLE "users" (
     "rcs_id" TEXT,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "last_login_at" TIMESTAMP WITH TIME ZONE,
-    "token" UUID UNIQUE,
+    "reset_token" UUID UNIQUE,
     "token_created_at" TIMESTAMP WITH TIME ZONE
 );
 
