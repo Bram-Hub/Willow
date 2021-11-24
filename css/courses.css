@@ -5,6 +5,7 @@
 .courses {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .course {
@@ -15,8 +16,13 @@
 
 .course h3 {
     margin-top: 5px;
+    margin-bottom: 20px;
 }
 
 .course .btn-container {
     justify-content: center;
+}
+
+.course a {
+    white-space: nowrap;
 }
