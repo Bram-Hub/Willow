@@ -3,9 +3,7 @@ html(lang='en')
   head
     title My Courses | Willow
     include /global/head.pug
-    link(href='/css/courses.css' rel='stylesheet' type='text/css')
-    link(href='/css/colors.css' rel='stylesheet' type='text/css')
-    link(href='/css/themes/dark.css' rel='stylesheet' type='text/css')
+    link(href=`${env.BASE_URL}/css/courses.css` rel='stylesheet' type='text/css')
   body
     include /global/header.pug
     +toolbar()
@@ -20,8 +18,8 @@ html(lang='en')
                 .card
                   h3= course.display_name
                   .btn-container
-                    a.btn.btn-primary(href=`/courses/${encodeURIComponent(course.name)}/roster`) #[i.fas.fa-users] Roster
-                    a.btn.btn-primary(href=`/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
+                    a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/roster`) #[i.fas.fa-users] Roster
+                    a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
       if Object.keys(coursesAsStudent).length > 0
         .course-group
           h2 As Student:
@@ -31,7 +29,7 @@ html(lang='en')
                 .card
                   h3= course.display_name
                   .btn-container
-                    a.btn.btn-primary(href=`/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
+                    a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
       if Object.keys(coursesAsInstructor).length === 0 && Object.keys(coursesAsStudent).length === 0
         p.subtitle You are not in any courses. Contact the instructor for your course if you believe this is a mistake.
     include /global/footer.pug

@@ -3,30 +3,30 @@ html(lang='en')
   head
     title My Assignments | Willow
     include /global/head.pug
-    link(href='/css/index.css' rel='stylesheet' type='text/css')
-    link(href='/css/colors.css' rel='stylesheet' type='text/css')
-    link(href='/css/themes/dark.css' rel='stylesheet' type='text/css')
+    link(href=`${env.BASE_URL}/css/assignments.css` rel='stylesheet' type='text/css')
   body
     include /global/header.pug
     +toolbar()
     .container.center
       h2 Assignments
-      for assignment in assignments
-        div
-          h3
-            //- TODO: add a method to select different versions in UI
-            a(href='/?course=' + assignment.course_name + '&assignment=' + assignment.name + '&version=original') [#{assignment.display_name}] #{assignment.name}
-            if assignment.due_date
-              p Due #{assignment.due_date.toLocaleString()}
-            else
-              p No due date yet
-          if assignment.submitted_at
-            - const submission_time = assignment.submitted_at.toLocaleString().split(', ');
-            p Submitted on #{submission_time[0]} at #{submission_time[1]}
-            if assignment.correct
-              p Tree submitted is correct
-            else
-              p Tree submitted is incorrect
-          else
-            p No submission yet
+      .assignments
+        for assignment in assignments
+          .assignment
+            .card
+              h3.assignment-name= assignment.name
+              p.assignment-course= assignment.display_name
+              .btn-container
+                a.btn.btn-primary(href=`${env.BASE_URL}/?course=${encodeURIComponent(assignment.course_name)}&assignment=${encodeURIComponent(assignment.name)}&version=original`) Open original tree
+                a.btn.btn-primary(href=`${env.BASE_URL}/?course=${encodeURIComponent(assignment.course_name)}&assignment=${encodeURIComponent(assignment.name)}&version=latest`) Open latest submission
+              if assignment.due_date
+                p.assignment-due-date #[i.fas.fa-calendar] Due #{assignment.due_date.toLocaleString()}
+              else
+                p.assignment-due-date #[i.fas.fa-calendar] No due date yet
+              if assignment.submitted_at
+                if assignment.correct
+                  p.assignment-status(title=`Submitted on ${assignment.submitted_at.toLocaleString()}`) #[i.fas.fa-check] Submission correct
+                else
+                  p.assignment-status(title=`Submitted on ${assignment.submitted_at.toLocaleString()}`) #[i.fas.fa-times] Submission incorrect
+              else
+                p.assignment-status #[i.fas.fa-question] No submission
     include /global/footer.pug

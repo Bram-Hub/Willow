@@ -1,0 +1,35 @@
+.assignments {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.assignment {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 33.33%;
+}
+
+.assignment-name {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+.assignment-course {
+    color: var(--text-medium);
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+.assignment .btn-container {
+    justify-content: center;
+}
+
+.assignment a {
+    white-space: nowrap;
+}
+
+.assignment-due-date, .assignment-status {
+    font-size: 10pt;
+    margin: 5px;
+}
