@@ -11,13 +11,12 @@ router.get('/', async (req, res) => {
 		return res.redirect('/');
 	}
 
-	const assignments: (Pick<
-		AssignmentsRow,
-		'name' | 'course_name' | 'due_date'
-	> &
-		Pick<SubmissionsRow, 'correct' | 'submitted_at'> &
-		Pick<CoursesRow, 'display_name'>)[] = (
-		await db.query(
+	const assignments = (
+		await db.query<
+			Pick<AssignmentsRow, 'name' | 'course_name' | 'due_date'> &
+				Pick<SubmissionsRow, 'correct' | 'submitted_at'> &
+				Pick<CoursesRow, 'display_name'>
+		>(
 			`
 				SELECT * FROM (
 					SELECT DISTINCT ON (

@@ -11,8 +11,8 @@ router.get('/', async (req, res) => {
 	}
 
 	// Retrieve all courses of which this user is a student
-	const coursesAsStudent: Pick<CoursesRow, 'name' | 'display_name'>[] = (
-		await db.query(
+	const coursesAsStudent = (
+		await db.query<Pick<CoursesRow, 'name' | 'display_name'>>(
 			`
 				SELECT
 					"courses"."name",
@@ -29,8 +29,8 @@ router.get('/', async (req, res) => {
 	).rows;
 
 	// Retrieve all courses of which this user is an instructor
-	const coursesAsInstructor: Pick<CoursesRow, 'name' | 'display_name'>[] = (
-		await db.query(
+	const coursesAsInstructor = (
+		await db.query<Pick<CoursesRow, 'name' | 'display_name'>>(
 			`
 				SELECT
 					"courses"."name",

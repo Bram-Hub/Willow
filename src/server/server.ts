@@ -24,6 +24,7 @@ import {router as indexRouter} from 'server/routes/index';
 import {router as preferencesRouter} from 'server/routes/preferences';
 import {router as submitRouter} from 'server/routes/submit';
 import {pool as db} from 'server/util/database';
+import {UsersRow} from 'types/sql/public';
 
 /**
  * A singleton class representing the web server.
@@ -110,7 +111,9 @@ class Server {
 			new LocalStrategy(
 				{usernameField: 'email'},
 				(username, password, done) => {
-					db.query(
+					db.query<
+						Pick<UsersRow, 'email' | 'first_name' | 'last_name' | 'rcs_id'>
+					>(
 						`
 							SELECT "email", "first_name", "last_name", "rcs_id"
 							FROM "users"
@@ -136,7 +139,7 @@ class Server {
 			done(null, user.email);
 		});
 		passport.deserializeUser((id, done) => {
-			db.query(
+			db.query<Pick<UsersRow, 'email' | 'first_name' | 'last_name' | 'rcs_id'>>(
 				`
 					SELECT "email", "first_name", "last_name", "rcs_id"
 					FROM "users"

@@ -23,8 +23,8 @@ router.post('/', async (req, res) => {
 
 	// Check that the user is an instructor for the course for which they are
 	// trying to create an assignment
-	const isInstructor: boolean = (
-		await db.query(
+	const isInstructor = (
+		await db.query<{exists: boolean}>(
 			`
         SELECT EXISTS (
           SELECT 1

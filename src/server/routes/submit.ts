@@ -26,8 +26,8 @@ router.post('/', async (req, res) => {
 
 		// Check that the user is a student for the course for which they are trying
 		// to submit an assignment
-		const isStudent: boolean = (
-			await db.query(
+		const isStudent = (
+			await db.query<{exists: boolean}>(
 				`
 				SELECT EXISTS (
 					SELECT 1
