@@ -115,7 +115,7 @@ export class Formula {
 
 	/**
 	 * Replaces each instance of a variable in this Formula with a modified version,
-	 * as specified by the symbol argument. 
+	 * as specified by the symbol argument.
 	 * @param variables the variables to modify
 	 * @param symbol the symbol that modifies the variables
 	 */
@@ -212,7 +212,6 @@ class FormulaEquivalenceEvaluator {
 	private getReplacement(lhs: Formula, rhs: Formula): boolean | null {
 		let variable: string | null = null;
 		let value: Formula | null = null;
-
 
 		for (const arg of [lhs, rhs]) {
 			const predicate = arg.name;
