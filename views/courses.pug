@@ -8,26 +8,26 @@ html(lang='en')
     include /global/header.pug
     +toolbar()
     .container.center
-      h1 Courses
+      h2 Courses
       if Object.keys(coursesAsInstructor).length > 0
         .course-group
-          h2 As Instructor:
+          h3 As Instructor:
           .courses
             for course in coursesAsInstructor
               .course
                 .card
-                  h3= course.display_name
+                  h4= course.display_name
                   .btn-container
                     a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/roster`) #[i.fas.fa-users] Roster
                     a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
       if Object.keys(coursesAsStudent).length > 0
         .course-group
-          h2 As Student:
+          h3 As Student:
           .courses
             for course in coursesAsStudent
               .course
                 .card
-                  h3= course.display_name
+                  h4= course.display_name
                   .btn-container
                     a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
       if Object.keys(coursesAsInstructor).length === 0 && Object.keys(coursesAsStudent).length === 0
