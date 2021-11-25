@@ -278,3 +278,33 @@ form.large-form input:not([type='checkbox']), form.large-form select {
 .btn-container {
   display: flex;
 }
+
+/**************/
+/**  Banner  **/
+/**************/
+.banner {
+  border: 1px solid;
+  border-radius: 5px;
+  padding: 10px;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.banner-error {
+  background-color: var(--banner-error-background);
+  border-color: var(--banner-error-foreground);
+  color: var(--banner-error-foreground);
+}
+
+.banner-info {
+  background-color: var(--banner-info-background);
+  border-color: var(--banner-info-foreground);
+  color: var(--banner-info-foreground);
+}
+
+.banner p {
+  margin: 0px;
+}

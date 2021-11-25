@@ -24,3 +24,6 @@ mixin toolbar()
   a(href='/')
     img.logo-img(src=`${env.BASE_URL}/img/logo.png` width='50' type='image/png' alt='Willow logo')
   h1 Willow
+.banner(class=`banner-${_bannerType}` style={display: _bannerId ? 'block': 'none'})
+  i.fas.fa-times(onclick='this.parentNode.style.display = "none"')
+  p= _bannerText ? _bannerText : _bannerId

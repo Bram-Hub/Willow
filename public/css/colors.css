@@ -17,6 +17,12 @@
     --toolbar-dropdown-menu-option-hover: #3399ff;
     --toolbar-dropdown-menu-dividing-line: #d0d0d0;
 
+    /* Banner */
+    --banner-error-background: #f08080;
+    --banner-error-foreground: #802020;
+    --banner-info-background: #8080f0;
+    --banner-info-foreground: #202080;
+
     /* Truth tree */
     --statement-correct: #80c080;
     --statement-incorrect: #c08080;

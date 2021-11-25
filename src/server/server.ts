@@ -157,6 +157,13 @@ class Server {
 
 		this.app.use((req, res, next) => {
 			res.locals._user = req.user;
+			for (const bannerType of ['error', 'info']) {
+				if (bannerType in req.query) {
+					res.locals._bannerType = bannerType;
+					res.locals._bannerId = req.query[bannerType];
+					break;
+				}
+			}
 			next();
 		});
 	}
