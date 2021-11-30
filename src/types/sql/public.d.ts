@@ -7,7 +7,7 @@ export interface UsersRow {
 	created_at: Date;
 	last_login_at: Date | null;
 	reset_token: string;
-	token_created_at: Date | null;
+	reset_token_created_at: Date | null;
 }
 
 export interface CoursesRow {

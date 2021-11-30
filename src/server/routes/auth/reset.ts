@@ -59,9 +59,9 @@ router.post('/', async (req, res) => {
 			await db.query<Pick<UsersRow, 'reset_token'>>(
 				`
 					UPDATE "users"
-					SET "token" = GEN_RANDOM_UUID(), "token_created_at" = CURRENT_TIMESTAMP
+					SET "reset_token" = GEN_RANDOM_UUID(), "reset_token_created_at" = CURRENT_TIMESTAMP
 					WHERE "users"."email" = $1
-					RETURNING "token"
+					RETURNING "reset_token"
 				`,
 				[body.email]
 			)
@@ -91,8 +91,8 @@ router.post('/', async (req, res) => {
 						SELECT "users"."email"
 						FROM "users"
 						WHERE (
-							"users"."token" = $1 AND
-							AGE(CURRENT_TIMESTAMP, "users"."token_created_at") <= INTERVAL '1 day'
+							"users"."reset_token" = $1 AND
+							AGE(CURRENT_TIMESTAMP, "users"."reset_token_created_at") <= INTERVAL '1 day'
 						)
 					`,
 					[token]
