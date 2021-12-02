@@ -1,0 +1,13 @@
+{
+    "title": "GetRequest",
+    "type": "object",
+    "properties": {
+        "token": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "token"
+    ]
+}

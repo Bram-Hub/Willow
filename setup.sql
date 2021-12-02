@@ -22,7 +22,9 @@ CREATE TABLE "users" (
     "last_name" TEXT NOT NULL,
     "rcs_id" TEXT,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "last_login_at" TIMESTAMP WITH TIME ZONE
+    "last_login_at" TIMESTAMP WITH TIME ZONE,
+    "reset_token" UUID UNIQUE,
+    "reset_token_created_at" TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE "courses" (

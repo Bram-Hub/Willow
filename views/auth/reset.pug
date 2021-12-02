@@ -9,7 +9,9 @@ html(lang='en')
     .container.center
       form.large-form(method='POST')
         input(name='_csrf' type='hidden' value=csrfToken)
-        if _user !== undefined
+        if _user !== undefined || uuidToken !== undefined
+          if uuidToken !== undefined
+            input(name='_uuid' type='hidden' value=uuidToken)
           h2 Change password
           .field.field-required
             .left
