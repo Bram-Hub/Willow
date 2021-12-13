@@ -1,3 +1,10 @@
+-
+  const _bannerText = {
+    'invalid_credentials': 'The email or password you entered was invalid. Please check your credentials and try again.',
+    'password_changed': 'Your password has been changed. You may now log in using your new credentials.',
+    'reset_link_sent': 'A password reset link has been sent to your email.',
+  }[_bannerId];
+
 doctype html
 html(lang='en')
   head
@@ -19,5 +26,5 @@ html(lang='en')
             label(for='field-password') Password
           input#field-password(name='password' type='password' required)
         input.btn.btn-primary(type='submit' value='Log in')
-      a(href=`${env.BASE_URL}/auth/reset`) Forgot password
+      a.small(href=`${env.BASE_URL}/auth/reset`) Forgot your password?
     include /global/footer.pug

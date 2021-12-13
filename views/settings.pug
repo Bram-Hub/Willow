@@ -1,14 +1,14 @@
 doctype html
 html(lang='en')
   head
-    title Preferences | Willow
+    title Settings | Willow
     include /global/head.pug
   body
     include /global/header.pug
     +toolbar()
     .container.center
-      h2 Preferences
-      form#preferences-form.large-form
+      h2 Settings
+      form#settings-form.large-form
         .field
           .left
             label(for='field-theme') Theme
@@ -17,4 +17,4 @@ html(lang='en')
             option(value='light') Light
             option(value='dark') Dark
     include /global/footer.pug
-    script(src=`${env.BASE_URL}/js/preferences.js` type='text/javascript')
+    script(src=`${env.BASE_URL}/js/settings.js` type='text/javascript')

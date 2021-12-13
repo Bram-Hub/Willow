@@ -11,12 +11,12 @@ mixin toolbar()
             a(href=`${env.BASE_URL}/auth/register`) Register
       else
         .dropdown
-          button #{_user.first_name} #{_user.last_name}
+          button #{_user.first_name} #{_user.last_name} #[i.fas.fa-bars]
           .dropdown-menu
             a.menu-option(href=`${env.BASE_URL}/assignments`) My assignments
             a.menu-option(href=`${env.BASE_URL}/courses`) My courses
             hr
-            a.menu-option(href=`${env.BASE_URL}/preferences`) Preferences
+            a.menu-option(href=`${env.BASE_URL}/settings`) Settings
             hr
             a.menu-option(href=`${env.BASE_URL}/auth/logout`) Log out
 
@@ -25,5 +25,6 @@ mixin toolbar()
     img.logo-img(src=`${env.BASE_URL}/img/logo.png` width='50' type='image/png' alt='Willow logo')
   h1 Willow
 .banner(class=`banner-${_bannerType}` style={display: _bannerId ? 'block': 'none'})
-  i.fas.fa-times(onclick='this.parentNode.style.display = "none"')
+  button.btn-close.hidden(onclick='this.parentNode.style.display = "none"')
+    i.fas.fa-times
   p= _bannerText ? _bannerText : _bannerId

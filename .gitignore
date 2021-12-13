@@ -5,7 +5,7 @@ logs/*
 
 public/js/index.js
 public/js/index.js.LICENSE.txt
-public/js/preferences.js
+public/js/settings.js
 public/js/theme.js
 public/js/toolbar.js
 public/index.html

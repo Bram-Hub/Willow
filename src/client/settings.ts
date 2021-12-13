@@ -16,4 +16,4 @@ export const instance = vue
 			},
 		},
 	})
-	.mount('#preferences-form');
+	.mount('#settings-form');

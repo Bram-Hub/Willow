@@ -1,3 +1,9 @@
+-
+  const _bannerText = {
+    'invalid_link': 'Your reset link is no longer valid. Please fill out the form below and try again.',
+    'user_does_not_exist': 'A user with that email does not exist. Please check your spelling and try again.',
+  }[_bannerId];
+
 doctype html
 html(lang='en')
   head
@@ -7,21 +13,20 @@ html(lang='en')
     include /global/header.pug
     +toolbar()
     .container.center
+      h2 Reset password
       form.large-form(method='POST')
         input(name='_csrf' type='hidden' value=csrfToken)
-        if _user !== undefined || uuidToken !== undefined
-          if uuidToken !== undefined
-            input(name='_uuid' type='hidden' value=uuidToken)
-          h2 Change password
+        if resetToken !== undefined
+          input(name='reset_token' type='hidden' value=resetToken)
           .field.field-required
             .left
               label(for='field-password') New password
             input#field-password(name='password' type='password' required)
+          input.btn.btn-primary(type='submit' value='Change password')
         else
-          h2 Reset password
           .field.field-required
             .left
               label(for='field-email') Email
             input#field-email(name='email' type='email' required)
-        input.btn.btn-primary(type='submit' value='Reset')
+          input.btn.btn-primary(type='submit' value='Send reset link')
     include /global/footer.pug

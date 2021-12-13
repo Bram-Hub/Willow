@@ -5,13 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type PostRequest =
-  | {
-      _csrf: string;
-      email: string;
-    }
-  | {
-      _csrf: string;
-      password: string;
-      reset_token: string;
-    };
+export interface GetRequest {
+  token?: string;
+  [k: string]: unknown;
+}
