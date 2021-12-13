@@ -27,6 +27,26 @@ CREATE TABLE "users" (
     "reset_token_created_at" TIMESTAMP WITH TIME ZONE
 );
 
+CREATE OR REPLACE FUNCTION "on_update_reset_token"()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+    AS
+$$
+    BEGIN
+        NEW."reset_token_created_at" = CURRENT_TIMESTAMP;
+        RETURN NEW;
+    END;
+$$;
+
+DROP TRIGGER IF EXISTS "on_update_reset_token" ON "users";
+
+CREATE TRIGGER "on_update_reset_token"
+    BEFORE INSERT OR UPDATE
+    ON "users"
+    FOR EACH ROW
+    WHEN (NEW."reset_token" IS NOT NULL)
+    EXECUTE PROCEDURE "on_update_reset_token"();
+
 CREATE TABLE "courses" (
     "name" TEXT PRIMARY KEY,
     "display_name" TEXT,

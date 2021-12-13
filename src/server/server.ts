@@ -21,7 +21,7 @@ import {router as authRouter} from 'server/routes/auth';
 import {router as coursesRouter} from 'server/routes/courses';
 import {router as createRouter} from 'server/routes/create';
 import {router as indexRouter} from 'server/routes/index';
-import {router as preferencesRouter} from 'server/routes/preferences';
+import {router as settingsRouter} from 'server/routes/settings';
 import {router as submitRouter} from 'server/routes/submit';
 import {pool as db} from 'server/util/database';
 import {UsersRow} from 'types/sql/public';
@@ -190,7 +190,7 @@ class Server {
 
 		this.app.use('/create', createRouter);
 
-		this.app.use('/preferences', preferencesRouter);
+		this.app.use('/settings', settingsRouter);
 
 		this.app.use('/submit', submitRouter);
 

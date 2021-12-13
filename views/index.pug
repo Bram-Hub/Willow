@@ -1,5 +1,16 @@
+-
+  const _bannerText = {
+    'already_logged_in': 'You cannot perform this action while logged in.',
+    'assigned_invalid_tree': 'The tree you assigned was invalid. Please recreate the tree and try again.',
+    'assignment_already_exists': 'An assignment with this name already exists. Please choose another name and try again.',
+    'assignment_created': 'Your assignment has been created.',
+    'does_not_match_assignment': 'The tree you submitted did not match the original assignment. Please check the original version and try again.',
+    'not_logged_in': 'You must be logged in to perform this action.',
+    'submission_successful': 'Your submission was successful. Please view your assignments to see the status.',
+  }[_bannerId];
+
 mixin modalCloseButton()
-  button.modal-close(onclick='this.parentNode.style.display = "none"')
+  button.close-btn(onclick='this.parentNode.style.display = "none"')
     i.fas.fa-times
 
 doctype html
