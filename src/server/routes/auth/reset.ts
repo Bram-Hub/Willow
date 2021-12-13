@@ -1,11 +1,13 @@
 import * as express from 'express';
 import * as nodemailer from 'nodemailer';
+import * as pug from 'pug';
 
 import * as schemas from 'server/util/schemas';
 import {pool as db} from 'server/util/database';
 import {GetRequest} from 'types/routes/auth/reset/get-request';
 import {PostRequest} from 'types/routes/auth/reset/post-request';
 import {UsersRow} from 'types/sql/public';
+import {throwError} from 'server/util/errors';
 
 export const router = express.Router();
 
@@ -72,8 +74,30 @@ router.post('/', async (req, res) => {
 		).rows[0].reset_token;
 
 		const transport = nodemailer.createTransport({
-			host: process.env.SMTP_HOST ?? 'hello',
-			port: 123,
+			host:
+				process.env.SMTP_HOST ??
+				throwError('environment variable SMTP_HOST is undefined'),
+			port: parseInt(
+				process.env.SMTP_PORT ??
+					throwError('environment variable SMTP_PORT is undefined')
+			),
+			secure: process.env.SMTP_SECURE === 'true',
+			auth: {
+				user:
+					process.env.SMTP_USER ??
+					throwError('environment variable SMTP_USER is undefined'),
+				pass:
+					process.env.SMTP_PASS ??
+					throwError('environment variable SMTP_PASS is undefined'),
+			},
+		});
+		await transport.sendMail({
+			to: body.email,
+			subject: 'Reset Password | Willow',
+			html: pug.renderFile('views/templates/reset-password.pug', {
+				baseUrl: process.env.BASE_URL ?? '',
+				resetToken: resetToken,
+			}),
 		});
 
 		return res.redirect('/auth/login?info=reset_link_sent');
@@ -81,12 +105,10 @@ router.post('/', async (req, res) => {
 		const email = (
 			await db.query<Pick<UsersRow, 'email'>>(
 				`
-					SELECT "users"."email"
+					SELECT "email"
 					FROM "users"
-					WHERE (
-						"users"."reset_token" = $1 AND
-						AGE(CURRENT_TIMESTAMP, "users"."reset_token_created_at") <= INTERVAL '1 day'
-					)
+					WHERE "reset_token" = $1
+						AND AGE("reset_token_created_at") <= INTERVAL '1 day'
 					LIMIT 1
 				`,
 				[body.reset_token]
