@@ -59,10 +59,10 @@ export const instance = vue
 		data: function () {
 			return {
 				assignment: assignment,
-				name: assignment?.name || 'Untitled',
+				name: assignment?.name ?? 'Untitled',
 				assignmentsByCourse: assignmentsByCourse,
-				courseName: assignment?.courseName || '',
-				assignmentName: assignment?.name || '',
+				courseName: assignment?.courseName ?? '',
+				assignmentName: assignment?.name ?? '',
 				undoStack: [],
 				redoStack: [],
 			};
@@ -289,7 +289,7 @@ export const instance = vue
 			moveUp() {
 				const tree: TruthTree = this.$store.state.tree;
 				const selectedNode: TruthTreeNode =
-					(this.$store.getters.selectedNode as TruthTreeNode | null) ||
+					(this.$store.getters.selectedNode as TruthTreeNode | null) ??
 					tree.nodes[tree.root];
 
 				const parentNode = tree.getNode(selectedNode.parent);
@@ -312,7 +312,7 @@ export const instance = vue
 			moveDown() {
 				const tree: TruthTree = this.$store.state.tree;
 				const selectedNode: TruthTreeNode =
-					(this.$store.getters.selectedNode as TruthTreeNode | null) ||
+					(this.$store.getters.selectedNode as TruthTreeNode | null) ??
 					tree.nodes[tree.root];
 
 				if (selectedNode.children.length > 0) {

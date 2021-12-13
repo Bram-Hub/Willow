@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 	if (req.user === undefined) {
 		return res.render('index', {
 			commit:
-				process.env.HEROKU_SLUG_COMMIT ||
+				process.env.HEROKU_SLUG_COMMIT ??
 				execSync('git rev-parse HEAD').toString().trim(),
 		});
 	}
@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
 		if (!(courseName in assignmentsByCourse)) {
 			assignmentsByCourse[courseName] = {
 				assignments: [],
-				displayName: assignment.display_name || courseName,
+				displayName: assignment.display_name ?? courseName,
 			};
 		}
 		assignmentsByCourse[courseName].assignments.push(assignment.name);
@@ -121,7 +121,7 @@ router.get('/', async (req, res) => {
 
 	return res.render('index', {
 		commit:
-			process.env.HEROKU_SLUG_COMMIT ||
+			process.env.HEROKU_SLUG_COMMIT ??
 			execSync('git rev-parse HEAD').toString().trim(),
 		assignmentsByCourse: assignmentsByCourse,
 		coursesAsInstructor: coursesAsInstructor,

@@ -4,7 +4,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = env => {
-	const NODE_ENV = process.env.NODE_ENV || env.NODE_ENV || 'production';
+	const NODE_ENV = process.env.NODE_ENV ?? env.NODE_ENV ?? 'production';
 	const config = {
 		mode: NODE_ENV,
 		entry: {

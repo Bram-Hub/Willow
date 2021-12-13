@@ -24,9 +24,9 @@ export const SubstitutionRecorder = defineComponent({
 				// TODO: Check that the user did not manually set the value in local
 				//       storage in order to break the type cast
 				(JSON.parse(
-					localStorage.getItem(`substitutions.${this.symbol}`) || 'null'
-				) as string | null) ||
-				this.default ||
+					localStorage.getItem(`substitutions.${this.symbol}`) ?? 'null'
+				) as string | null) ??
+				this.default ??
 				'',
 		};
 	},

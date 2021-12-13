@@ -8,7 +8,7 @@ import {defineComponent, PropType} from 'vue';
  * @returns true if the shortcut should be trigerred, false otherwise
  */
 hotkeys.filter = event => {
-	const target = event.target || event.srcElement;
+	const target = event.target ?? event.srcElement;
 	if (target instanceof Element) {
 		// Do not trigger any shortcuts if a key-recorder component is focused. This
 		// prevents shortcuts from being triggered while the user is changing the
@@ -67,9 +67,9 @@ export const KeyRecorder = defineComponent({
 				// TODO: Check that the user did not manually set the value in local
 				//       storage in order to break the type cast
 				(JSON.parse(
-					localStorage.getItem(`shortcuts.${this.event}`) || 'null'
-				) as string[] | null) ||
-				this.default ||
+					localStorage.getItem(`shortcuts.${this.event}`) ?? 'null'
+				) as string[] | null) ??
+				this.default ??
 				[],
 			// Whether or not this shortcut has been bound using hotkeys.js, used to
 			// avoid unbinding another shortcut if two components have the same

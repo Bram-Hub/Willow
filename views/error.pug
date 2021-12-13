@@ -17,5 +17,5 @@ html(lang='en')
     +toolbar()
     .container.center
       h2.title= code
-      h3.subtitle= codes[code] || 'An unknown error occurred.'
+      h3.subtitle= codes[code] ?? 'An unknown error occurred.'
     include /global/footer.pug

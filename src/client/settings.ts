@@ -6,7 +6,7 @@ export const instance = vue
 	.createApp({
 		data: function () {
 			return {
-				theme: localStorage.getItem('theme') || 'system',
+				theme: localStorage.getItem('theme') ?? 'system',
 			};
 		},
 		watch: {

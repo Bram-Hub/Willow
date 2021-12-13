@@ -57,7 +57,7 @@ export const TruthTreeNodeComponent = defineComponent({
 			let cursor = 0;
 			const target = event.target;
 			if (target instanceof HTMLInputElement) {
-				cursor = target.selectionStart || 0;
+				cursor = target.selectionStart ?? 0;
 			}
 
 			let beforeCursor = this.node.text.substring(0, cursor);
@@ -73,7 +73,7 @@ export const TruthTreeNodeComponent = defineComponent({
 			}
 			this.node.text = beforeCursor + afterCursor;
 
-			cursor = beforeCursor?.length || 0;
+			cursor = beforeCursor?.length ?? 0;
 			if (target instanceof HTMLInputElement) {
 				setTimeout(() => target.setSelectionRange(cursor, cursor), 0);
 			}

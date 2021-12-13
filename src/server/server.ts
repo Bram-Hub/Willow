@@ -220,7 +220,7 @@ class Server {
 	 * Launches the web server.
 	 */
 	launch() {
-		const port = parseInt(process.env.PORT || '80');
+		const port = parseInt(process.env.PORT ?? '80');
 		this.server.listen(port, () =>
 			logger.info(`Server launched on port ${port}`)
 		);

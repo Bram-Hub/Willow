@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as nodemailer from 'nodemailer';
 
 import * as schemas from 'server/util/schemas';
 import {pool as db} from 'server/util/database';
@@ -70,7 +71,10 @@ router.post('/', async (req, res) => {
 			)
 		).rows[0].reset_token;
 
-		// TODO: Send the email
+		const transport = nodemailer.createTransport({
+			host: process.env.SMTP_HOST ?? 'hello',
+			port: 123,
+		});
 
 		return res.redirect('/auth/login?info=reset_link_sent');
 	} else if ('password' in body) {

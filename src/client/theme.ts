@@ -11,4 +11,4 @@ export function updateTheme(theme: string) {
 	document.documentElement.setAttribute('data-theme', theme);
 }
 
-updateTheme(localStorage.getItem('theme') || 'system');
+updateTheme(localStorage.getItem('theme') ?? 'system');

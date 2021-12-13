@@ -20,8 +20,8 @@ html(lang='en')
     include /global/head.pug
     link(href='/css/index.css' rel='stylesheet' type='text/css')
     script(type='text/javascript').
-      const assignmentsByCourse = !{interpolate(assignmentsByCourse)} || {};
-      const assignment = !{interpolate(assignment)} || undefined;
+      const assignmentsByCourse = !{interpolate(assignmentsByCourse)} ?? {};
+      const assignment = !{interpolate(assignment)} ?? undefined;
   body
     include /global/header.pug
     #content
