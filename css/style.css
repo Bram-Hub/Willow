@@ -59,6 +59,10 @@ body {
   flex: 1;
 }
 
+.small {
+  font-size: 10pt;
+}
+
 .left {
   text-align: left;
 }
@@ -99,17 +103,17 @@ body {
   z-index: 1000;
 }
 
-.modal-close {
+.modal .close-btn {
   background: none;
   border: none;
   cursor: pointer;
   padding: 0px;
   position: absolute;
-  top: 5px;
+  top: 2px;
   right: 5px;
 }
 
-.modal-close > i {
+.modal .close-btn i {
   color: var(--modal-close-btn);
 }
 
@@ -277,4 +281,42 @@ form.large-form input:not([type='checkbox']), form.large-form select {
 
 .btn-container {
   display: flex;
+}
+
+/**************/
+/**  Banner  **/
+/**************/
+.banner {
+  border: 1px solid;
+  border-radius: 5px;
+  padding: 10px;
+  position: fixed;
+  text-align: center;
+  top: 10%;
+  left: 20%;
+  right: 20%;
+  z-index: 1000;
+}
+
+.banner-error {
+  background-color: var(--banner-error-background);
+  border-color: var(--banner-error-foreground);
+  color: var(--banner-error-foreground);
+}
+
+.banner-info {
+  background-color: var(--banner-info-background);
+  border-color: var(--banner-info-foreground);
+  color: var(--banner-info-foreground);
+}
+
+.banner .btn-close {
+  color: inherit;
+  position: absolute;
+  top: 0px;
+  right: 3px;
+}
+
+.banner p {
+  margin: 0px;
 }
