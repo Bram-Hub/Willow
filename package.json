@@ -12,9 +12,6 @@
     "clean": "gts clean",
     "compile": "npx json2ts -i schemas/ -o src/types/ && npx webpack",
     "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run lint",
     "debug": "nodemon",
     "start": "npx ts-node -r tsconfig-paths/register src/server/server.ts"
   },
