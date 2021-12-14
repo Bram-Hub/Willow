@@ -35,7 +35,7 @@ html(lang='en')
                 form(method='POST' onsubmit='return confirm("Are you sure you would like to remove this instructor from the course? This action cannot be undone.")')
                   +removeFormHiddenFields(csrfToken, 'instructor')
                   input(name='emails' type='hidden' value=instructor)
-                  button.hidden(type='submit')
+                  button.remove-btn.hidden(type='submit')
                     i.fas.fa-times
       hr
       h3 Students:
@@ -48,7 +48,7 @@ html(lang='en')
                 form(method='POST' onsubmit='return confirm("Are you sure you would like to remove this student from the course? This action cannot be undone.")')
                   +removeFormHiddenFields(csrfToken, 'student')
                   input(name='emails' type='hidden' value=student)
-                  button.hidden(type='submit')
+                  button.remove-btn.hidden(type='submit')
                     i.fas.fa-times
     #add-modal.modal.card(style={display: 'none'})
       +closeButton()
