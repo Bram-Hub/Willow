@@ -26,3 +26,16 @@
 .course a {
     white-space: nowrap;
 }
+
+#instructors, #students {
+    display: inline-block;
+}
+
+#field-emails {
+    resize: vertical;
+    width: 300px;
+}
+
+#field-role {
+    margin-bottom: 10px;
+}
