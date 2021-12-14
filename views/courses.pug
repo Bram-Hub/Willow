@@ -1,3 +1,9 @@
+-
+  const _bannerText = {
+    'course_already_exists': 'A course with this name already exists. Please choose another name and try again.',
+    'course_created': 'Your course has been created.',
+  }[_bannerId];
+
 doctype html
 html(lang='en')
   head
@@ -7,6 +13,11 @@ html(lang='en')
   body
     include /global/header.pug
     +toolbar()
+      if _isAdministrator
+        .dropdown
+          button Manage
+          .dropdown-menu
+            button.menu-option(onclick='toolbar.showModal("add-modal")') Add course
     .container.center
       h2 Courses
       if Object.keys(coursesAsInstructor).length > 0
@@ -32,4 +43,20 @@ html(lang='en')
                     a.btn.btn-primary(href=`${env.BASE_URL}/courses/${encodeURIComponent(course.name)}/assignments`) #[i.fas.fa-tasks] Assignments
       if Object.keys(coursesAsInstructor).length === 0 && Object.keys(coursesAsStudent).length === 0
         p.subtitle You are not in any courses. Contact the instructor for your course if you believe this is a mistake.
+    if _isAdministrator
+      #add-modal.modal.card(style={display: 'none'})
+        +closeButton()
+        .container.center
+          h2 Add Course
+          form.large-form#add-form(method='POST')
+            input(name='_csrf' type='hidden' value=csrfToken)
+            .field.field-required
+              .left
+                label(for='field-name') Name
+              input#field-name(name='name' type='text' placeholder='Unique name for the course; e.g., phil2140-f21' required)
+            .field.field-required
+              .left
+                label(for='field-display-name') Display Name
+              input#field-display-name(name='display_name' type='text' required)
+            input.btn.btn-primary(type='submit' value='Add course')
     include /global/footer.pug

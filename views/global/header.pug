@@ -11,7 +11,7 @@ mixin toolbar()
             a(href=`${env.BASE_URL}/auth/register`) Register
       else
         .dropdown
-          button #{_user.first_name} #{_user.last_name} #[i.fas.fa-bars]
+          button #{_user.first_name} #{_user.last_name}&nbsp; #[i.fas.fa-bars]
           .dropdown-menu
             a.menu-option(href=`${env.BASE_URL}/assignments`) My assignments
             a.menu-option(href=`${env.BASE_URL}/courses`) My courses

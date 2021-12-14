@@ -9,24 +9,27 @@ html(lang='en')
     +toolbar()
     .container.center
       h2 Assignments
-      .assignments
-        for assignment in assignments
-          .assignment
-            .card
-              h3.assignment-name= assignment.name
-              p.assignment-course= assignment.display_name
-              .btn-container
-                a.btn.btn-primary(href=`${env.BASE_URL}/?course=${encodeURIComponent(assignment.course_name)}&assignment=${encodeURIComponent(assignment.name)}&version=original`) Open original tree
-                a.btn.btn-primary(href=`${env.BASE_URL}/?course=${encodeURIComponent(assignment.course_name)}&assignment=${encodeURIComponent(assignment.name)}&version=latest`) Open latest submission
-              if assignment.due_date
-                p.assignment-due-date #[i.fas.fa-calendar] Due #{assignment.due_date.toLocaleString()}
-              else
-                p.assignment-due-date #[i.fas.fa-calendar] No due date yet
-              if assignment.submitted_at
-                if assignment.correct
-                  p.assignment-status(title=`Submitted on ${assignment.submitted_at.toLocaleString()}`) #[i.fas.fa-check] Submission correct
+      if assignments.length > 0
+        .assignments
+          for assignment in assignments
+            .assignment
+              .card
+                h3.assignment-name= assignment.name
+                p.assignment-course= assignment.display_name
+                .btn-container
+                  a.btn.btn-primary(href=`${env.BASE_URL}/?course=${encodeURIComponent(assignment.course_name)}&assignment=${encodeURIComponent(assignment.name)}&version=original`) Open original tree
+                  a.btn.btn-primary(href=`${env.BASE_URL}/?course=${encodeURIComponent(assignment.course_name)}&assignment=${encodeURIComponent(assignment.name)}&version=latest`) Open latest submission
+                if assignment.due_date
+                  p.assignment-due-date #[i.fas.fa-calendar] Due #{assignment.due_date.toLocaleString()}
                 else
-                  p.assignment-status(title=`Submitted on ${assignment.submitted_at.toLocaleString()}`) #[i.fas.fa-times] Submission incorrect
-              else
-                p.assignment-status #[i.fas.fa-question] No submission
+                  p.assignment-due-date #[i.fas.fa-calendar] No due date yet
+                if assignment.submitted_at
+                  if assignment.correct
+                    p.assignment-status(title=`Submitted on ${assignment.submitted_at.toLocaleString()}`) #[i.fas.fa-check] Submission correct
+                  else
+                    p.assignment-status(title=`Submitted on ${assignment.submitted_at.toLocaleString()}`) #[i.fas.fa-times] Submission incorrect
+                else
+                  p.assignment-status #[i.fas.fa-question] No submission
+      else
+        p.subtitle You have no assignments.
     include /global/footer.pug

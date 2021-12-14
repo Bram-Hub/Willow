@@ -15,6 +15,7 @@ import * as passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import * as path from 'path';
 
+import {config} from 'server/config';
 import {logger} from 'server/logger';
 import {router as assignmentsRouter} from 'server/routes/assignments';
 import {router as authRouter} from 'server/routes/auth';
@@ -157,6 +158,10 @@ class Server {
 
 		this.app.use((req, res, next) => {
 			res.locals._user = req.user;
+			res.locals._isAdministrator =
+				(req.user?.email !== undefined &&
+					config.administrators?.includes(req.user?.email)) ??
+				false;
 			for (const bannerType of ['error', 'info']) {
 				if (bannerType in req.query) {
 					res.locals._bannerType = bannerType;

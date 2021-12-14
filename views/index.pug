@@ -9,10 +9,6 @@
     'submission_successful': 'Your submission was successful. Please view your assignments to see the status.',
   }[_bannerId];
 
-mixin modalCloseButton()
-  button.close-btn(onclick='this.parentNode.style.display = "none"')
-    i.fas.fa-times
-
 doctype html
 html(lang='en')
   head
@@ -103,7 +99,7 @@ html(lang='en')
         i(:class="getNodeIconClasses(selectedNode)")
         |  {{ selectedNode.getFeedback() }}
       #options-modal.modal.card(style={display: 'none'})
-        +modalCloseButton()
+        +closeButton()
         h2.center Options
         table.dual-table
           tbody
@@ -120,7 +116,7 @@ html(lang='en')
               td
                 input#lockedOptions(type='checkbox' v-model='tree.options.lockedOptions')
       #shortcuts-modal.modal.card(style={display: 'none'})
-        +modalCloseButton()
+        +closeButton()
         h2.center Shortcuts
         table.dual-table
           thead
@@ -225,7 +221,7 @@ html(lang='en')
               td
                 key-recorder(@on-pressed='checkTree' event='check-tree' :default='["Control", "."]')
       #substitutions-modal.modal.card(style={display: 'none'})
-        +modalCloseButton()
+        +closeButton()
         h2.center Substitutions
         table.dual-table
           thead
@@ -270,7 +266,7 @@ html(lang='en')
               td
                 substitution-recorder(symbol='×' default="'")
       #about-modal.modal.card(style={display: 'none'})
-        +modalCloseButton()
+        +closeButton()
         .row
           img.logo-img(src=`${env.BASE_URL}/img/logo.png` width='100')
           div
@@ -278,7 +274,7 @@ html(lang='en')
             p Commit #{commit}
       if _user !== undefined
         #submit-modal.modal.card(style={display: 'none'})
-          +modalCloseButton()
+          +closeButton()
           .container.center
             h2 Submit Assignment
             form.large-form#submit-form(method='POST' action='/submit')
@@ -299,7 +295,7 @@ html(lang='en')
                   option(v-else value='' disabled selected hidden)
               input.btn.btn-primary(type='submit' value='Submit')
         #create-modal.modal.card(style={display: 'none'})
-          +modalCloseButton()
+          +closeButton()
           .container.center
             h2 Create Assignment
             span The assignment will require students to complete this tree.
