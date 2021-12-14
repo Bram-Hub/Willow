@@ -1,0 +1,73 @@
+-
+  const _bannerText = {
+    'some_users_not_added': 'Some users could not be added. Please check the updated roster and try again.',
+    'operation_successful': 'The operation has been completed successfully.',
+  }[_bannerId];
+
+mixin removeFormHiddenFields(csrfToken, role)
+  input(name='_csrf' type='hidden' value=csrfToken)
+  input(name='action' type='hidden' value='remove')
+  input(name='role' type='hidden' value=role)
+
+doctype html
+html(lang='en')
+  head
+    title #{course.display_name} Roster | Willow
+    include /global/head.pug
+    link(href=`${env.BASE_URL}/css/courses.css` rel='stylesheet' type='text/css')
+  body
+    include /global/header.pug
+    +toolbar()
+      .dropdown
+        button Manage
+        .dropdown-menu
+          button.menu-option(onclick='toolbar.showModal("add-modal")') Add users
+    .container.center
+      h2 Roster
+      hr
+      h3 Instructors:
+      table#instructors.dual-table
+        tbody
+          for instructor in instructors
+            tr
+              td= instructor
+              td
+                form(method='POST' onsubmit='return confirm("Are you sure you would like to remove this instructor from the course? This action cannot be undone.")')
+                  +removeFormHiddenFields(csrfToken, 'instructor')
+                  input(name='emails' type='hidden' value=instructor)
+                  button.hidden(type='submit')
+                    i.fas.fa-times
+      hr
+      h3 Students:
+      table#students.dual-table
+        tbody
+          for student in students
+            tr
+              td= student
+              td
+                form(method='POST' onsubmit='return confirm("Are you sure you would like to remove this student from the course? This action cannot be undone.")')
+                  +removeFormHiddenFields(csrfToken, 'student')
+                  input(name='emails' type='hidden' value=student)
+                  button.hidden(type='submit')
+                    i.fas.fa-times
+    #add-modal.modal.card(style={display: 'none'})
+      +closeButton()
+      .container.center
+        h2 Add Users
+        form.large-form(method='POST')
+          input(name='_csrf' type='hidden' value=csrfToken)
+          input(name='action' type='hidden' value='add')
+          .field.field-required
+            .left 
+              label(for='field-emails') Email(s)
+            textarea#field-emails(name='emails' placeholder='One email per line' required)
+          .row#field-role
+            div
+              input#radio-instructor(name='role' type='radio' value='instructor')
+              label(for='field-role-instructor') As instructor(s)
+            div
+              input#radio-student(name='role' type='radio' value='student' checked)
+              label(for='field-role-student') As student(s)
+          div
+            button.btn.btn-primary(type='submit') #[i.fas.fa-plus] Add users
+    include /global/footer.pug

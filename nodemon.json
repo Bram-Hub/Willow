@@ -6,7 +6,9 @@
     "src/types/"
   ],
   "watch": [
-    "src/"
+    "src/",
+    "config.yml",
+    ".env"
   ],
   "exec": "npm run compile && npm start",
   "ext": "env,js,json,ts,yml"

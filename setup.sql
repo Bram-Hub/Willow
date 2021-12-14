@@ -55,7 +55,8 @@ CREATE TABLE "courses" (
 
 CREATE TABLE "instructors" (
     "course_name" TEXT REFERENCES "courses" ("name") ON DELETE CASCADE ON UPDATE CASCADE,
-    "instructor_email" TEXT REFERENCES "users" ("email") ON DELETE CASCADE ON UPDATE CASCADE
+    "instructor_email" TEXT REFERENCES "users" ("email") ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY ("course_name", "instructor_email")
 );
 
 CREATE TABLE "students" (

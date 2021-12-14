@@ -1,12 +1,15 @@
 import * as express from 'express';
 
 import {isAdministrator} from 'server/config';
+import {router as courseRouter} from 'server/routes/courses/course';
 import {pool as db} from 'server/util/database';
 import * as schemas from 'server/util/schemas';
 import {PostRequest} from 'types/routes/courses/post-request';
 import {CoursesRow} from 'types/sql/public';
 
 export const router = express.Router();
+
+router.use('/:course', courseRouter);
 
 router.get('/', async (req, res) => {
 	if (req.user === undefined) {

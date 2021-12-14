@@ -1,0 +1,29 @@
+{
+    "title": "PostRequest",
+    "type": "object",
+    "properties": {
+        "action": {
+            "type": "string",
+            "enum": [
+                "add",
+                "remove"
+            ]
+        },
+        "role": {
+            "type": "string",
+            "enum": [
+                "instructor",
+                "student"
+            ]
+        },
+        "emails": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "action",
+        "role",
+        "emails"
+    ]
+}
