@@ -1,0 +1,13 @@
+{
+    "title": "PostRequest",
+    "type": "object",
+    "properties": {
+        "assignments": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        }
+    }
+}

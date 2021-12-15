@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 		});
 	}
 
-	// Retrieve all assignments that are not past due for the courses of which the user is a student
+	// Retrieve all assignments for the courses of which the user is a student
 	const assignments = (
 		await db.query<
 			Pick<AssignmentsRow, 'name' | 'course_name'> &
@@ -36,10 +36,7 @@ router.get('/', async (req, res) => {
 					ON "assignments"."course_name" = "courses"."name"
 				INNER JOIN "students"
 					ON "courses"."name" = "students"."course_name"
-				WHERE "students"."student_email" = $1 AND (
-					CURRENT_TIMESTAMP <= "assignments"."due_date"
-						OR "assignments"."due_date" IS NULL
-				)
+				WHERE "students"."student_email" = $1
 				ORDER BY
 					"assignments"."course_name" ASC,
 					"assignments"."due_date" DESC NULLS LAST,

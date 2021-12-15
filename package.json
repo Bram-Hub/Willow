@@ -46,6 +46,7 @@
     "@types/passport-local": "^1.0.34",
     "@types/pg": "^8.6.1",
     "@types/pug": "^2.0.4",
+    "@types/tmp": "^0.2.2",
     "gts": "^3.1.0",
     "json-schema-to-typescript": "^10.1.5",
     "nodemon": "^2.0.13",
@@ -71,10 +72,12 @@
     "passport-local": "^1.0.0",
     "pg": "^8.7.1",
     "pug": "^3.0.0",
+    "tmp": "^0.2.1",
     "vue": "^3.2.20",
     "vuex": "^4.0.0",
     "webpack": "^5.58.1",
     "winston": "^3.3.3",
+    "xlsx": "^0.17.4",
     "yaml": "^1.10.0"
   }
 }
