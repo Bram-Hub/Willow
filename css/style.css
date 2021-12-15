@@ -240,7 +240,9 @@ form.large-form label {
   font-size: 10pt;
 }
 
-form.large-form input:not([type='checkbox'], [type='radio']), form.large-form select {
+form.large-form button[type='submit'],
+form.large-form input:not([type='checkbox'], [type='radio']),
+form.large-form select {
   width: 300px;
 }
 
