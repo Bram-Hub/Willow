@@ -138,6 +138,12 @@ router.post<'/', Params>('/', async (req, res) => {
 			);
 		}
 	} else if (body.action === 'remove') {
+		if (emails.includes(req.user.email)) {
+			return res.redirect(
+				`/courses/${req.params.course}/roster?error=cannot_remove_self`
+			);
+		}
+
 		await db.query(
 			`
 				DELETE FROM "${body.role}s"
