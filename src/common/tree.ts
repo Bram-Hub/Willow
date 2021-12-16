@@ -840,7 +840,6 @@ export class TruthTreeNode {
 				// If there are still assignments left, then we did not instantiate every
 				// possible assignment of constants in this branch
 				if (Object.keys(uninstantiated).length !== 0) {
-					console.log(uninstantiated);
 					const mapping = getFirstUnassigned(uninstantiated);
 					leafError = new CorrectnessError(
 						'universal_domain_not_decomposed',
