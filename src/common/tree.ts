@@ -1603,15 +1603,15 @@ export class TruthTree {
 	 */
 	private extendsHelper(
 		thisNodeId: number,
-		baseNodeId: number,
+		baseNodeId: number | null,
 		base: TruthTree
 	): boolean {
 		// Get this branch from both trees
 		let thisNode = this.getNode(thisNodeId)!;
-		let baseNode: TruthTreeNode = base.getNode(baseNodeId)!;
+		let baseNode: TruthTreeNode | null = base.getNode(baseNodeId);
 
-		// There is always at least one node in the base branch
-		let baseBranchExhausted = false;
+		// If we start on a non-null node, then the branch cannot be exhausted yet
+		let baseBranchExhausted = baseNode === null;
 		let isLastBeforeSplit = thisNode.children.length !== 1;
 
 		// Traverse the current branch across both trees in tandem
@@ -1621,6 +1621,7 @@ export class TruthTree {
 				// If the base branch still has assigned nodes to match and this node matches
 				if (
 					!baseBranchExhausted &&
+					baseNode !== null &&
 					thisNode.statement.equals(baseNode.statement!)
 				) {
 					// Since it matches an assigned node, they either both are or are not premises
@@ -1659,9 +1660,9 @@ export class TruthTree {
 
 		// If baseNode has no more children, we are at the end of this subtree,
 		// so we can just check for student-added premises now
-		if (baseNode.children.length === 0) {
+		if (baseNode === null || baseNode.children.length === 0) {
 			for (const thisChildId of thisNode.children) {
-				if (!this.extendsHelper(thisChildId, baseNode.id, base)) {
+				if (!this.extendsHelper(thisChildId, null, base)) {
 					return false;
 				}
 			}
