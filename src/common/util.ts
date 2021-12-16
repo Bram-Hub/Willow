@@ -18,7 +18,7 @@ export interface EvaluationResponse {
  * constant in the universe is a key which maps to an (N-1)-dimensional map.
  * Effectively, if there are |U| elements in the universe, then the N-dimensional
  * map will have |U|^N elements.
- * 
+ *
  * @param num_dims N - the number of dimensions (variables)
  * @param universe U - the set of constants
  * @returns an N-dimensional map representing every N-tuple of the elements in the universe
@@ -65,26 +65,25 @@ function recursiveDeleteMapping(
 	const assignedValue = assignment[variable.toString()].toString();
 
 	// If this assignment is already satisfied, stop early
-	if (!Object.keys(map).includes(assignedValue)) {
-		return Object.keys(map).length;
+	if (!(assignedValue in map)) {
+		return;
 	}
 
-	// Recurse if we haven't gotten to the end
+	// Recurse to the last variable
 	if (variableIndex < variables.length - 1) {
-		const leftOver = recursiveDeleteMapping(
+		recursiveDeleteMapping(
 			map[assignedValue],
 			assignment,
 			variables,
 			variableIndex + 1
 		);
-
-		// We deleted the last element in this 
-		if (leftOver === 0) {
-			delete map[assignedValue];
-		}
 	}
 
-	return Object.keys(map).length;
+	// If the submap is empty, we can delete it
+	// The last variable's submap will always be empty, so we always delete it
+	if (Object.keys(map[assignedValue]).length === 0) {
+		delete map[assignedValue];
+	}
 }
 
 /**
