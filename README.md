@@ -55,11 +55,14 @@ directory.
 
 5. Create a config file `cp config.yml.template config.yml` to configure your list of system administrators.
 
-6. Launch the application using `npm run <command>` with one of the commands in the table below.
+6. (OPTIONAL) Set up the unit testing framework with `npx ts-jest config:init`
+
+7. Launch the application using `npm run <command>` with one of the commands in the table below.
 
     Command |Use
     --- | ---
     `debug`|Recommended for development. Uses nodemon to recompile the code when changes are made.
+    `test`|Runs the unit test suite (requires setup in step 6)
     `dev`|Runs the program once. Must be restarted when changes are made
     `build`|Builds the website in production mode
     `start`|Runs the built program

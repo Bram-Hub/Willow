@@ -14,12 +14,14 @@ public/index.html
 ##  Node.js  ##
 ###############
 # Logs
-# logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+# Jest config file
+jest.config.js
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
