@@ -233,13 +233,22 @@ export const instance = vue
 			createBranch() {
 				const tree: TruthTree = this.tree;
 				this.recordState();
+
+				const parentNodeId =
+					typeof this.selected === 'number'
+						? this.selected
+						: tree.rightmostNode()?.id;
+
+				const newNodeId = tree.addNodeAfter(parentNodeId, true);
+				if (newNodeId === null) {
+					return alert(
+						'You must select a node to perform this action; if there are no nodes then try creating a new tree. If this issue persists, please contact an instructor.'
+					);
+				}
+
+				// We return the parent node's id so users can quickly create new branches
 				this.$store.commit('select', {
-					id: tree.addNodeAfter(
-						typeof this.selected === 'number'
-							? this.selected
-							: tree.rightmostNode()?.id,
-						true
-					),
+					id: parentNodeId,
 					delay: true,
 				});
 			},

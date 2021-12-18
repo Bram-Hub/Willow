@@ -840,7 +840,7 @@ export class TruthTreeNode {
 				// If there are still assignments left, then we did not instantiate every
 				// possible assignment of constants in this branch
 				if (Object.keys(uninstantiated).length !== 0) {
-					const mapping = getFirstUnassigned(uninstantiated);
+					const mapping = getFirstUnassigned(uninstantiated)!;
 					leafError = new CorrectnessError(
 						'universal_domain_not_decomposed',
 						mapping
@@ -1348,9 +1348,7 @@ export class TruthTree {
 			// Have to calculate the universe for that node
 			newNode.calculateUniverse();
 
-			// Returning parent's ID allows people adding multiple branches at
-			// once to do so without having to click the parent many times.
-			return parentId;
+			return newId;
 		}
 
 		this.nodes[newId].children = parentNode.children;

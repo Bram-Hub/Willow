@@ -92,12 +92,12 @@ function recursiveDeleteMapping(
  * @returns the (arbitrarily) first tuple of constants in the instantiation map
  */
 export function getFirstUnassigned(map: InstantiationMapping): string | null {
-	const constants = Object.keys(map);
-	if (constants.length === 0) {
-		console.log('ERROR: Empty instantiation map being accessed.');
-		return '';
+	const constant = Object.keys(map).shift();
+	if (constant === undefined) {
+		console.error('ERROR: Empty instantiation map being accessed.');
+		return null;
 	}
-	const constant = constants[0];
+
 	if (Object.keys(map[constant]).length === 0) {
 		return `${constant}`;
 	}
