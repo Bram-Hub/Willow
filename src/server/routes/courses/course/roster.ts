@@ -106,7 +106,7 @@ router.post<'/', Params>('/', async (req, res) => {
 		return res.status(403).render('error', {code: 403});
 	}
 
-	const emails = body.emails.split('\n');
+	const emails = body.emails.split(/\r?\n|;/g).map(email => email.trim());
 	if (body.action === 'add') {
 		const allUsersAdded = (
 			await Promise.all(
