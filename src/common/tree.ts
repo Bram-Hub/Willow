@@ -801,7 +801,7 @@ export class TruthTreeNode {
 
 				// Each universal must instantiate at least one variable.
 				if (decomposedInBranch.size === 0) {
-					leafError = new CorrectnessError('universal_decompose_length');
+					error = new CorrectnessError('universal_decompose_length');
 					continue;
 				}
 
