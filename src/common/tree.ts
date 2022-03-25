@@ -307,6 +307,8 @@ export class TruthTreeNode {
 			universe = this.tree.nodes[this.parent].universe!;
 		}
 
+		console.log(this.statement.getNewConstants(universe));
+
 		return this.statement.getNewConstants(universe);
 	}
 
@@ -392,7 +394,14 @@ export class TruthTreeNode {
 		}
 
 		if (this.statement instanceof UniversalStatement) {
-			console.log('Universal statements do not have correct decompositions');
+			// This will occur due to the way that get/set are implemented under
+			// the hood. When a setter is called, it attempts to access the old
+			// value using the getter, which will trigger this code flow.
+			// It is not harmful but still not intended.
+			console.error(
+				'This error can likely be ignored: Universal statements do ' +
+					'not have correct decompositions'
+			);
 			return new Set<number>();
 		}
 
@@ -827,6 +836,29 @@ export class TruthTreeNode {
 						// Not an initialization of the antecedent
 						leafError = new CorrectnessError('invalid_decomposition');
 						break;
+					}
+
+					if (
+						Object.keys(assignment).length !== this.statement.variables.length
+					) {
+						// If the assignment does not have an assignment for every variable
+						// then arbitrarily assign a value from the universe. If one doesn't
+						// exist then arbitrarily assign the constant 'x'
+
+						let value: Formula;
+						// Check universe for arbitrarily value
+						if (leafNode.universe!.length > 0) {
+							value = leafNode.universe!.values().next().value;
+						} else {
+							value = new Formula('x');
+						}
+
+						for (const variable of this.statement.variables) {
+							if (Object.keys(assignment).includes(variable.toString())) {
+								continue;
+							}
+							assignment[variable.toString()] = value;
+						}
 					}
 
 					deleteMapping(uninstantiated, assignment, this.statement.variables);

@@ -19,8 +19,8 @@ export interface EvaluationResponse {
  * Effectively, if there are |U| elements in the universe, then the N-dimensional
  * map will have |U|^N elements.
  *
- * @param num_dims N - the number of dimensions (variables)
- * @param universe U - the set of constants
+ * @param num_dims the number of dimensions N, typically the number of variables
+ * @param universe the set of constants U
  * @returns an N-dimensional map representing every N-tuple of the elements in the universe
  */
 export function createNDimensionalMapping(

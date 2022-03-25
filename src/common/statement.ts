@@ -462,7 +462,6 @@ export class ExistenceStatement extends QuantifierStatement {
 
 	symbolized(variables: Formula[] = []): Statement {
 		if (variables.length === 0) {
-			// not a nested quantifier
 			return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
 		}
 
@@ -488,7 +487,6 @@ export class UniversalStatement extends QuantifierStatement {
 
 	symbolized(variables: Formula[] = []): Statement {
 		if (variables.length === 0) {
-			// not a nested quantifier
 			return this.formula.symbolized(this.variables, REPLACEMENT_SYMBOL);
 		}
 
