@@ -81,13 +81,34 @@ router.get('/', async (req, res) => {
 	if (validate(req.query)) {
 		const query: GetRequest = req.query as any;
 
+		const isInstructor = coursesAsInstructor
+			.map(tuple => {
+				return tuple.name;
+			})
+			.includes(query.course);
+		// A user is in a course if they are an instructor or have an assignment from the course.
+		const userInCourse =
+			isInstructor ||
+			Object.prototype.hasOwnProperty.call(assignmentsByCourse, query.course);
+
+		if (!userInCourse) {
+			// If the user isn't in the course, fast-track them out of the function.
+			return res.render('index', {
+				commit:
+					process.env.HEROKU_SLUG_COMMIT ??
+					execSync('git rev-parse HEAD').toString().trim(),
+				assignmentsByCourse: assignmentsByCourse,
+				coursesAsInstructor: coursesAsInstructor,
+				assignment: assignment,
+				csrfToken: req.csrfToken(),
+			});
+		}
+
+		// Selecting another user's tree
 		let email = req.user.email;
 		if (query.student !== undefined && email !== query.student) {
-			const courseNamesAsInstructor = coursesAsInstructor.map(tuple => {
-				return tuple.name;
-			});
 			// Only instructors of a course can query for trees of other users.
-			if (courseNamesAsInstructor.includes(query.course)) {
+			if (isInstructor) {
 				email = query.student;
 				// If an instructor wants to see a student's submission, they will always want the
 				// latest submission.
