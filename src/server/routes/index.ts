@@ -77,22 +77,33 @@ router.get('/', async (req, res) => {
 	const validate = schemas.compileFile(
 		'./schemas/routes/index/get-request.json'
 	);
+
 	if (validate(req.query)) {
 		const query: GetRequest = req.query as any;
+
+		let email = req.user.email;
+		if (query.student !== undefined && email !== query.student) {
+			const courseNamesAsInstructor = coursesAsInstructor.map(tuple => {
+				return tuple.name;
+			});
+			// Only instructors of a course can query for trees of other users.
+			if (courseNamesAsInstructor.includes(query.course)) {
+				email = query.student;
+				// If an instructor wants to see a student's submission, they will always want the
+				// latest submission.
+				query.version = 'latest';
+				// TODO: show which user the instructor is viewing in an accessible spot.
+			} else {
+				console.warn(
+					`User "${req.user.email}" tried to access user "${query.student}"'s submission (access denied).`
+				);
+				// TODO: inform user that their request failed.
+				// TODO: log insecure attempts to disk.
+			}
+		}
+
 		let tree: string | undefined = undefined;
-		if (query.version === 'original') {
-			tree = (
-				await db.query<Pick<AssignmentsRow, 'tree'>>(
-					`
-						SELECT "tree"
-						FROM "assignments"
-						WHERE "name" = $1 AND "course_name" = $2
-					`,
-					[query.assignment, query.course]
-				)
-			).rows.shift()?.tree;
-		} else {
-			// query.version === 'latest'
+		if (query.version === 'latest') {
 			tree = (
 				await db.query<Pick<SubmissionsRow, 'tree'>>(
 					`
@@ -104,7 +115,26 @@ router.get('/', async (req, res) => {
 						ORDER BY "submitted_at" DESC
 						LIMIT 1
 					`,
-					[req.user.email, query.assignment, query.course]
+					[email, query.assignment, query.course]
+				)
+			).rows.shift()?.tree;
+
+			// If a student requests their latest submission but have never submitted, they should
+			// get the original tree.
+			if (tree === undefined) {
+				query.version = 'original';
+			}
+		}
+
+		if (query.version === 'original') {
+			tree = (
+				await db.query<Pick<AssignmentsRow, 'tree'>>(
+					`
+						SELECT "tree"
+						FROM "assignments"
+						WHERE "name" = $1 AND "course_name" = $2
+					`,
+					[query.assignment, query.course]
 				)
 			).rows.shift()?.tree;
 		}

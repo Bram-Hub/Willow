@@ -9,5 +9,6 @@ export interface GetRequest {
   assignment: string;
   course: string;
   version: "original" | "latest";
+  student?: string;
   [k: string]: unknown;
 }
