@@ -110,7 +110,6 @@ export class TruthTreeNode {
 
 	parent: number | null = null;
 	children: number[] = [];
-	branchNode: number | null = null;
 
 	antecedent: number | null = null;
 	decomposition: Set<number> = new Set();
@@ -139,7 +138,6 @@ export class TruthTreeNode {
 		newNode.premise = this.premise;
 		newNode.comment = this.comment;
 		newNode.parent = this.parent;
-		newNode.branchNode = this.branchNode;
 		newNode.children = [...this.children];
 		newNode.antecedent = this.antecedent;
 		newNode.decomposition = new Set(this.decomposition);
