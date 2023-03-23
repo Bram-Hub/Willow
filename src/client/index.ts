@@ -239,6 +239,15 @@ export const instance = vue
 						? this.selected
 						: tree.rightmostNode()?.id;
 
+				if (tree.isLeafNode(parentNodeId)){
+					const newNodeId = tree.addNodeAfter(parentNodeId, true);
+					if (newNodeId === null) {
+						return alert(
+							'You must select a node to perform this action; if there are no nodes then try creating a new tree. If this issue persists, please contact an instructor.'
+						);
+					}
+				} 
+				
 				const newNodeId = tree.addNodeAfter(parentNodeId, true);
 				if (newNodeId === null) {
 					return alert(
