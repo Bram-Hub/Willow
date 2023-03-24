@@ -42,6 +42,9 @@ export class CorrectnessError {
 			case 'existence_instantiation_length': {
 				return 'Each variable in an existence statement must instantiate a new constant.';
 			}
+			case 'existence_instantiation_violation': {
+				return 'This statement was decomposed multiple times within the same branch.';
+			}
 			case 'open_decomposed': {
 				return 'An open terminator must reference no statements.';
 			}
@@ -887,6 +890,7 @@ export class TruthTreeNode {
 						break;
 					}
 				}
+
 				if (!containedInBranch) {
 					// This node is not decomposed in every non-closed branch
 					if (this.statement instanceof ExistenceStatement) {
@@ -894,6 +898,8 @@ export class TruthTreeNode {
 					} else {
 						leafError = new CorrectnessError('invalid_decomposition');
 					}
+				} else if (this.decomposition.size > this.correctDecomposition!.size) {
+					leafError = new CorrectnessError('existence_instantiation_violation');
 				}
 			}
 
