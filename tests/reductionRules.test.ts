@@ -1,5 +1,15 @@
-import { Formula } from '../src/common/formula';
-import {StatementReducer, AndStatement, AtomicStatement, NotStatement, Contradiction, OrStatement, ConditionalStatement, BiconditionalStatement, Tautology} from '../src/common/statement';
+import {Formula} from '../src/common/formula';
+import {
+    StatementReducer,
+    AndStatement,
+    AtomicStatement,
+    NotStatement,
+    Contradiction,
+    OrStatement,
+    ConditionalStatement,
+    BiconditionalStatement,
+    Tautology
+} from '../src/common/statement';
 
 const notStatementToReduce = new NotStatement(new AtomicStatement(new Formula("H")));
 const andStatementToReduce1 = new AndStatement(new AtomicStatement(new Formula("H")), new AtomicStatement(new Formula("B")));
