@@ -135,148 +135,6 @@ export abstract class Statement {
 	 * @returns the string representation of this statement
 	 */
 	abstract toString(): string;
-
-	/**
-	 * Checks if the conclusion is a valid not reduction of this statement
-	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
-	 * @param conclusion the predicted conclusion
-	 */
-	checkNotReduction(literal: Statement, conclusion: Statement): boolean {
-		if (this instanceof NotStatement) {
-			console.log("NotStatment!")
-			console.log(this.operand);
-			let operand = this.operand;
-			if (literal.equals(operand)) {
-				return conclusion instanceof Contradiction;
-			} else if (literal.equals(new NotStatement(operand))) {
-				return conclusion instanceof Tautology;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Checks if the conclusion is a valid and reduction of this statement
-	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
-	 * @param conclusion the predicted conclusion
-	 */
-	checkAndReduction(literal: Statement, conclusion: Statement): boolean {
-		if (this instanceof AndStatement) {
-			console.log("AndStatement!");
-			console.log("left: " + this.operands[0]);
-			console.log("right: " + this.operands[1]);
-			let lhs = this.operands[0];
-			let rhs = this.operands[1];
-			if (literal.equals(lhs)) {
-				return conclusion.equals(rhs);
-			} else if (literal.equals(rhs)) {
-				return conclusion.equals(lhs);
-			} else if (literal.equals(new NotStatement(lhs))) {
-				return conclusion instanceof Contradiction;
-			} else if (literal.equals(new NotStatement(rhs))) {
-				return conclusion instanceof Contradiction;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Checks if the conclusion is a valid or reduction of this statement
-	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
-	 * @param conclusion the predicted conclusion
-	 */
-	checkOrReduction(literal: Statement, conclusion: Statement): boolean {
-		if (this instanceof OrStatement) {
-			console.log("OrStatement!");
-			console.log("left: " + this.operands[0]);
-			console.log("right: " + this.operands[1]);
-			let lhs = this.operands[0];
-			let rhs = this.operands[1];
-			if (literal.equals(lhs)) {
-				return conclusion instanceof Tautology;
-			} else if (literal.equals(rhs)) {
-				return conclusion instanceof Tautology;
-			} else if (literal.equals(new NotStatement(lhs))) {
-				return conclusion.equals(rhs);
-			} else if (literal.equals(new NotStatement(rhs))) {
-				return conclusion.equals(lhs);
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Checks if the conclusion is a valid conditional reduction of this statement
-	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
-	 * @param conclusion the predicted conclusion
-	 */
-	checkConditionalReduction(literal: Statement, conclusion: Statement): boolean {
-		if (this instanceof ConditionalStatement) {
-			console.log("ConditionalStatement!");
-			console.log("left: " + this.lhs);
-			console.log("right: " + this.lhs);
-			let lhs = this.lhs;
-			let rhs = this.rhs;
-			if (literal.equals(lhs)) {
-				return conclusion.equals(rhs);
-			} else if (literal.equals(rhs)) {
-				return conclusion instanceof Tautology;
-			} else if (literal.equals(new NotStatement(lhs))) {
-				return conclusion instanceof Tautology;
-			} else if (literal.equals(new NotStatement(rhs))) {
-				return conclusion.equals(new NotStatement(lhs));
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Checks if the conclusion is a valid biconditional reduction of this statement
-	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
-	 * @param conclusion the predicted conclusion
-	 */
-	checkBiconditionalReduction(literal: Statement, conclusion: Statement): boolean {
-		if (this instanceof BiconditionalStatement) {
-			console.log("BiconditionalStatement!");
-			console.log("left: " + this.lhs);
-			console.log("right: " + this.lhs);
-			let lhs = this.lhs;
-			let rhs = this.rhs;
-			if (literal.equals(lhs)) {
-				return conclusion.equals(rhs);
-			} else if (literal.equals(rhs)) {
-				return conclusion.equals(lhs);
-			} else if (literal.equals(new NotStatement(lhs))) {
-				return conclusion.equals(new NotStatement(rhs));
-			} else if (literal.equals(new NotStatement(rhs))) {
-				return conclusion.equals(new NotStatement(lhs));
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Verifies whether the conclusion is a valid reduction (i.e., it must satisfy
-	 * one of the reduction rules).
-	 * @returns true if the conclusion is valid and false otherwise
-	 */
-	validateReduction(literal: Statement, conclusion: Statement): boolean {
-		return this.checkNotReduction(literal, conclusion) ||
-				this.checkAndReduction(literal, conclusion) ||
-				this.checkOrReduction(literal, conclusion) ||
-				this.checkConditionalReduction(literal, conclusion) ||
-				this.checkBiconditionalReduction(literal, conclusion);
-	}
 }
 
 export class Tautology extends Statement {
@@ -723,5 +581,155 @@ class StatementEquivalenceEvaluator {
 
 		// This means they had not matching types, which are clearly not equivalent
 		return false;
+	}
+}
+
+export class StatementReducer {
+	statement: Statement;
+
+	constructor(statement: Statement) {
+		this.statement = statement;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid not reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkNotReduction(literal: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof NotStatement) {
+			console.log("NotStatment!")
+			console.log(this.statement.operand);
+			let operand = this.statement.operand;
+			if (literal.equals(operand)) {
+				return conclusion instanceof Contradiction;
+			} else if (literal.equals(new NotStatement(operand))) {
+				return conclusion instanceof Tautology;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid and reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkAndReduction(literal: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof AndStatement) {
+			console.log("AndStatement!");
+			console.log("left: " + this.statement.operands[0]);
+			console.log("right: " + this.statement.operands[1]);
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+			if (literal.equals(lhs)) {
+				return conclusion.equals(rhs);
+			} else if (literal.equals(rhs)) {
+				return conclusion.equals(lhs);
+			} else if (literal.equals(new NotStatement(lhs))) {
+				return conclusion instanceof Contradiction;
+			} else if (literal.equals(new NotStatement(rhs))) {
+				return conclusion instanceof Contradiction;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid or reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkOrReduction(literal: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof OrStatement) {
+			console.log("OrStatement!");
+			console.log("left: " + this.statement.operands[0]);
+			console.log("right: " + this.statement.operands[1]);
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+			if (literal.equals(lhs)) {
+				return conclusion instanceof Tautology;
+			} else if (literal.equals(rhs)) {
+				return conclusion instanceof Tautology;
+			} else if (literal.equals(new NotStatement(lhs))) {
+				return conclusion.equals(rhs);
+			} else if (literal.equals(new NotStatement(rhs))) {
+				return conclusion.equals(lhs);
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid conditional reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkConditionalReduction(literal: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof ConditionalStatement) {
+			console.log("ConditionalStatement!");
+			console.log("left: " + this.statement.lhs);
+			console.log("right: " + this.statement.rhs);
+			let lhs = this.statement.lhs;
+			let rhs = this.statement.rhs;
+			if (literal.equals(lhs)) {
+				return conclusion.equals(rhs);
+			} else if (literal.equals(rhs)) {
+				return conclusion instanceof Tautology;
+			} else if (literal.equals(new NotStatement(lhs))) {
+				return conclusion instanceof Tautology;
+			} else if (literal.equals(new NotStatement(rhs))) {
+				return conclusion.equals(new NotStatement(lhs));
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid biconditional reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkBiconditionalReduction(literal: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof BiconditionalStatement) {
+			console.log("BiconditionalStatement!");
+			console.log("left: " + this.statement.lhs);
+			console.log("right: " + this.statement.rhs);
+			let lhs = this.statement.lhs;
+			let rhs = this.statement.rhs;
+			if (literal.equals(lhs)) {
+				return conclusion.equals(rhs);
+			} else if (literal.equals(rhs)) {
+				return conclusion.equals(lhs);
+			} else if (literal.equals(new NotStatement(lhs))) {
+				return conclusion.equals(new NotStatement(rhs));
+			} else if (literal.equals(new NotStatement(rhs))) {
+				return conclusion.equals(new NotStatement(lhs));
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Verifies whether the conclusion is a valid reduction (i.e., it must satisfy
+	 * one of the reduction rules).
+	 * @returns true if the conclusion is valid and false otherwise
+	 */
+	validateReduction(literal: Statement, conclusion: Statement): boolean {
+		return this.checkNotReduction(literal, conclusion) ||
+				this.checkAndReduction(literal, conclusion) ||
+				this.checkOrReduction(literal, conclusion) ||
+				this.checkConditionalReduction(literal, conclusion) ||
+				this.checkBiconditionalReduction(literal, conclusion);
 	}
 }

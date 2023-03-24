@@ -1,5 +1,5 @@
 import { Formula } from '../src/common/formula';
-import {AndStatement, AtomicStatement, NotStatement, Contradiction, OrStatement, ConditionalStatement, BiconditionalStatement, Tautology} from '../src/common/statement';
+import {StatementReducer, AndStatement, AtomicStatement, NotStatement, Contradiction, OrStatement, ConditionalStatement, BiconditionalStatement, Tautology} from '../src/common/statement';
 
 const notStatementToReduce = new NotStatement(new AtomicStatement(new Formula("H")));
 const andStatementToReduce1 = new AndStatement(new AtomicStatement(new Formula("H")), new AtomicStatement(new Formula("B")));
@@ -11,19 +11,29 @@ const conditionalStatementToReduce2 = new ConditionalStatement(new AtomicStateme
 const biconditionalStatementToReduce1 = new BiconditionalStatement(new AtomicStatement(new Formula("H")), new AtomicStatement(new Formula("B")));
 const biconditionalStatementToReduce2 = new BiconditionalStatement(new AtomicStatement(new Formula("B")), new AtomicStatement(new Formula("H")));
 
+const notStatementReducer = new StatementReducer(notStatementToReduce);
+const andStatementReducer1 = new StatementReducer(andStatementToReduce1);
+const andStatementReducer2 = new StatementReducer(andStatementToReduce2);
+const orStatementReducer1 = new StatementReducer(orStatementToReduce1);
+const orStatementReducer2 = new StatementReducer(orStatementToReduce2);
+const conditionalStatementReducer1 = new StatementReducer(conditionalStatementToReduce1);
+const conditionalStatementReducer2 = new StatementReducer(conditionalStatementToReduce2);
+const biconditionalStatementReducer1 = new StatementReducer(biconditionalStatementToReduce1);
+const biconditionalStatementReducer2 = new StatementReducer(biconditionalStatementToReduce2);
+
 // NOT reduction rules
 
 test('¬True should have conclusion False', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new Contradiction;
-    const result = notStatementToReduce.validateReduction(literal, conclusion);
+    const result = notStatementReducer.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('¬False should have conclusion True', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new Tautology;
-    const result = notStatementToReduce.validateReduction(literal, conclusion);
+    const result = notStatementReducer.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
@@ -32,28 +42,28 @@ test('¬False should have conclusion True', () => {
 test('True ∧ P should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = andStatementToReduce1.validateReduction(literal, conclusion);
+    const result = andStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('False ∧ P should have conclusion False', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new Contradiction;
-    const result = andStatementToReduce1.validateReduction(literal, conclusion);
+    const result = andStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P ∧ True should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = andStatementToReduce2.validateReduction(literal, conclusion);
+    const result = andStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P ∧ False should have conclusion False', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new Contradiction;
-    const result = andStatementToReduce1.validateReduction(literal, conclusion);
+    const result = andStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
@@ -62,28 +72,28 @@ test('P ∧ False should have conclusion False', () => {
 test('True ∨ P should have conclusion True', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new Tautology;
-    const result = orStatementToReduce1.validateReduction(literal, conclusion);
+    const result = orStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('False ∨ P should have conclusion P', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = orStatementToReduce1.validateReduction(literal, conclusion);
+    const result = orStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P ∨ True should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new Tautology;
-    const result = orStatementToReduce2.validateReduction(literal, conclusion);
+    const result = orStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P ∨ False should have conclusion P', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = orStatementToReduce2.validateReduction(literal, conclusion);
+    const result = orStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
@@ -92,28 +102,28 @@ test('P ∨ False should have conclusion P', () => {
 test('True → P should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = conditionalStatementToReduce1.validateReduction(literal, conclusion);
+    const result = conditionalStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('False → P should have conclusion P', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new Tautology;
-    const result = conditionalStatementToReduce1.validateReduction(literal, conclusion);
+    const result = conditionalStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P → True should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new Tautology;
-    const result = conditionalStatementToReduce2.validateReduction(literal, conclusion);
+    const result = conditionalStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P → False should have conclusion ¬P', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new NotStatement(new AtomicStatement(new Formula("B")));
-    const result = conditionalStatementToReduce2.validateReduction(literal, conclusion);
+    const result = conditionalStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
@@ -122,27 +132,27 @@ test('P → False should have conclusion ¬P', () => {
 test('True ↔ P should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = biconditionalStatementToReduce1.validateReduction(literal, conclusion);
+    const result = biconditionalStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('False ↔ P should have conclusion P', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new NotStatement(new AtomicStatement(new Formula("B")));;
-    const result = biconditionalStatementToReduce1.validateReduction(literal, conclusion);
+    const result = biconditionalStatementReducer1.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P ↔ True should have conclusion P', () => {
     const literal = new AtomicStatement(new Formula("H"));
     const conclusion = new AtomicStatement(new Formula("B"));
-    const result = biconditionalStatementToReduce2.validateReduction(literal, conclusion);
+    const result = biconditionalStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
 
 test('P ↔ False should have conclusion ¬P', () => {
     const literal = new NotStatement(new AtomicStatement(new Formula("H")));
     const conclusion = new NotStatement(new AtomicStatement(new Formula("B")));
-    const result = biconditionalStatementToReduce2.validateReduction(literal, conclusion);
+    const result = biconditionalStatementReducer2.validateReduction(literal, conclusion);
     expect(result).toBeTruthy();
 });
