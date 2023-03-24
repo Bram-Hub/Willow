@@ -1250,12 +1250,12 @@ export class TruthTree {
 	 * Determines whether current node is a leaf node. A leaf node has no
 	 * children
 	 * @param root the id of the root of the subtree
-	 * @returns true if root is leaf node, false otherwise 
+	 * @returns true if root is leaf node, false otherwise
 	 */
 	isLeafNode(root: number | null): boolean {
 		let node = this.getNode(root);
-		if (node === null){
-			return false
+		if (node === null) {
+			return false;
 		}
 		return node.children.length === 0;
 	}
