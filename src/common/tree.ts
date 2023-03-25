@@ -115,8 +115,8 @@ export class TruthTreeNode {
 	children: number[] = [];
 
 	// for branching features
-	branchAtom: string|null = null;
-	branchAtomState : boolean| undefined;
+	branchAtom: string | null = null;
+	branchAtomState: boolean | undefined;
 
 	antecedent: number | null = null;
 	decomposition: Set<number> = new Set();

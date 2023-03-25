@@ -2,10 +2,10 @@ import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode, CorrectnessError} from '../../common/tree';
 
 export function getAtomBranchState(node: TruthTreeNode): string {
-	if (node.branchAtomState === true){
+	if (node.branchAtomState === true) {
 		return ' ⊤';
 	}
-	if (node.branchAtomState === false){
+	if (node.branchAtomState === false) {
 		return ' ⊥';
 	}
 	return '';

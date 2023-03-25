@@ -211,9 +211,10 @@ export const instance = vue
 				const tree: TruthTree = this.tree;
 				this.recordState();
 
-				const curNode  = typeof this.selected === 'number' ? this.selected : tree.root;
+				const curNode =
+					typeof this.selected === 'number' ? this.selected : tree.root;
 				const branchAtomState = tree.getNode(curNode)?.branchAtomState;
-				if ( typeof branchAtomState === 'boolean' ) {
+				if (typeof branchAtomState === 'boolean') {
 					this.tree.getNode(curNode).branchAtomState = undefined;
 				}
 
@@ -249,11 +250,11 @@ export const instance = vue
 					typeof this.selected === 'number'
 						? this.selected
 						: tree.rightmostNode()?.id;
-				
+
 				const branchAtom = this.tree.getNode(parentNodeId).branchAtom;
-				
+
 				// if the node is already an atom branch, can't create more branches
-				if (branchAtom != null){
+				if (branchAtom != null) {
 					return alert(
 						'An atom branch is limited to 2 direct sub-branches. Select another node. If this issue persists, please contact an instructor.'
 					);
@@ -292,14 +293,14 @@ export const instance = vue
 
 				const node = this.tree.getNode(parentNodeId);
 				const branchAtom = node.branchAtom;
-				
+
 				// Already has children branch
-				if ( !node.isNodeAtomizable()) {
+				if (!node.isNodeAtomizable()) {
 					return alert(
 						'An atom branch is limited to 2 direct sub-branches. Select another node. If this issue persists, please contact an instructor.'
 					);
 				}
-				
+
 				// create Tautologous branch
 				let newNodeId = tree.addNodeAfter(parentNodeId, true);
 				if (newNodeId === null) {
@@ -308,7 +309,7 @@ export const instance = vue
 					);
 				}
 				this.tree.getNode(newNodeId).branchAtomState = true;
-	
+
 				// create Contradictory branch
 				newNodeId = tree.addNodeAfter(parentNodeId, true);
 				if (newNodeId === null) {
