@@ -114,6 +114,10 @@ export class TruthTreeNode {
 	parent: number | null = null;
 	children: number[] = [];
 
+	// for branching features
+	branchAtom: string|null = null;
+	branchAtomState : boolean| undefined;
+
 	antecedent: number | null = null;
 	decomposition: Set<number> = new Set();
 	private _correctDecomposition: Set<number> | null = null;
@@ -985,6 +989,19 @@ export class TruthTreeNode {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Is is possible to create two atom branches off this node
+	 * @ returns boolean
+	 */
+	isNodeAtomizable(): boolean {
+		// already an atom branch
+		if (this.branchAtom != null) {
+			return false;
+		}
+		// must be leaf node to be branched
+		return this.children.length === 0;
 	}
 }
 
