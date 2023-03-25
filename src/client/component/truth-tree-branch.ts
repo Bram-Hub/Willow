@@ -227,7 +227,7 @@ export const TruthTreeBranchComponent = defineComponent({
 								selectedNode.isClosedTerminator(),
 						}">
 		  <truth-tree-node :id="id"></truth-tree-node>
-		  <select v-if="tree.nodes[id].children.length > 1" @click.stop="" name="membership" id="membership">
+		  <select v-if="tree.nodes[id].branchAtom != null" @click.stop="" name="membership" id="membership">
 		    <option value="free">A</option>
 			<option value="free">B</option>
 		  </select>
@@ -239,14 +239,15 @@ export const TruthTreeBranchComponent = defineComponent({
             ]"></i>
           </button>
         </li>
-				<template v-if="tree.nodes[id].children.length > 1">
-					<div
-							v-show="expanded"
-							v-for="child in tree.nodes[id].children">
-						<hr class="branch-line"/>
-						<truth-tree-branch :head="child"
-								:ref="addChildBranchRef"></truth-tree-branch>
-					</div>
+		<template v-if="tree.nodes[id].children.length > 1">
+			<div
+				v-show="expanded"
+				v-for="child in tree.nodes[id].children"
+			>
+				<hr class="branch-line"/>
+				<truth-tree-branch :head="child"
+						:ref="addChildBranchRef"></truth-tree-branch>
+			</div>
         </template>
       </template>
       <li v-if="!expanded && headNode.children.length > 0">

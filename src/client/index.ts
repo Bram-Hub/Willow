@@ -210,10 +210,21 @@ export const instance = vue
 			addStatementBefore() {
 				const tree: TruthTree = this.tree;
 				this.recordState();
+
+				const curNode  = typeof this.selected === 'number' ? this.selected : tree.root;
+				const branchAtomState = tree.getNode(curNode)?.branchAtomState;
+				if ( typeof branchAtomState === 'boolean' ) {
+					this.tree.getNode(curNode).branchAtomState = undefined;
+				}
+
+				const newNodeId = tree.addNodeBefore(
+					typeof this.selected === 'number' ? this.selected : tree.root
+				);
+
+				this.tree.getNode(newNodeId).branchAtomState = branchAtomState;
+
 				this.$store.commit('select', {
-					id: tree.addNodeBefore(
-						typeof this.selected === 'number' ? this.selected : tree.root
-					),
+					id: newNodeId,
 					delay: true,
 				});
 			},
@@ -238,6 +249,15 @@ export const instance = vue
 					typeof this.selected === 'number'
 						? this.selected
 						: tree.rightmostNode()?.id;
+				
+				const branchAtom = this.tree.getNode(parentNodeId).branchAtom;
+				
+				// if the node is already an atom branch, can't create more branches
+				if (branchAtom != null){
+					return alert(
+						'An atom branch is limited to 2 direct sub-branches. Select another node. If this issue persists, please contact an instructor.'
+					);
+				}
 
 				if (tree.isLeafNode(parentNodeId)) {
 					const newNodeId = tree.addNodeAfter(parentNodeId, true);
@@ -260,6 +280,44 @@ export const instance = vue
 					id: parentNodeId,
 					delay: true,
 				});
+			},
+			createAtomBranch() {
+				const tree: TruthTree = this.tree;
+				this.recordState();
+
+				const parentNodeId =
+					typeof this.selected === 'number'
+						? this.selected
+						: tree.rightmostNode()?.id;
+
+				const node = this.tree.getNode(parentNodeId);
+				const branchAtom = node.branchAtom;
+				
+				// Already has children branch
+				if ( !node.isNodeAtomizable()) {
+					return alert(
+						'An atom branch is limited to 2 direct sub-branches. Select another node. If this issue persists, please contact an instructor.'
+					);
+				}
+				
+				// create Tautologous branch
+				let newNodeId = tree.addNodeAfter(parentNodeId, true);
+				if (newNodeId === null) {
+					return alert(
+						'You must select a node to perform this action; if there are no nodes then try creating a new tree. If this issue persists, please contact an instructor.'
+					);
+				}
+				this.tree.getNode(newNodeId).branchAtomState = true;
+	
+				// create Contradictory branch
+				newNodeId = tree.addNodeAfter(parentNodeId, true);
+				if (newNodeId === null) {
+					return alert(
+						'You must select a node to perform this action; if there are no nodes then try creating a new tree. If this issue persists, please contact an instructor.'
+					);
+				}
+				this.tree.getNode(newNodeId).branchAtomState = false;
+				node.branchAtom = 'A';
 			},
 			deleteStatement() {
 				const tree: TruthTree = this.tree;

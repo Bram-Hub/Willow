@@ -52,6 +52,7 @@ html(lang='en')
             button.menu-option(@click='addStatementBefore') Add statement before
             button.menu-option(@click='addStatementAfter') Add statement after
             button.menu-option(@click='createBranch') Create branch
+            button.menu-option(@click='createAtomBranch') Create atom branch
             hr
             button.menu-option(@click='deleteStatement') Delete statement
             button.menu-option(@click='deleteBranch') Delete branch
@@ -164,6 +165,10 @@ html(lang='en')
               td Create branch
               td
                 key-recorder(@on-pressed='createBranch' event='create-branch' :default='["Control", "Shift", "B"]')
+            tr
+              td Create Atom branch
+              td
+                key-recorder(@on-pressed='createAtomBranch' event='create-atom-branch' :default='["Control", "Shift", "A"]')
             tr
               td Delete statement
               td

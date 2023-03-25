@@ -146,6 +146,7 @@ Toggle premise|`ctrl+p`
 Add statement before|`ctrl+b`
 Add statement after|`ctrl+a`
 Create branch|`ctrl+shift+b`
+Create atom branch|`ctrl+shift+a`
 Delete statement|`ctrl+d`
 Delete branch|`ctrl+shift+d`
 

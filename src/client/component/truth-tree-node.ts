@@ -1,6 +1,15 @@
 import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode, CorrectnessError} from '../../common/tree';
 
+export function getAtomBranchState(node: TruthTreeNode): string {
+	if (node.branchAtomState === true){
+		return ' ⊤';
+	}
+	if (node.branchAtomState === false){
+		return ' ⊥';
+	}
+	return '';
+}
 export function getNodeIconClasses(node: TruthTreeNode): string[] {
 	const validity = node.isValid();
 	if (
@@ -49,6 +58,7 @@ export const TruthTreeNodeComponent = defineComponent({
 	},
 	methods: {
 		getNodeIconClasses: getNodeIconClasses,
+		getAtomBranchState: getAtomBranchState,
 		makeSubstitutions(event: FocusEvent) {
 			if (this.node === null) {
 				return;
@@ -97,7 +107,7 @@ export const TruthTreeNodeComponent = defineComponent({
         JSON.stringify(node.universe.map(formula => formula.toString()))
       }}
     </span>
-    <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
+    <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"> {{getAtomBranchState(node)}} </i>
     <input :id="'node' + this.id" type="text" v-model="node.text"
         @focus="$store.commit('select', {id: id, focus: false})"
         @input="makeSubstitutions($event)"
