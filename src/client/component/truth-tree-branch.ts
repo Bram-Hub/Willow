@@ -226,7 +226,11 @@ export const TruthTreeBranchComponent = defineComponent({
 								selectedNode.decomposition.has(id) &&
 								selectedNode.isClosedTerminator(),
 						}">
-          <truth-tree-node :id="id"></truth-tree-node>
+		  <truth-tree-node :id="id"></truth-tree-node>
+		  <select v-if="tree.nodes[id].children.length > 1" @click.stop="" name="membership" id="membership">
+		    <option value="free">A</option>
+			<option value="free">B</option>
+		  </select>
           <button v-if="index === 0 && headNode.children.length > 0"
               class="expand-btn hidden" @click="expanded = !expanded">
             <i :class="[
