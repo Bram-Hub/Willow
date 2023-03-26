@@ -42,6 +42,9 @@ export class CorrectnessError {
 			case 'existence_instantiation_length': {
 				return 'Each variable in an existence statement must instantiate a new constant.';
 			}
+			case 'existence_instantiation_violation': {
+				return 'This statement was decomposed multiple times within the same branch.';
+			}
 			case 'open_decomposed': {
 				return 'An open terminator must reference no statements.';
 			}
@@ -887,6 +890,7 @@ export class TruthTreeNode {
 						break;
 					}
 				}
+
 				if (!containedInBranch) {
 					// This node is not decomposed in every non-closed branch
 					if (this.statement instanceof ExistenceStatement) {
@@ -894,6 +898,8 @@ export class TruthTreeNode {
 					} else {
 						leafError = new CorrectnessError('invalid_decomposition');
 					}
+				} else if (this.decomposition.size > this.correctDecomposition!.size) {
+					leafError = new CorrectnessError('existence_instantiation_violation');
 				}
 			}
 
@@ -1247,12 +1253,26 @@ export class TruthTree {
 	}
 
 	/**
+	 * Determines whether current node is a leaf node. A leaf node has no
+	 * children
+	 * @param root the id of the root of the subtree
+	 * @returns true if root is leaf node, false otherwise
+	 */
+	isLeafNode(root: number | null): boolean {
+		let node = this.getNode(root);
+		if (node === null) {
+			return false;
+		}
+		return node.children.length === 0;
+	}
+
+	/**
 	 * Returns the leftmost node in the subtree rooted at a given node, or the
 	 * entire tree if no node is specified.
 	 * @param root the id of the root of the subtree
 	 * @returns the leftmost node
 	 */
-	leftmostNode(root?: number | null) {
+	leftmostNode(root?: number | null): TruthTreeNode | null {
 		let node =
 			typeof root === 'number' ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
@@ -1273,7 +1293,7 @@ export class TruthTree {
 	 * @param root the id of the root of the subtree
 	 * @returns the rightmost node
 	 */
-	rightmostNode(root?: number | null) {
+	rightmostNode(root?: number | null): TruthTreeNode | null {
 		let node =
 			typeof root === 'number' ? this.getNode(root) : this.getNode(this.root);
 		if (node === null) {
