@@ -14,6 +14,22 @@ export abstract class Statement {
 		);
 	}
 
+	isTautology(): boolean {
+		if (this instanceof OrStatement) {
+			const lhs = this.operands[0];
+			const rhs = this.operands[1];
+			console.log("lhs: " + lhs);
+			console.log("rhs: " + rhs);
+			if (lhs.equals(new NotStatement(rhs))) {
+				return true;
+			} else if (rhs.equals(new NotStatement(lhs))) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	/**
 	 * Decomposes this statement into an array of branches, where each branch
 	 * contains the necessary decomposed statements.
@@ -581,5 +597,155 @@ class StatementEquivalenceEvaluator {
 
 		// This means they had not matching types, which are clearly not equivalent
 		return false;
+	}
+}
+
+export class StatementReducer {
+	statement: Statement;
+
+	constructor(statement: Statement) {
+		this.statement = statement;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid not reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkNotReduction(assertion: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof NotStatement) {
+			console.log("NotStatment!")
+			console.log(this.statement.operand);
+			let operand = this.statement.operand;
+			if (assertion.equals(operand)) {
+				return conclusion instanceof Contradiction;
+			} else if (assertion.equals(new NotStatement(operand))) {
+				return conclusion instanceof Tautology;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid and reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkAndReduction(assertion: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof AndStatement) {
+			console.log("AndStatement!");
+			console.log("left: " + this.statement.operands[0]);
+			console.log("right: " + this.statement.operands[1]);
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+			if (assertion.equals(lhs)) {
+				return conclusion.equals(rhs);
+			} else if (assertion.equals(rhs)) {
+				return conclusion.equals(lhs);
+			} else if (assertion.equals(new NotStatement(lhs))) {
+				return conclusion instanceof Contradiction;
+			} else if (assertion.equals(new NotStatement(rhs))) {
+				return conclusion instanceof Contradiction;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid or reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkOrReduction(assertion: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof OrStatement) {
+			console.log("OrStatement!");
+			console.log("left: " + this.statement.operands[0]);
+			console.log("right: " + this.statement.operands[1]);
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+			if (assertion.equals(lhs)) {
+				return conclusion instanceof Tautology;
+			} else if (assertion.equals(rhs)) {
+				return conclusion instanceof Tautology;
+			} else if (assertion.equals(new NotStatement(lhs))) {
+				return conclusion.equals(rhs);
+			} else if (assertion.equals(new NotStatement(rhs))) {
+				return conclusion.equals(lhs);
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid conditional reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkConditionalReduction(assertion: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof ConditionalStatement) {
+			console.log("ConditionalStatement!");
+			console.log("left: " + this.statement.lhs);
+			console.log("right: " + this.statement.rhs);
+			let lhs = this.statement.lhs;
+			let rhs = this.statement.rhs;
+			if (assertion.equals(lhs)) {
+				return conclusion.equals(rhs);
+			} else if (assertion.equals(rhs)) {
+				return conclusion instanceof Tautology;
+			} else if (assertion.equals(new NotStatement(lhs))) {
+				return conclusion instanceof Tautology;
+			} else if (assertion.equals(new NotStatement(rhs))) {
+				return conclusion.equals(new NotStatement(lhs));
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid biconditional reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private checkBiconditionalReduction(assertion: Statement, conclusion: Statement): boolean {
+		if (this.statement instanceof BiconditionalStatement) {
+			console.log("BiconditionalStatement!");
+			console.log("left: " + this.statement.lhs);
+			console.log("right: " + this.statement.rhs);
+			let lhs = this.statement.lhs;
+			let rhs = this.statement.rhs;
+			if (assertion.equals(lhs)) {
+				return conclusion.equals(rhs);
+			} else if (assertion.equals(rhs)) {
+				return conclusion.equals(lhs);
+			} else if (assertion.equals(new NotStatement(lhs))) {
+				return conclusion.equals(new NotStatement(rhs));
+			} else if (assertion.equals(new NotStatement(rhs))) {
+				return conclusion.equals(new NotStatement(lhs));
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Verifies whether the conclusion is a valid reduction (i.e., it must satisfy
+	 * one of the reduction rules).
+	 * @returns true if the conclusion is valid and false otherwise
+	 */
+	validateReduction(assertion: Statement, conclusion: Statement): boolean {
+		return this.checkNotReduction(assertion, conclusion) ||
+				this.checkAndReduction(assertion, conclusion) ||
+				this.checkOrReduction(assertion, conclusion) ||
+				this.checkConditionalReduction(assertion, conclusion) ||
+				this.checkBiconditionalReduction(assertion, conclusion);
 	}
 }
