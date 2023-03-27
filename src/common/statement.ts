@@ -615,23 +615,23 @@ export class StatementReducer {
 	/**
 	 * Checks if the conclusion is a valid and reduction of this statement
 	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkAndReduction(literal: Statement, conclusion: Statement): boolean {
+	private checkAndReduction(assertion: Statement, conclusion: Statement): boolean {
 		if (this.statement instanceof AndStatement) {
 			console.log("AndStatement!");
 			console.log("left: " + this.statement.operands[0]);
 			console.log("right: " + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
-			if (literal.equals(lhs)) {
+			if (assertion.equals(lhs)) {
 				return conclusion.equals(rhs);
-			} else if (literal.equals(rhs)) {
+			} else if (assertion.equals(rhs)) {
 				return conclusion.equals(lhs);
-			} else if (literal.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(new NotStatement(lhs))) {
 				return conclusion instanceof Contradiction;
-			} else if (literal.equals(new NotStatement(rhs))) {
+			} else if (assertion.equals(new NotStatement(rhs))) {
 				return conclusion instanceof Contradiction;
 			}
 		}
@@ -642,23 +642,23 @@ export class StatementReducer {
 	/**
 	 * Checks if the conclusion is a valid or reduction of this statement
 	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkOrReduction(literal: Statement, conclusion: Statement): boolean {
+	private checkOrReduction(assertion: Statement, conclusion: Statement): boolean {
 		if (this.statement instanceof OrStatement) {
 			console.log("OrStatement!");
 			console.log("left: " + this.statement.operands[0]);
 			console.log("right: " + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
-			if (literal.equals(lhs)) {
+			if (assertion.equals(lhs)) {
 				return conclusion instanceof Tautology;
-			} else if (literal.equals(rhs)) {
+			} else if (assertion.equals(rhs)) {
 				return conclusion instanceof Tautology;
-			} else if (literal.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(new NotStatement(lhs))) {
 				return conclusion.equals(rhs);
-			} else if (literal.equals(new NotStatement(rhs))) {
+			} else if (assertion.equals(new NotStatement(rhs))) {
 				return conclusion.equals(lhs);
 			}
 		}
@@ -669,23 +669,23 @@ export class StatementReducer {
 	/**
 	 * Checks if the conclusion is a valid conditional reduction of this statement
 	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkConditionalReduction(literal: Statement, conclusion: Statement): boolean {
+	private checkConditionalReduction(assertion: Statement, conclusion: Statement): boolean {
 		if (this.statement instanceof ConditionalStatement) {
 			console.log("ConditionalStatement!");
 			console.log("left: " + this.statement.lhs);
 			console.log("right: " + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
-			if (literal.equals(lhs)) {
+			if (assertion.equals(lhs)) {
 				return conclusion.equals(rhs);
-			} else if (literal.equals(rhs)) {
+			} else if (assertion.equals(rhs)) {
 				return conclusion instanceof Tautology;
-			} else if (literal.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(new NotStatement(lhs))) {
 				return conclusion instanceof Tautology;
-			} else if (literal.equals(new NotStatement(rhs))) {
+			} else if (assertion.equals(new NotStatement(rhs))) {
 				return conclusion.equals(new NotStatement(lhs));
 			}
 		}
@@ -696,23 +696,23 @@ export class StatementReducer {
 	/**
 	 * Checks if the conclusion is a valid biconditional reduction of this statement
 	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkBiconditionalReduction(literal: Statement, conclusion: Statement): boolean {
+	private checkBiconditionalReduction(assertion: Statement, conclusion: Statement): boolean {
 		if (this.statement instanceof BiconditionalStatement) {
 			console.log("BiconditionalStatement!");
 			console.log("left: " + this.statement.lhs);
 			console.log("right: " + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
-			if (literal.equals(lhs)) {
+			if (assertion.equals(lhs)) {
 				return conclusion.equals(rhs);
-			} else if (literal.equals(rhs)) {
+			} else if (assertion.equals(rhs)) {
 				return conclusion.equals(lhs);
-			} else if (literal.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(new NotStatement(lhs))) {
 				return conclusion.equals(new NotStatement(rhs));
-			} else if (literal.equals(new NotStatement(rhs))) {
+			} else if (assertion.equals(new NotStatement(rhs))) {
 				return conclusion.equals(new NotStatement(lhs));
 			}
 		}
@@ -725,11 +725,11 @@ export class StatementReducer {
 	 * one of the reduction rules).
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
-	validateReduction(literal: Statement, conclusion: Statement): boolean {
-		return this.checkNotReduction(literal, conclusion) ||
-				this.checkAndReduction(literal, conclusion) ||
-				this.checkOrReduction(literal, conclusion) ||
-				this.checkConditionalReduction(literal, conclusion) ||
-				this.checkBiconditionalReduction(literal, conclusion);
+	validateReduction(assertion: Statement, conclusion: Statement): boolean {
+		return this.checkNotReduction(assertion, conclusion) ||
+				this.checkAndReduction(assertion, conclusion) ||
+				this.checkOrReduction(assertion, conclusion) ||
+				this.checkConditionalReduction(assertion, conclusion) ||
+				this.checkBiconditionalReduction(assertion, conclusion);
 	}
 }
