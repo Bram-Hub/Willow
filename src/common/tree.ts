@@ -107,6 +107,7 @@ export class TruthTreeNode {
 	private _text = '';
 	private _statement: Statement | null = null;
 	premise = false;
+	isTautology = false;
 	comment: string | null = null;
 
 	tree: TruthTree;
@@ -139,6 +140,7 @@ export class TruthTreeNode {
 		const newNode = new TruthTreeNode(this.id, newTree);
 		newNode.text = this.text;
 		newNode.premise = this.premise;
+		newNode.isTautology = this.isTautology;
 		newNode.comment = this.comment;
 		newNode.parent = this.parent;
 		newNode.children = [...this.children];
@@ -238,6 +240,9 @@ export class TruthTreeNode {
 	 */
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
+		if (this._statement?.isTautology()) {
+			this.isTautology = true;
+		}
 		this._correctDecomposition = null;
 		// Anything that references this is also invalid.
 		if (this.antecedent !== null) {
@@ -589,6 +594,11 @@ export class TruthTreeNode {
 			return true;
 		}
 
+		if (this.isTautology) {
+			// Tautologies are always valid
+			return true;
+		}
+
 		// Non-premises must have an antecedent for this statement to be valid
 		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
 			return new CorrectnessError('not_logical_consequence');
@@ -937,6 +947,10 @@ export class TruthTreeNode {
 
 		if (this.premise) {
 			return 'This statement is a premise.';
+		}
+
+		if (this.isTautology) {
+			return 'This statement is a tautology.';
 		}
 
 		if (this.isTerminator()) {

@@ -14,6 +14,22 @@ export abstract class Statement {
 		);
 	}
 
+	isTautology(): boolean {
+		if (this instanceof OrStatement) {
+			const lhs = this.operands[0];
+			const rhs = this.operands[1];
+			console.log("lhs: " + lhs);
+			console.log("rhs: " + rhs);
+			if (lhs.equals(new NotStatement(rhs))) {
+				return true;
+			} else if (rhs.equals(new NotStatement(lhs))) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	/**
 	 * Decomposes this statement into an array of branches, where each branch
 	 * contains the necessary decomposed statements.
@@ -593,18 +609,18 @@ export class StatementReducer {
 
 	/**
 	 * Checks if the conclusion is a valid not reduction of this statement
-	 * given the literal.
-	 * @param literal the branch taken (e.g., H or ¬H)
+	 * given the assertion.
+	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkNotReduction(literal: Statement, conclusion: Statement): boolean {
+	private checkNotReduction(assertion: Statement, conclusion: Statement): boolean {
 		if (this.statement instanceof NotStatement) {
 			console.log("NotStatment!")
 			console.log(this.statement.operand);
 			let operand = this.statement.operand;
-			if (literal.equals(operand)) {
+			if (assertion.equals(operand)) {
 				return conclusion instanceof Contradiction;
-			} else if (literal.equals(new NotStatement(operand))) {
+			} else if (assertion.equals(new NotStatement(operand))) {
 				return conclusion instanceof Tautology;
 			}
 		}
@@ -614,7 +630,7 @@ export class StatementReducer {
 
 	/**
 	 * Checks if the conclusion is a valid and reduction of this statement
-	 * given the literal.
+	 * given the assertion.
 	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
@@ -641,7 +657,7 @@ export class StatementReducer {
 
 	/**
 	 * Checks if the conclusion is a valid or reduction of this statement
-	 * given the literal.
+	 * given the assertion.
 	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
@@ -668,7 +684,7 @@ export class StatementReducer {
 
 	/**
 	 * Checks if the conclusion is a valid conditional reduction of this statement
-	 * given the literal.
+	 * given the assertion.
 	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
@@ -695,7 +711,7 @@ export class StatementReducer {
 
 	/**
 	 * Checks if the conclusion is a valid biconditional reduction of this statement
-	 * given the literal.
+	 * given the assertion.
 	 * @param assertion the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
