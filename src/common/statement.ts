@@ -1,3 +1,4 @@
+import {not} from 'ajv/dist/compile/codegen';
 import {Formula, REPLACEMENT_SYMBOL} from './formula';
 import {AssignmentMap} from './util';
 
@@ -18,15 +19,15 @@ export abstract class Statement {
 		if (this instanceof OrStatement) {
 			const lhs = this.operands[0];
 			const rhs = this.operands[1];
-			console.log("lhs: " + lhs);
-			console.log("rhs: " + rhs);
+			console.log('lhs: ' + lhs);
+			console.log('rhs: ' + rhs);
 			if (lhs.equals(new NotStatement(rhs))) {
 				return true;
 			} else if (rhs.equals(new NotStatement(lhs))) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -600,11 +601,28 @@ class StatementEquivalenceEvaluator {
 	}
 }
 
-export class StatementReducer {
-	statement: Statement;
+/*
+ * Given a statement and literal, check it reduces to conclusion
+ * Our davis puttnam reducer
+ * StatementReducer
+ */
+export class DPStatementReducer {
+	statement: Statement; // the conclustion
 
 	constructor(statement: Statement) {
 		this.statement = statement;
+	}
+
+	/**
+	 * check if statment is a simple statement
+	 */
+	private isSimpleStatement(statement: Statement) {
+		// TODO: maybe check statement can be Tautology/ Contradiction
+		return (
+			statement instanceof AtomicStatement ||
+			statement instanceof Tautology ||
+			statement instanceof Contradiction
+		);
 	}
 
 	/**
@@ -613,19 +631,28 @@ export class StatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkNotReduction(assertion: Statement, conclusion: Statement): boolean {
+	private reduceNotStatement(assertion: Statement): Statement | null {
 		if (this.statement instanceof NotStatement) {
-			console.log("NotStatment!")
+			console.log('NotStatment!');
 			console.log(this.statement.operand);
 			let operand = this.statement.operand;
+
+			if (!this.isSimpleStatement(operand)) {
+				let new_operand = new DPStatementReducer(operand).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					operand = new_operand;
+				}
+			}
+
 			if (assertion.equals(operand)) {
-				return conclusion instanceof Contradiction;
+				return new Contradiction();
 			} else if (assertion.equals(new NotStatement(operand))) {
-				return conclusion instanceof Tautology;
+				return new Tautology();
 			}
 		}
-
-		return false;
+		return null;
 	}
 
 	/**
@@ -634,25 +661,45 @@ export class StatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkAndReduction(assertion: Statement, conclusion: Statement): boolean {
+	private reduceAndStatement(assertion: Statement): Statement | null {
 		if (this.statement instanceof AndStatement) {
-			console.log("AndStatement!");
-			console.log("left: " + this.statement.operands[0]);
-			console.log("right: " + this.statement.operands[1]);
+			console.log('[hi] AndStatement!');
+			console.log(this.statement.toString());
+
+			console.log('left: ' + this.statement.operands[0]);
+			console.log('right: ' + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
+
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
+			console.log('And statements REDUCED', lhs.toString, rhs.toString);
 			if (assertion.equals(lhs)) {
-				return conclusion.equals(rhs);
+				return rhs;
 			} else if (assertion.equals(rhs)) {
-				return conclusion.equals(lhs);
+				return lhs;
 			} else if (assertion.equals(new NotStatement(lhs))) {
-				return conclusion instanceof Contradiction;
+				return new Contradiction();
 			} else if (assertion.equals(new NotStatement(rhs))) {
-				return conclusion instanceof Contradiction;
+				return new Contradiction();
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -661,25 +708,41 @@ export class StatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkOrReduction(assertion: Statement, conclusion: Statement): boolean {
+	private reduceOrStatement(assertion: Statement): Statement | null {
 		if (this.statement instanceof OrStatement) {
-			console.log("OrStatement!");
-			console.log("left: " + this.statement.operands[0]);
-			console.log("right: " + this.statement.operands[1]);
+			console.log('OrStatement!');
+			console.log('left: ' + this.statement.operands[0]);
+			console.log('right: ' + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
 			if (assertion.equals(lhs)) {
-				return conclusion instanceof Tautology;
+				return new Tautology();
 			} else if (assertion.equals(rhs)) {
-				return conclusion instanceof Tautology;
+				return new Tautology();
 			} else if (assertion.equals(new NotStatement(lhs))) {
-				return conclusion.equals(rhs);
+				return rhs;
 			} else if (assertion.equals(new NotStatement(rhs))) {
-				return conclusion.equals(lhs);
+				return lhs;
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -688,25 +751,53 @@ export class StatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkConditionalReduction(assertion: Statement, conclusion: Statement): boolean {
+	private reduceConditionalStatement(assertion: Statement): Statement {
+		// can we reduce on the statement
 		if (this.statement instanceof ConditionalStatement) {
-			console.log("ConditionalStatement!");
-			console.log("left: " + this.statement.lhs);
-			console.log("right: " + this.statement.rhs);
+			console.log('[hi] ConditionalStatement!');
+			console.log(this.statement.toString());
+
+			console.log('left: ' + this.statement.lhs);
+			console.log('right: ' + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
+			console.log(
+				'Conditional statements REDUCED',
+				lhs.toString(),
+				rhs.toString()
+			);
+
 			if (assertion.equals(lhs)) {
-				return conclusion.equals(rhs);
+				return rhs;
 			} else if (assertion.equals(rhs)) {
-				return conclusion instanceof Tautology;
+				return new Tautology();
 			} else if (assertion.equals(new NotStatement(lhs))) {
-				return conclusion instanceof Tautology;
+				return new Tautology();
 			} else if (assertion.equals(new NotStatement(rhs))) {
-				return conclusion.equals(new NotStatement(lhs));
+				return new NotStatement(lhs);
+				// assertions get absorbed by intermediate steps
+			} else if (rhs instanceof Contradiction) {
+				return new NotStatement(lhs);
 			}
 		}
 
-		return false;
+		return this.statement;
 	}
 
 	/**
@@ -715,25 +806,41 @@ export class StatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private checkBiconditionalReduction(assertion: Statement, conclusion: Statement): boolean {
+	private reduceBiconditionalStatement(assertion: Statement): Statement {
 		if (this.statement instanceof BiconditionalStatement) {
-			console.log("BiconditionalStatement!");
-			console.log("left: " + this.statement.lhs);
-			console.log("right: " + this.statement.rhs);
+			console.log('BiconditionalStatement!');
+			console.log('left: ' + this.statement.lhs);
+			console.log('right: ' + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
 			if (assertion.equals(lhs)) {
-				return conclusion.equals(rhs);
+				return rhs;
 			} else if (assertion.equals(rhs)) {
-				return conclusion.equals(lhs);
+				return lhs;
 			} else if (assertion.equals(new NotStatement(lhs))) {
-				return conclusion.equals(new NotStatement(rhs));
+				return rhs;
 			} else if (assertion.equals(new NotStatement(rhs))) {
-				return conclusion.equals(new NotStatement(lhs));
+				return lhs;
 			}
 		}
 
-		return false;
+		return this.statement;
 	}
 
 	/**
@@ -741,11 +848,61 @@ export class StatementReducer {
 	 * one of the reduction rules).
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
-	validateReduction(assertion: Statement, conclusion: Statement): boolean {
-		return this.checkNotReduction(assertion, conclusion) ||
-				this.checkAndReduction(assertion, conclusion) ||
-				this.checkOrReduction(assertion, conclusion) ||
-				this.checkConditionalReduction(assertion, conclusion) ||
-				this.checkBiconditionalReduction(assertion, conclusion);
+	reduceStatement(assertion: Statement): Statement {
+		const notStatement = this.reduceNotStatement(assertion);
+		// console.log('Not', notStatement?.toString());
+		if (notStatement) {
+			return notStatement;
+		}
+		const andStatement = this.reduceAndStatement(assertion);
+		// console.log('And', andStatement?.toString());
+		if (andStatement) {
+			return andStatement;
+		}
+		const orStatement = this.reduceOrStatement(assertion);
+		// console.log('Or', orStatement?.toString());
+		if (orStatement) {
+			return orStatement;
+		}
+		const conditionalStatement = this.reduceConditionalStatement(assertion);
+		// console.log('Cond', conditionalStatement?.toString());
+
+		if (conditionalStatement) {
+			return conditionalStatement;
+		}
+		const biconditionalStatement = this.reduceBiconditionalStatement(assertion);
+		// console.log('Cond', biconditionalStatement?.toString());
+
+		if (biconditionalStatement) {
+			return biconditionalStatement;
+		}
+		return this.statement;
+	}
+}
+
+export class DPStatementValidator {
+	statement: Statement; // statement we're attempting to reduce
+	assertion: Statement;
+	// reducer: DPStatementReducer;
+	validConclusion: Statement | null;
+
+	constructor(statement: Statement, assertion: Statement) {
+		this.statement = statement;
+		this.assertion = assertion;
+		this.validConclusion = new DPStatementReducer(statement).reduceStatement(
+			this.assertion
+		);
+	}
+
+	/**
+	 * Verifies whether the conclusion is a valid reduction (i.e., it must satisfy
+	 * one of the reduction rules).
+	 * @returns true if the conclusion is valid and false otherwise
+	 */
+	validateReduction(conclusion: Statement): boolean {
+		if (this.validConclusion?.equals(conclusion)) {
+			return true;
+		}
+		return false;
 	}
 }

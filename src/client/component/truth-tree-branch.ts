@@ -84,7 +84,7 @@ export const TruthTreeBranchComponent = defineComponent({
 			if (selectedNode === null || selectedNode.id === id) {
 				return;
 			}
-			
+
 			if (selectedNode.decomposition.has(id)) {
 				selectedNode.decomposition.delete(id);
 			} else {
