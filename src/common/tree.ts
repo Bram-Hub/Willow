@@ -601,16 +601,25 @@ export class TruthTreeNode {
 		}
 
 		if (this._statement) {
-			let statementReducer = new StatementReducer(this._statement);
+			// this._statement ==> conclusion
+			// leftNode._statement ==> literal
+			// rightNode._statement ==> statement to reduce
 			let decompositionArr = Array.from(this.decomposition);
 			if (decompositionArr.length == 2) {
+				
 				let left = decompositionArr[0];
 				let right = decompositionArr[1];
 				let leftNode = this.tree.nodes[left];
 				let rightNode = this.tree.nodes[right];
+				
 				if (leftNode._statement && rightNode._statement) {
-					let res = statementReducer.validateReduction(leftNode._statement, rightNode._statement) ||
-								statementReducer.validateReduction(rightNode._statement, leftNode._statement);
+					let statementReducer = new StatementReducer(rightNode._statement);
+					let res = statementReducer.validateReduction(leftNode._statement, this._statement) ||
+								statementReducer.validateReduction(rightNode._statement, this._statement);
+					console.log(res);
+					if (res) {
+						return true;
+					}
 				}
 			}
 		}
