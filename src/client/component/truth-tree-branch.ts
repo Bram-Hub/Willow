@@ -76,6 +76,27 @@ export const TruthTreeBranchComponent = defineComponent({
 				this.childBranches.push(ref);
 			}
 		},
+		modifyDecompositionDP(id: number) {
+			// TODO: Document this function more
+			const selectedNode: TruthTreeNode | null =
+				this.$store.getters.selectedNode;
+
+			if (selectedNode === null || selectedNode.id === id) {
+				return;
+			}
+			
+			if (selectedNode.decomposition.has(id)) {
+				selectedNode.decomposition.delete(id);
+			} else {
+				selectedNode.decomposition.add(id);
+			}
+			const decomp = Array.from(selectedNode.decomposition);
+			for (let i = 0; i < decomp.length; i++) {
+				// console.log("hello");
+				// console.log(decomp[i]);
+				console.log(this.tree.nodes[decomp[i]]);
+			}
+		},
 		/**
 		 * Adds or removes a given node from the decomposition of the selected node,
 		 * or vice-versa depending on the position of the selected node relative to
@@ -101,6 +122,14 @@ export const TruthTreeBranchComponent = defineComponent({
 				} else {
 					selectedNode.decomposition.add(id);
 				}
+				const decomp = Array.from(selectedNode.decomposition);
+				for (let i = 0; i < decomp.length; i++) {
+					// console.log("hello");
+					// console.log(decomp[i]);
+					console.log(this.tree.nodes[decomp[i]]);
+				}
+				// let first = decomp[0]
+				// console.log(this.tree.nodes[decomp[0]])
 			} else if (selectedNode.isAncestorOf(id)) {
 				// When the selected is BEFORE, it becomes decomposition
 				const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id];
@@ -211,7 +240,7 @@ export const TruthTreeBranchComponent = defineComponent({
     <ul class="branch">
       <template v-for="id, index in branch">
         <li v-if="index === 0 || expanded"
-						@contextmenu.prevent="modifyDecomposition(id)"
+						@contextmenu.prevent="modifyDecompositionDP(id)"
 						@click="$store.commit('select', {id: id})"
 						:class="{
 							selected: selected === id,

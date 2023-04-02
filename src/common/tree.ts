@@ -7,6 +7,7 @@ import {
 	QuantifierStatement,
 	ExistenceStatement,
 	UniversalStatement,
+	StatementReducer,
 } from './statement';
 import {
 	deleteMapping,
@@ -597,6 +598,19 @@ export class TruthTreeNode {
 		if (this.isTautology) {
 			// Tautologies are always valid
 			return true;
+		}
+
+		if (this._statement) {
+			let statementReducer = new StatementReducer(this._statement);
+			let decompositionArr = Array.from(this.decomposition);
+			let left = decompositionArr[0];
+			let right = decompositionArr[0];
+			let leftNode = this.tree.nodes[left];
+			let rightNode = this.tree.nodes[right];
+			if (leftNode._statement && rightNode._statement) {
+				let res = statementReducer.validateReduction(leftNode._statement, rightNode._statement) ||
+							statementReducer.validateReduction(rightNode._statement, leftNode._statement);
+			}
 		}
 
 		// Non-premises must have an antecedent for this statement to be valid
