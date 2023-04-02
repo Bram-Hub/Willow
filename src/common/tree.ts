@@ -603,13 +603,15 @@ export class TruthTreeNode {
 		if (this._statement) {
 			let statementReducer = new StatementReducer(this._statement);
 			let decompositionArr = Array.from(this.decomposition);
-			let left = decompositionArr[0];
-			let right = decompositionArr[0];
-			let leftNode = this.tree.nodes[left];
-			let rightNode = this.tree.nodes[right];
-			if (leftNode._statement && rightNode._statement) {
-				let res = statementReducer.validateReduction(leftNode._statement, rightNode._statement) ||
-							statementReducer.validateReduction(rightNode._statement, leftNode._statement);
+			if (decompositionArr.length == 2) {
+				let left = decompositionArr[0];
+				let right = decompositionArr[1];
+				let leftNode = this.tree.nodes[left];
+				let rightNode = this.tree.nodes[right];
+				if (leftNode._statement && rightNode._statement) {
+					let res = statementReducer.validateReduction(leftNode._statement, rightNode._statement) ||
+								statementReducer.validateReduction(rightNode._statement, leftNode._statement);
+				}
 			}
 		}
 
