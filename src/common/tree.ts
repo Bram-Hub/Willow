@@ -242,6 +242,7 @@ export class TruthTreeNode {
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
 		if (this._statement?.isTautology()) {
+			console.log("SET TO TRUE");
 			this.isTautology = true;
 		}
 		this._correctDecomposition = null;

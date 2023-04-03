@@ -16,6 +16,7 @@ export abstract class Statement {
 	}
 
 	isTautology(): boolean {
+		console.log("TAUTOLOGY");
 		if (this instanceof OrStatement) {
 			const lhs = this.operands[0];
 			const rhs = this.operands[1];
@@ -633,8 +634,8 @@ export class DPStatementReducer {
 	 */
 	private reduceNotStatement(assertion: Statement): Statement | null {
 		if (this.statement instanceof NotStatement) {
-			console.log('NotStatment!');
-			console.log(this.statement.operand);
+			// console.log('NotStatment!');
+			// console.log(this.statement.operand);
 			let operand = this.statement.operand;
 
 			if (!this.isSimpleStatement(operand)) {
@@ -646,9 +647,9 @@ export class DPStatementReducer {
 				}
 			}
 
-			if (assertion.equals(operand)) {
+			if (assertion.equals(operand) || operand instanceof Tautology) {
 				return new Contradiction();
-			} else if (assertion.equals(new NotStatement(operand))) {
+			} else if (assertion.equals(new NotStatement(operand)) || operand instanceof Contradiction) {
 				return new Tautology();
 			}
 		}
@@ -663,11 +664,11 @@ export class DPStatementReducer {
 	 */
 	private reduceAndStatement(assertion: Statement): Statement | null {
 		if (this.statement instanceof AndStatement) {
-			console.log('[hi] AndStatement!');
-			console.log(this.statement.toString());
+			// console.log('[hi] AndStatement!');
+			// console.log(this.statement.toString());
 
-			console.log('left: ' + this.statement.operands[0]);
-			console.log('right: ' + this.statement.operands[1]);
+			// console.log('left: ' + this.statement.operands[0]);
+			// console.log('right: ' + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
 
@@ -687,14 +688,14 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			console.log('And statements REDUCED', lhs.toString, rhs.toString);
-			if (assertion.equals(lhs)) {
+			// console.log('And statements REDUCED', lhs.toString, rhs.toString);
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
-			} else if (assertion.equals(rhs)) {
-				return lhs;
-			} else if (assertion.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
 				return new Contradiction();
-			} else if (assertion.equals(new NotStatement(rhs))) {
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
+				return lhs;
+			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
 				return new Contradiction();
 			}
 		}
@@ -710,9 +711,9 @@ export class DPStatementReducer {
 	 */
 	private reduceOrStatement(assertion: Statement): Statement | null {
 		if (this.statement instanceof OrStatement) {
-			console.log('OrStatement!');
-			console.log('left: ' + this.statement.operands[0]);
-			console.log('right: ' + this.statement.operands[1]);
+			// console.log('OrStatement!');
+			// console.log('left: ' + this.statement.operands[0]);
+			// console.log('right: ' + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
 			if (!this.isSimpleStatement(lhs)) {
@@ -731,13 +732,13 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			if (assertion.equals(lhs)) {
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return new Tautology();
-			} else if (assertion.equals(rhs)) {
-				return new Tautology();
-			} else if (assertion.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
 				return rhs;
-			} else if (assertion.equals(new NotStatement(rhs))) {
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
+				return new Tautology();
+			} else if (assertion.equals(new NotStatement(rhs) || rhs instanceof Contradiction)) {
 				return lhs;
 			}
 		}
@@ -754,11 +755,11 @@ export class DPStatementReducer {
 	private reduceConditionalStatement(assertion: Statement): Statement {
 		// can we reduce on the statement
 		if (this.statement instanceof ConditionalStatement) {
-			console.log('[hi] ConditionalStatement!');
-			console.log(this.statement.toString());
+			// console.log('[hi] ConditionalStatement!');
+			// console.log(this.statement.toString());
 
-			console.log('left: ' + this.statement.lhs);
-			console.log('right: ' + this.statement.rhs);
+			// console.log('left: ' + this.statement.lhs);
+			// console.log('right: ' + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
 			if (!this.isSimpleStatement(lhs)) {
@@ -777,22 +778,20 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			console.log(
-				'Conditional statements REDUCED',
-				lhs.toString(),
-				rhs.toString()
-			);
+			// console.log(
+			// 	'Conditional statements REDUCED',
+			// 	lhs.toString(),
+			// 	rhs.toString()
+			// );
 
-			if (assertion.equals(lhs)) {
+			// second part of or is when assertions get absorbed by intermediate steps
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
-			} else if (assertion.equals(rhs)) {
+			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
 				return new Tautology();
-			} else if (assertion.equals(new NotStatement(lhs))) {
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
 				return new Tautology();
-			} else if (assertion.equals(new NotStatement(rhs))) {
-				return new NotStatement(lhs);
-				// assertions get absorbed by intermediate steps
-			} else if (rhs instanceof Contradiction) {
+			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
 				return new NotStatement(lhs);
 			}
 		}
@@ -808,9 +807,9 @@ export class DPStatementReducer {
 	 */
 	private reduceBiconditionalStatement(assertion: Statement): Statement {
 		if (this.statement instanceof BiconditionalStatement) {
-			console.log('BiconditionalStatement!');
-			console.log('left: ' + this.statement.lhs);
-			console.log('right: ' + this.statement.rhs);
+			// console.log('BiconditionalStatement!');
+			// console.log('left: ' + this.statement.lhs);
+			// console.log('right: ' + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
 			if (!this.isSimpleStatement(lhs)) {
@@ -829,14 +828,14 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			if (assertion.equals(lhs)) {
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
-			} else if (assertion.equals(rhs)) {
+			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
+				return new NotStatement(rhs);
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
 				return lhs;
-			} else if (assertion.equals(new NotStatement(lhs))) {
-				return rhs;
-			} else if (assertion.equals(new NotStatement(rhs))) {
-				return lhs;
+			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
+				return new NotStatement(lhs);
 			}
 		}
 
