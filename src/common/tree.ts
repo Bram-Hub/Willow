@@ -113,10 +113,10 @@ export class TruthTreeNode {
 
 	tree: TruthTree;
 
-	parent: number | null = null;
+	parent: number | null = null;			// physical parent
 	children: number[] = [];
 
-	antecedent: number | null = null;
+	antecedent: number | null = null;		// logical parent
 	decomposition: Set<number> = new Set();
 	private _correctDecomposition: Set<number> | null = null;
 
@@ -242,7 +242,6 @@ export class TruthTreeNode {
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
 		if (this._statement?.isTautology()) {
-			console.log("SET TO TRUE");
 			this.isTautology = true;
 		}
 		this._correctDecomposition = null;

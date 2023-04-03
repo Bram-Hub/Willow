@@ -632,7 +632,7 @@ export class DPStatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private reduceNotStatement(assertion: Statement): Statement | null {
+	private reduceNotStatement(assertion: Statement): Statement {
 		if (this.statement instanceof NotStatement) {
 			// console.log('NotStatment!');
 			// console.log(this.statement.operand);
@@ -652,8 +652,10 @@ export class DPStatementReducer {
 			} else if (assertion.equals(new NotStatement(operand)) || operand instanceof Contradiction) {
 				return new Tautology();
 			}
+			return new NotStatement(operand);
+
 		}
-		return null;
+		return this.statement;
 	}
 
 	/**
@@ -662,7 +664,7 @@ export class DPStatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private reduceAndStatement(assertion: Statement): Statement | null {
+	private reduceAndStatement(assertion: Statement): Statement {
 		if (this.statement instanceof AndStatement) {
 			// console.log('[hi] AndStatement!');
 			// console.log(this.statement.toString());
@@ -698,9 +700,10 @@ export class DPStatementReducer {
 			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
 				return new Contradiction();
 			}
+			return new AndStatement(lhs, rhs);
 		}
 
-		return null;
+		return this.statement;
 	}
 
 	/**
@@ -709,7 +712,7 @@ export class DPStatementReducer {
 	 * @param literal the branch taken (e.g., H or ¬H)
 	 * @param conclusion the predicted conclusion
 	 */
-	private reduceOrStatement(assertion: Statement): Statement | null {
+	private reduceOrStatement(assertion: Statement): Statement {
 		if (this.statement instanceof OrStatement) {
 			// console.log('OrStatement!');
 			// console.log('left: ' + this.statement.operands[0]);
@@ -741,9 +744,10 @@ export class DPStatementReducer {
 			} else if (assertion.equals(new NotStatement(rhs) || rhs instanceof Contradiction)) {
 				return lhs;
 			}
+			return new OrStatement(lhs, rhs);
 		}
 
-		return null;
+		return this.statement;
 	}
 
 	/**
@@ -778,11 +782,11 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			// console.log(
-			// 	'Conditional statements REDUCED',
-			// 	lhs.toString(),
-			// 	rhs.toString()
-			// );
+			console.log(
+				'Conditional statements REDUCED',
+				lhs.toString(),
+				rhs.toString()
+			);
 
 			// second part of or is when assertions get absorbed by intermediate steps
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
@@ -794,6 +798,7 @@ export class DPStatementReducer {
 			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
 				return new NotStatement(lhs);
 			}
+			return new ConditionalStatement(lhs, rhs);
 		}
 
 		return this.statement;
@@ -837,6 +842,7 @@ export class DPStatementReducer {
 			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
 				return new NotStatement(lhs);
 			}
+			return new BiconditionalStatement(lhs, rhs);
 		}
 
 		return this.statement;
@@ -848,32 +854,20 @@ export class DPStatementReducer {
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
 	reduceStatement(assertion: Statement): Statement {
-		const notStatement = this.reduceNotStatement(assertion);
-		// console.log('Not', notStatement?.toString());
-		if (notStatement) {
-			return notStatement;
+		if (this.statement instanceof NotStatement){
+			return this.reduceNotStatement(assertion);;
 		}
-		const andStatement = this.reduceAndStatement(assertion);
-		// console.log('And', andStatement?.toString());
-		if (andStatement) {
-			return andStatement;
+		if (this.statement instanceof AndStatement){
+			return this.reduceAndStatement(assertion);
 		}
-		const orStatement = this.reduceOrStatement(assertion);
-		// console.log('Or', orStatement?.toString());
-		if (orStatement) {
-			return orStatement;
+		if (this.statement instanceof OrStatement){
+			return this.reduceOrStatement(assertion);
 		}
-		const conditionalStatement = this.reduceConditionalStatement(assertion);
-		// console.log('Cond', conditionalStatement?.toString());
-
-		if (conditionalStatement) {
-			return conditionalStatement;
+		if (this.statement instanceof ConditionalStatement){
+			return this.reduceConditionalStatement(assertion);
 		}
-		const biconditionalStatement = this.reduceBiconditionalStatement(assertion);
-		// console.log('Cond', biconditionalStatement?.toString());
-
-		if (biconditionalStatement) {
-			return biconditionalStatement;
+		if (this.statement instanceof BiconditionalStatement){
+			return this.reduceBiconditionalStatement(assertion);
 		}
 		return this.statement;
 	}
@@ -883,7 +877,7 @@ export class DPStatementValidator {
 	statement: Statement; // statement we're attempting to reduce
 	assertion: Statement;
 	// reducer: DPStatementReducer;
-	validConclusion: Statement | null;
+	validConclusion: Statement;
 
 	constructor(statement: Statement, assertion: Statement) {
 		this.statement = statement;
@@ -899,9 +893,6 @@ export class DPStatementValidator {
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
 	validateReduction(conclusion: Statement): boolean {
-		if (this.validConclusion?.equals(conclusion)) {
-			return true;
-		}
-		return false;
+		return this.validConclusion.equals(conclusion);
 	}
 }
