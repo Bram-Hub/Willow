@@ -601,6 +601,9 @@ export class TruthTreeNode {
 		}
 
 		if (this._statement) {
+			// this._statement ==> conclusion
+			// leftNode._statement ==> literal
+			// rightNode._statement ==> statement to reduce
 			let decompositionArr = Array.from(this.decomposition);
 			if (decompositionArr.length == 2) {
 				let left = decompositionArr[0];
@@ -618,11 +621,9 @@ export class TruthTreeNode {
 						rightNode._statement,
 						leftNode._statement
 					);
-
 					let res =
 						statementReducer.validateReduction(this._statement) ||
 						statementReducer2.validateReduction(this._statement);
-
 					if (res) {
 						return true;
 					}
