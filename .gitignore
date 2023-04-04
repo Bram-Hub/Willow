@@ -1,3 +1,6 @@
+# mac 
+.DS_Store
+
 config.yml
 
 logs/*
@@ -138,3 +141,7 @@ dist
 ##  TypeScript  ##
 ##################
 build/
+
+
+## 
+WillowFiles/

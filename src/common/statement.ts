@@ -16,7 +16,7 @@ export abstract class Statement {
 	}
 
 	isTautology(): boolean {
-		console.log("TAUTOLOGY");
+		console.log('TAUTOLOGY');
 		if (this instanceof OrStatement) {
 			const lhs = this.operands[0];
 			const rhs = this.operands[1];
@@ -649,11 +649,13 @@ export class DPStatementReducer {
 
 			if (assertion.equals(operand) || operand instanceof Tautology) {
 				return new Contradiction();
-			} else if (assertion.equals(new NotStatement(operand)) || operand instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(operand)) ||
+				operand instanceof Contradiction
+			) {
 				return new Tautology();
 			}
 			return new NotStatement(operand);
-
 		}
 		return this.statement;
 	}
@@ -693,11 +695,17 @@ export class DPStatementReducer {
 			// console.log('And statements REDUCED', lhs.toString, rhs.toString);
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
-			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
 				return new Contradiction();
 			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
 				return lhs;
-			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(rhs)) ||
+				rhs instanceof Contradiction
+			) {
 				return new Contradiction();
 			}
 			return new AndStatement(lhs, rhs);
@@ -737,11 +745,16 @@ export class DPStatementReducer {
 			}
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return new Tautology();
-			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
 				return rhs;
 			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
 				return new Tautology();
-			} else if (assertion.equals(new NotStatement(rhs) || rhs instanceof Contradiction)) {
+			} else if (
+				assertion.equals(new NotStatement(rhs) || rhs instanceof Contradiction)
+			) {
 				return lhs;
 			}
 			return new OrStatement(lhs, rhs);
@@ -791,11 +804,17 @@ export class DPStatementReducer {
 			// second part of or is when assertions get absorbed by intermediate steps
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
-			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
 				return new Tautology();
 			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
 				return new Tautology();
-			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(rhs)) ||
+				rhs instanceof Contradiction
+			) {
 				return new NotStatement(lhs);
 			}
 			return new ConditionalStatement(lhs, rhs);
@@ -835,11 +854,17 @@ export class DPStatementReducer {
 			}
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
-			} else if (assertion.equals(new NotStatement(lhs)) || lhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
 				return new NotStatement(rhs);
 			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
 				return lhs;
-			} else if (assertion.equals(new NotStatement(rhs)) || rhs instanceof Contradiction) {
+			} else if (
+				assertion.equals(new NotStatement(rhs)) ||
+				rhs instanceof Contradiction
+			) {
 				return new NotStatement(lhs);
 			}
 			return new BiconditionalStatement(lhs, rhs);
@@ -854,19 +879,19 @@ export class DPStatementReducer {
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
 	reduceStatement(assertion: Statement): Statement {
-		if (this.statement instanceof NotStatement){
-			return this.reduceNotStatement(assertion);;
+		if (this.statement instanceof NotStatement) {
+			return this.reduceNotStatement(assertion);
 		}
-		if (this.statement instanceof AndStatement){
+		if (this.statement instanceof AndStatement) {
 			return this.reduceAndStatement(assertion);
 		}
-		if (this.statement instanceof OrStatement){
+		if (this.statement instanceof OrStatement) {
 			return this.reduceOrStatement(assertion);
 		}
-		if (this.statement instanceof ConditionalStatement){
+		if (this.statement instanceof ConditionalStatement) {
 			return this.reduceConditionalStatement(assertion);
 		}
-		if (this.statement instanceof BiconditionalStatement){
+		if (this.statement instanceof BiconditionalStatement) {
 			return this.reduceBiconditionalStatement(assertion);
 		}
 		return this.statement;
