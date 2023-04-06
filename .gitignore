@@ -138,3 +138,11 @@ dist
 ##  TypeScript  ##
 ##################
 build/
+
+##################
+##    Willow    ##
+##################
+*.willow 
+WillowFiles
+
+.DS_Store
