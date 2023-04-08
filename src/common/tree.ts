@@ -118,6 +118,11 @@ export class TruthTreeNode {
 
 	antecedent: number | null = null;		// logical parent
 	decomposition: Set<number> = new Set();
+
+	// For Davis Puttnam reduction
+	antecedentsDP: Set<number> = new Set();
+	branch: Set<number> = new Set();
+
 	private _correctDecomposition: Set<number> | null = null;
 
 	/**
@@ -147,7 +152,8 @@ export class TruthTreeNode {
 		newNode.children = [...this.children];
 		newNode.antecedent = this.antecedent;
 		newNode.decomposition = new Set(this.decomposition);
-
+		newNode.antecedentsDP = new Set(this.antecedentsDP);
+		newNode.branch = new Set(this.branch);
 		return newNode;
 	}
 
@@ -604,10 +610,10 @@ export class TruthTreeNode {
 			// this._statement ==> conclusion
 			// leftNode._statement ==> literal
 			// rightNode._statement ==> statement to reduce
-			let decompositionArr = Array.from(this.decomposition);
-			if (decompositionArr.length == 2) {
-				let left = decompositionArr[0];
-				let right = decompositionArr[1];
+			let antecedentArr = Array.from(this.antecedentsDP);
+			if (antecedentArr.length == 2) {
+				let left = antecedentArr[0];
+				let right = antecedentArr[1];
 				let leftNode = this.tree.nodes[left];
 				let rightNode = this.tree.nodes[right];
 
@@ -621,10 +627,22 @@ export class TruthTreeNode {
 						rightNode._statement,
 						leftNode._statement
 					);
-					let res =
-						statementReducer.validateReduction(this._statement) ||
-						statementReducer2.validateReduction(this._statement);
-					if (res) {
+					let res1 = statementReducer.validateReduction(this._statement);
+					let res2 = statementReducer2.validateReduction(this._statement);
+
+					if (res1) {
+						leftNode.branch.clear();
+						// leftnode (statement to reduce) should have right node (branch) as decomp
+						// leftNode.decomposition.clear();
+						// leftNode.decomposition.add(this.id);
+						leftNode.branch.add(right);
+						return true;
+					} else if (res2) {
+						rightNode.branch.clear();
+						// opposite
+						// rightNode.decomposition.clear();
+						// rightNode.decomposition.add(this.id);
+						rightNode.branch.add(left);
 						return true;
 					}
 				}
