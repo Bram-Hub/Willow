@@ -16,19 +16,15 @@ export abstract class Statement {
 	}
 
 	isTautology(): boolean {
-		console.log('TAUTOLOGY');
 		if (this instanceof OrStatement) {
 			const lhs = this.operands[0];
 			const rhs = this.operands[1];
-			console.log('lhs: ' + lhs);
-			console.log('rhs: ' + rhs);
 			if (lhs.equals(new NotStatement(rhs))) {
 				return true;
 			} else if (rhs.equals(new NotStatement(lhs))) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 

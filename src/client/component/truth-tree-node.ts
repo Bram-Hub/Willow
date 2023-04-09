@@ -8,8 +8,10 @@ export function getNodeIconClasses(node: TruthTreeNode): string[] {
 		validity.errorCode === 'not_parsable'
 	) {
 		return ['fas', 'fa-exclamation-triangle', 'statement-error'];
-	} else if (validity === true && node.isDecomposed() === true) {
+	} else if (validity === true && node.isReduced() === true) {
 		return ['fas', 'fa-check', 'statement-correct'];
+	// } else if (validity === true && node.isDecomposed() === true) {
+	// 	return ['fas', 'fa-check', 'statement-correct'];
 	} else {
 		return ['fas', 'fa-times', 'statement-incorrect'];
 	}
@@ -99,7 +101,6 @@ export const TruthTreeNodeComponent = defineComponent({
 	</span>
 	<span>
 		id: {{ id }},
-		valid: {{ node.isValid() }},
       	decomposed: {{ node.isDecomposed() }},
 		decomposition: {{ node.decomposition }},
 		antecedents: {{ node.antecedentsDP }},

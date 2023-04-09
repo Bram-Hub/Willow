@@ -4,6 +4,7 @@ import {
 	Statement,
 	AtomicStatement,
 	NotStatement,
+	OrStatement,
 	QuantifierStatement,
 	ExistenceStatement,
 	UniversalStatement,
@@ -121,7 +122,7 @@ export class TruthTreeNode {
 
 	// For Davis Puttnam reduction
 	antecedentsDP: Set<number> = new Set();
-	branch: Set<number> = new Set();
+	branch: Set<Statement> = new Set();
 
 	private _correctDecomposition: Set<number> | null = null;
 
@@ -635,14 +636,14 @@ export class TruthTreeNode {
 						// leftnode (statement to reduce) should have right node (branch) as decomp
 						// leftNode.decomposition.clear();
 						// leftNode.decomposition.add(this.id);
-						leftNode.branch.add(right);
+						leftNode.branch.add(rightNode._statement);
 						return true;
 					} else if (res2) {
 						rightNode.branch.clear();
 						// opposite
 						// rightNode.decomposition.clear();
 						// rightNode.decomposition.add(this.id);
-						rightNode.branch.add(left);
+						rightNode.branch.add(leftNode._statement);
 						return true;
 					}
 				}
@@ -731,8 +732,12 @@ export class TruthTreeNode {
 			}
 
 			// Check if each ancestor is decomposed
-			const ancestorDecomposed = ancestorNode.isDecomposed();
-			if (ancestorDecomposed !== true) {
+			// const ancestorDecomposed = ancestorNode.isDecomposed();
+			// if (ancestorDecomposed !== true) {
+			// 	return new CorrectnessError('open_invalid_ancestor');
+			// }
+			const ancestorReduced = ancestorNode.isReduced();
+			if (ancestorReduced !== true) {
 				return new CorrectnessError('open_invalid_ancestor');
 			}
 		}
@@ -796,6 +801,57 @@ export class TruthTreeNode {
 		}
 
 		return new CorrectnessError('closed_not_contradiction');
+	}
+
+	isReduced(): Response {
+		// Null statements are decomposed only if they are terminators or empty
+		// strings
+		if (this.statement === null) {
+			// Case 1: Empty string
+			if (this.text.trim().length === 0) {
+				return true;
+			}
+
+			// Case 2: Terminator
+			if (this.isTerminator()) {
+				return true;
+			}
+
+			// Otherwise, it failed to parse but is not one of the above cases
+			return new CorrectnessError('not_parsable');
+		}
+
+		if (this.statement instanceof OrStatement && this.statement.isTautology()) {
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+
+			let count = 0;	
+			for (let key of this.decomposition){
+				if (this.tree.nodes[key]._statement?.equals(lhs)){
+					count +=1;
+					// prevents false positive from two lhs being in branch
+					lhs = rhs;
+				} else if (this.tree.nodes[key]._statement?.equals(rhs)){
+					count +=1;
+					rhs = lhs;
+				// remove items from decomposition branch
+				} else {
+					this.decomposition.delete(key);
+				}
+			}
+
+			// both lhs and rhs are in decomposition of statement
+			if (count === 2){
+				return true;
+			}
+			return new CorrectnessError('Tautology not decomposed');
+		}
+
+		// To-do:
+		// 1. if statement's parent is taut (only), return true
+		// 2. check this+branch, this+!branch is in decomp
+
+		return new CorrectnessError("");
 	}
 
 	/**
@@ -990,9 +1046,13 @@ export class TruthTreeNode {
 		if (validity !== true) {
 			return validity.getErrorMessage();
 		}
-		const decomp = this.isDecomposed();
-		if (decomp !== true) {
-			return decomp.getErrorMessage();
+		// const decomp = this.isDecomposed();
+		// if (decomp !== true) {
+		// 	return decomp.getErrorMessage();
+		// }
+		const reduced = this.isReduced();
+		if (reduced !== true) {
+			return reduced.getErrorMessage();
 		}
 
 		if (this.premise) {
