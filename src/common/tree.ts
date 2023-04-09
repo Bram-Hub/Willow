@@ -16,6 +16,7 @@ import {
 	createNDimensionalMapping,
 	EvaluationResponse,
 } from './util';
+import { resolveUrl } from 'ajv/dist/compile/resolve';
 
 export class CorrectnessError {
 	errorCode: string;
@@ -89,6 +90,9 @@ export class CorrectnessError {
 			case 'universal_variables_length': {
 				return 'Universals with multiple variables cannot be evaluated yet; please split into multiple universal statements.';
 			}
+			case 'tautology not decomposed': {
+				return 'Tautology is not decomposed';
+			}
 		}
 
 		return 'Unknown error code. Contact a developer :)';
@@ -122,8 +126,6 @@ export class TruthTreeNode {
 
 	// For Davis Puttnam reduction
 	antecedentsDP: Set<number> = new Set();
-	branch: Set<Statement> = new Set();
-
 	private _correctDecomposition: Set<number> | null = null;
 
 	/**
@@ -154,7 +156,6 @@ export class TruthTreeNode {
 		newNode.antecedent = this.antecedent;
 		newNode.decomposition = new Set(this.decomposition);
 		newNode.antecedentsDP = new Set(this.antecedentsDP);
-		newNode.branch = new Set(this.branch);
 		return newNode;
 	}
 
@@ -568,6 +569,46 @@ export class TruthTreeNode {
 		return TruthTree.CLOSED_TERMINATOR === this.text.trim();
 	}
 
+	isDPValid(): Response {
+		// For DP - check statement logically follows from antecedent + branch
+		// TODO: ensure this only gets checked when DP in DP mode
+		if (!this._statement) {
+			// TODO: change error
+			return new CorrectnessError('not_parsable');
+		}
+
+		// this._statement ==> conclusion
+		// leftNode._statement ==> literal
+		// rightNode._statement ==> statement to reduce
+		let antecedentArr = Array.from(this.antecedentsDP);
+		if (antecedentArr.length == 2) {
+			let left = antecedentArr[0];
+			let right = antecedentArr[1];
+			let leftNode = this.tree.nodes[left];
+			let rightNode = this.tree.nodes[right];
+
+			if (leftNode._statement && rightNode._statement) {
+				// Validator takes in statement we would like to reduce along with assertion
+				let statementReducer = new DPStatementValidator(
+					leftNode._statement,
+					rightNode._statement
+				);
+				let statementReducer2 = new DPStatementValidator(
+					rightNode._statement,
+					leftNode._statement
+				);
+				let res1 = statementReducer.validateReduction(this._statement);
+				let res2 = statementReducer2.validateReduction(this._statement);
+
+				if (res1 || res2){
+					return true;
+				}
+			}
+		}
+		
+		// TODO: change error
+		return new CorrectnessError('not_logical_consequence');
+	}
 	/**
 	 * Determines whether or not this statement is valid; i.e., it is a logical
 	 * consequence of some other statement in the truth tree.
@@ -607,47 +648,9 @@ export class TruthTreeNode {
 			return true;
 		}
 
-		if (this._statement) {
-			// this._statement ==> conclusion
-			// leftNode._statement ==> literal
-			// rightNode._statement ==> statement to reduce
-			let antecedentArr = Array.from(this.antecedentsDP);
-			if (antecedentArr.length == 2) {
-				let left = antecedentArr[0];
-				let right = antecedentArr[1];
-				let leftNode = this.tree.nodes[left];
-				let rightNode = this.tree.nodes[right];
-
-				if (leftNode._statement && rightNode._statement) {
-					// Validator takes in statement we wouled like to reduce along with assertion
-					let statementReducer = new DPStatementValidator(
-						leftNode._statement,
-						rightNode._statement
-					);
-					let statementReducer2 = new DPStatementValidator(
-						rightNode._statement,
-						leftNode._statement
-					);
-					let res1 = statementReducer.validateReduction(this._statement);
-					let res2 = statementReducer2.validateReduction(this._statement);
-
-					if (res1) {
-						leftNode.branch.clear();
-						// leftnode (statement to reduce) should have right node (branch) as decomp
-						// leftNode.decomposition.clear();
-						// leftNode.decomposition.add(this.id);
-						leftNode.branch.add(rightNode._statement);
-						return true;
-					} else if (res2) {
-						rightNode.branch.clear();
-						// opposite
-						// rightNode.decomposition.clear();
-						// rightNode.decomposition.add(this.id);
-						rightNode.branch.add(leftNode._statement);
-						return true;
-					}
-				}
-			}
+		// TODO: DP mode
+		if (this.isDPValid()){
+			return true;
 		}
 
 		// Non-premises must have an antecedent for this statement to be valid
@@ -732,12 +735,8 @@ export class TruthTreeNode {
 			}
 
 			// Check if each ancestor is decomposed
-			// const ancestorDecomposed = ancestorNode.isDecomposed();
-			// if (ancestorDecomposed !== true) {
-			// 	return new CorrectnessError('open_invalid_ancestor');
-			// }
-			const ancestorReduced = ancestorNode.isReduced();
-			if (ancestorReduced !== true) {
+			const ancestorDecomposed = ancestorNode.isDecomposed();
+			if (ancestorDecomposed !== true) {
 				return new CorrectnessError('open_invalid_ancestor');
 			}
 		}
@@ -804,54 +803,18 @@ export class TruthTreeNode {
 	}
 
 	isReduced(): Response {
-		// Null statements are decomposed only if they are terminators or empty
-		// strings
-		if (this.statement === null) {
-			// Case 1: Empty string
-			if (this.text.trim().length === 0) {
-				return true;
-			}
-
-			// Case 2: Terminator
-			if (this.isTerminator()) {
-				return true;
-			}
-
-			// Otherwise, it failed to parse but is not one of the above cases
-			return new CorrectnessError('not_parsable');
+		// we would like to check the two decompositions are correct
+		const decompArray = Array.from(this.decomposition);
+		if (decompArray.length != 2) {
+			return new CorrectnessError("invalid_decomposition");
 		}
+		const s1 = this.tree.nodes[decompArray[0]];
+		const s2 = this.tree.nodes[decompArray[1]];
 
-		if (this.statement instanceof OrStatement && this.statement.isTautology()) {
-			let lhs = this.statement.operands[0];
-			let rhs = this.statement.operands[1];
-
-			let count = 0;	
-			for (let key of this.decomposition){
-				if (this.tree.nodes[key]._statement?.equals(lhs)){
-					count +=1;
-					// prevents false positive from two lhs being in branch
-					lhs = rhs;
-				} else if (this.tree.nodes[key]._statement?.equals(rhs)){
-					count +=1;
-					rhs = lhs;
-				// remove items from decomposition branch
-				} else {
-					this.decomposition.delete(key);
-				}
-			}
-
-			// both lhs and rhs are in decomposition of statement
-			if (count === 2){
-				return true;
-			}
-			return new CorrectnessError('Tautology not decomposed');
+		if (s1.isDPValid() && s2.isDPValid()){
+			return true;
 		}
-
-		// To-do:
-		// 1. if statement's parent is taut (only), return true
-		// 2. check this+branch, this+!branch is in decomp
-
-		return new CorrectnessError("");
+		return new CorrectnessError("invalid_decomposition");
 	}
 
 	/**
@@ -891,154 +854,156 @@ export class TruthTreeNode {
 			}
 		}
 
-		// This statement must be decomposed in every non-closed branch that
-		// contains it or exactly one open node if requireAllBranchesTerminated
-		// is false
-		let error: CorrectnessError | null = null;
-		for (const leafId of this.tree.leaves) {
-			const leafNode = this.tree.nodes[leafId];
-			let leafError: CorrectnessError | null = null;
+		return this.isReduced();
 
-			// If this is an existence statement, we care that it is correctly
-			// decomposed everywhere, not just non-closed terminators
-			if (
-				!(this.statement instanceof ExistenceStatement) &&
-				leafNode.isClosedTerminator()
-			) {
-				continue;
-			}
+		// // This statement must be decomposed in every non-closed branch that
+		// // contains it or exactly one open node if requireAllBranchesTerminated
+		// // is false
+		// let error: CorrectnessError | null = null;
+		// for (const leafId of this.tree.leaves) {
+		// 	const leafNode = this.tree.nodes[leafId];
+		// 	let leafError: CorrectnessError | null = null;
 
-			// This statement must be contained in the leaf's branch
-			if (!(this.isAncestorOf(leafId) || this.id === leafId)) {
-				continue;
-			}
-			const branch = leafNode.getAncestorBranch(true);
+		// 	// If this is an existence statement, we care that it is correctly
+		// 	// decomposed everywhere, not just non-closed terminators
+		// 	if (
+		// 		!(this.statement instanceof ExistenceStatement) &&
+		// 		leafNode.isClosedTerminator()
+		// 	) {
+		// 		continue;
+		// 	}
 
-			// Universals are unique from other statements
-			if (this.statement instanceof UniversalStatement) {
-				// For universal statements, each branch needs to instantiate
-				// every single constant in the leaf's universe
+		// 	// This statement must be contained in the leaf's branch
+		// 	if (!(this.isAncestorOf(leafId) || this.id === leafId)) {
+		// 		continue;
+		// 	}
+		// 	const branch = leafNode.getAncestorBranch(true);
 
-				// Collect the decomposed nodes in this branch
-				const decomposedInBranch = new Set<number>();
-				for (const decomposed of this.decomposition) {
-					if (branch.has(decomposed)) {
-						decomposedInBranch.add(decomposed);
-					}
-				}
+		// 	// Universals are unique from other statements
+		// 	if (this.statement instanceof UniversalStatement) {
+		// 		// For universal statements, each branch needs to instantiate
+		// 		// every single constant in the leaf's universe
 
-				// Each universal must instantiate at least one variable.
-				if (decomposedInBranch.size === 0) {
-					error = new CorrectnessError('universal_decompose_length');
-					continue;
-				}
+		// 		// Collect the decomposed nodes in this branch
+		// 		const decomposedInBranch = new Set<number>();
+		// 		for (const decomposed of this.decomposition) {
+		// 			if (branch.has(decomposed)) {
+		// 				decomposedInBranch.add(decomposed);
+		// 			}
+		// 		}
 
-				const symbolized = this.statement.symbolized();
+		// 		// Each universal must instantiate at least one variable.
+		// 		if (decomposedInBranch.size === 0) {
+		// 			error = new CorrectnessError('universal_decompose_length');
+		// 			continue;
+		// 		}
 
-				// Form every possible assignment of constants for this universal
-				const uninstantiated = createNDimensionalMapping(
-					this.statement.variables.length,
-					leafNode.universe!
-				);
+		// 		const symbolized = this.statement.symbolized();
 
-				// Remove every assignment from our mapping that appears in the branch
-				for (const decomposed of decomposedInBranch) {
-					const decomposedNode = this.tree.nodes[decomposed];
-					if (decomposedNode.statement === null) {
-						// An empty statement cannot be a decomposition
-						leafError = new CorrectnessError('invalid_decomposition');
-						break;
-					}
+		// 		// Form every possible assignment of constants for this universal
+		// 		const uninstantiated = createNDimensionalMapping(
+		// 			this.statement.variables.length,
+		// 			leafNode.universe!
+		// 		);
 
-					const assignment = symbolized.getEqualsMap(decomposedNode.statement);
-					if (assignment === false) {
-						// Not an initialization of the antecedent
-						leafError = new CorrectnessError('invalid_decomposition');
-						break;
-					}
+		// 		// Remove every assignment from our mapping that appears in the branch
+		// 		for (const decomposed of decomposedInBranch) {
+		// 			const decomposedNode = this.tree.nodes[decomposed];
+		// 			if (decomposedNode.statement === null) {
+		// 				// An empty statement cannot be a decomposition
+		// 				leafError = new CorrectnessError('invalid_decomposition');
+		// 				break;
+		// 			}
 
-					if (
-						Object.keys(assignment).length !== this.statement.variables.length
-					) {
-						// If the assignment does not have an assignment for every variable
-						// then arbitrarily assign a value from the universe. If one doesn't
-						// exist then arbitrarily assign the constant 'x'
+		// 			const assignment = symbolized.getEqualsMap(decomposedNode.statement);
+		// 			if (assignment === false) {
+		// 				// Not an initialization of the antecedent
+		// 				leafError = new CorrectnessError('invalid_decomposition');
+		// 				break;
+		// 			}
 
-						let value: Formula;
-						// Check universe for arbitrarily value
-						if (leafNode.universe!.length > 0) {
-							value = leafNode.universe!.values().next().value;
-						} else {
-							value = new Formula('x');
-						}
+		// 			if (
+		// 				Object.keys(assignment).length !== this.statement.variables.length
+		// 			) {
+		// 				// If the assignment does not have an assignment for every variable
+		// 				// then arbitrarily assign a value from the universe. If one doesn't
+		// 				// exist then arbitrarily assign the constant 'x'
 
-						for (const variable of this.statement.variables) {
-							if (Object.keys(assignment).includes(variable.toString())) {
-								continue;
-							}
-							assignment[variable.toString()] = value;
-						}
-					}
+		// 				let value: Formula;
+		// 				// Check universe for arbitrarily value
+		// 				if (leafNode.universe!.length > 0) {
+		// 					value = leafNode.universe!.values().next().value;
+		// 				} else {
+		// 					value = new Formula('x');
+		// 				}
 
-					deleteMapping(uninstantiated, assignment, this.statement.variables);
-				}
+		// 				for (const variable of this.statement.variables) {
+		// 					if (Object.keys(assignment).includes(variable.toString())) {
+		// 						continue;
+		// 					}
+		// 					assignment[variable.toString()] = value;
+		// 				}
+		// 			}
 
-				if (leafError !== null) {
-					error = leafError;
-					continue;
-				}
+		// 			deleteMapping(uninstantiated, assignment, this.statement.variables);
+		// 		}
 
-				// If there are still assignments left, then we did not instantiate every
-				// possible assignment of constants in this branch
-				if (Object.keys(uninstantiated).length !== 0) {
-					const mapping = getFirstUnassigned(uninstantiated)!;
-					leafError = new CorrectnessError(
-						'universal_domain_not_decomposed',
-						mapping
-					);
-				}
-			} else {
-				// Check if the correct decomposition is in this branch
-				let containedInBranch = false;
-				for (const correctlyDecomposedNode of this.correctDecomposition!) {
-					if (branch.has(correctlyDecomposedNode)) {
-						containedInBranch = true;
-						break;
-					}
-				}
+		// 		if (leafError !== null) {
+		// 			error = leafError;
+		// 			continue;
+		// 		}
 
-				if (!containedInBranch) {
-					// This node is not decomposed in every non-closed branch
-					if (this.statement instanceof ExistenceStatement) {
-						leafError = new CorrectnessError('existence_instantiation_length');
-					} else {
-						leafError = new CorrectnessError('invalid_decomposition');
-					}
-				} else if (this.decomposition.size > this.correctDecomposition!.size) {
-					leafError = new CorrectnessError('existence_instantiation_violation');
-				}
-			}
+		// 		// If there are still assignments left, then we did not instantiate every
+		// 		// possible assignment of constants in this branch
+		// 		if (Object.keys(uninstantiated).length !== 0) {
+		// 			const mapping = getFirstUnassigned(uninstantiated)!;
+		// 			leafError = new CorrectnessError(
+		// 				'universal_domain_not_decomposed',
+		// 				mapping
+		// 			);
+		// 		}
+		// 	} else {
+		// 		// Check if the correct decomposition is in this branch
+		// 		let containedInBranch = false;
+		// 		for (const correctlyDecomposedNode of this.correctDecomposition!) {
+		// 			if (branch.has(correctlyDecomposedNode)) {
+		// 				containedInBranch = true;
+		// 				break;
+		// 			}
+		// 		}
 
-			if (leafError === null) {
-				// If we have a valid open terminator and don't require all branches to
-				// be terminated, then we can just return that it works!
-				if (
-					leafNode.isOpenTerminator() &&
-					!this.tree.options.requireAllBranchesTerminated
-				) {
-					return true;
-				}
-			} else {
-				// Save the error
-				error = leafError;
-			}
-		}
+		// 		if (!containedInBranch) {
+		// 			// This node is not decomposed in every non-closed branch
+		// 			if (this.statement instanceof ExistenceStatement) {
+		// 				leafError = new CorrectnessError('existence_instantiation_length');
+		// 			} else {
+		// 				leafError = new CorrectnessError('invalid_decomposition');
+		// 			}
+		// 		} else if (this.decomposition.size > this.correctDecomposition!.size) {
+		// 			leafError = new CorrectnessError('existence_instantiation_violation');
+		// 		}
+		// 	}
 
-		if (error !== null) {
-			return error;
-		}
+		// 	if (leafError === null) {
+		// 		// If we have a valid open terminator and don't require all branches to
+		// 		// be terminated, then we can just return that it works!
+		// 		if (
+		// 			leafNode.isOpenTerminator() &&
+		// 			!this.tree.options.requireAllBranchesTerminated
+		// 		) {
+		// 			return true;
+		// 		}
+		// 	} else {
+		// 		// Save the error
+		// 		error = leafError;
+		// 	}
+		// }
 
-		return true;
+		// if (error !== null) {
+		// 	return error;
+		// }
+
+		// return true;
 	}
 
 	getFeedback(): string {
@@ -1046,15 +1011,10 @@ export class TruthTreeNode {
 		if (validity !== true) {
 			return validity.getErrorMessage();
 		}
-		// const decomp = this.isDecomposed();
-		// if (decomp !== true) {
-		// 	return decomp.getErrorMessage();
-		// }
-		const reduced = this.isReduced();
-		if (reduced !== true) {
-			return reduced.getErrorMessage();
+		const decomp = this.isDecomposed();
+		if (decomp !== true) {
+			return decomp.getErrorMessage();
 		}
-
 		if (this.premise) {
 			return 'This statement is a premise.';
 		}

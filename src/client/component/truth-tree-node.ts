@@ -8,10 +8,8 @@ export function getNodeIconClasses(node: TruthTreeNode): string[] {
 		validity.errorCode === 'not_parsable'
 	) {
 		return ['fas', 'fa-exclamation-triangle', 'statement-error'];
-	} else if (validity === true && node.isReduced() === true) {
+	} else if (validity === true && node.isDecomposed() === true) {
 		return ['fas', 'fa-check', 'statement-correct'];
-	// } else if (validity === true && node.isDecomposed() === true) {
-	// 	return ['fas', 'fa-check', 'statement-correct'];
 	} else {
 		return ['fas', 'fa-times', 'statement-incorrect'];
 	}
@@ -98,13 +96,6 @@ export const TruthTreeNodeComponent = defineComponent({
       universe: {{
         JSON.stringify(node.universe.map(formula => formula.toString()))
       }}
-	</span>
-	<span>
-		id: {{ id }},
-      	decomposed: {{ node.isDecomposed() }},
-		decomposition: {{ node.decomposition }},
-		antecedents: {{ node.antecedentsDP }},
-		branch: {{node.branch}}
 	</span>
     <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
     <input :id="'node' + this.id" type="text" v-model="node.text"
