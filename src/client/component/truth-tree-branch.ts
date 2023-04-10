@@ -93,6 +93,18 @@ export const TruthTreeBranchComponent = defineComponent({
 				selectedNode.antecedentsDP.add(id);
 				otherNode.decomposition.add(selectedNode.id);
 			}
+
+			if (selectedNode.antecedent === id) {
+				selectedNode.antecedent = null;
+			} else {
+				// Remove this node from the current antecedent decomposition
+				if (selectedNode.antecedent !== null) {
+					const currentAntecedent: TruthTreeNode =
+						this.$store.state.tree.nodes[selectedNode.antecedent];
+				}
+				selectedNode.antecedent = id;
+			}
+
 		},
 		/**
 		 * Adds or removes a given node from the decomposition of the selected node,

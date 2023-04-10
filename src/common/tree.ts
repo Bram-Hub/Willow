@@ -198,6 +198,18 @@ export class TruthTreeNode {
 		}
 		newNode.decomposition = new Set(jsonObject.decomposition);
 
+		if (
+			!(
+				'antecedentsDP' in jsonObject &&
+				typeof jsonObject.antecedentsDP === 'object' &&
+				Array.isArray(jsonObject.antecedentsDP) &&
+				jsonObject.antecedentsDP.every(element => typeof element === 'number')
+			)
+		) {
+			throw new Error('TruthTreeNode#fromJSON: antecedentsDP not found.');
+		}
+		newNode.antecedentsDP = new Set(jsonObject.antecedentsDP);
+
 		// Check for optional properties
 		if ('premise' in jsonObject && typeof jsonObject.premise === 'boolean') {
 			newNode.premise = jsonObject.premise;
@@ -581,6 +593,9 @@ export class TruthTreeNode {
 		// leftNode._statement ==> literal
 		// rightNode._statement ==> statement to reduce
 		let antecedentArr = Array.from(this.antecedentsDP);
+
+
+		console.log("isDPvalid arr length", this._statement.toString(), antecedentArr.length);
 		if (antecedentArr.length == 2) {
 			let left = antecedentArr[0];
 			let right = antecedentArr[1];
@@ -605,7 +620,6 @@ export class TruthTreeNode {
 				}
 			}
 		}
-		
 		// TODO: change error
 		return new CorrectnessError('not_logical_consequence');
 	}
@@ -648,26 +662,28 @@ export class TruthTreeNode {
 			return true;
 		}
 
-		// TODO: DP mode
-		if (this.isDPValid()){
+		// return this.isDPValid();
+		// // TODO: DP mode
+		if (this.isDPValid() === true){
 			return true;
 		}
 
 		// Non-premises must have an antecedent for this statement to be valid
 		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
-			return new CorrectnessError('not_logical_consequence');
+
+			return new CorrectnessError('not_logical_consequence1');
 		}
 
 		// The antecedent must have been successfully parsed into a statement
 		const antecedentNode = this.tree.nodes[this.antecedent];
 		if (antecedentNode.statement === null) {
 			// Cannot be a logical consequence of nothing
-			return new CorrectnessError('not_logical_consequence');
+			return new CorrectnessError('not_logical_consequence2');
 		}
 
 		// The antecedent must be in the ancestor branch
 		if (!this.getAncestorBranch().has(this.antecedent)) {
-			return new CorrectnessError('not_logical_consequence');
+			return new CorrectnessError('not_logical_consequence3');
 		}
 
 		// If the antecedent is a quantifier, there is a different procedure:
@@ -675,7 +691,7 @@ export class TruthTreeNode {
 		if (antecedentNode.statement instanceof QuantifierStatement) {
 			if (!antecedentNode.statement.symbolized().equals(this.statement)) {
 				// Not a valid instantiation of the quantifier.
-				return new CorrectnessError('invalid_instantiation');
+				return new CorrectnessError('invalid_instantiation4');
 			}
 
 			return true;
@@ -686,7 +702,7 @@ export class TruthTreeNode {
 			return true;
 		}
 
-		return new CorrectnessError('not_logical_consequence');
+		return new CorrectnessError('not_logical_consequence5');
 	}
 
 	/**
@@ -856,9 +872,9 @@ export class TruthTreeNode {
 
 		return this.isReduced();
 
-		// // This statement must be decomposed in every non-closed branch that
-		// // contains it or exactly one open node if requireAllBranchesTerminated
-		// // is false
+		// This statement must be decomposed in every non-closed branch that
+		// contains it or exactly one open node if requireAllBranchesTerminated
+		// is false
 		// let error: CorrectnessError | null = null;
 		// for (const leafId of this.tree.leaves) {
 		// 	const leafNode = this.tree.nodes[leafId];
@@ -1228,6 +1244,7 @@ export class TruthTree {
 				text: node.text,
 				children: node.children,
 				decomposition: [...node.decomposition],
+				antecedentsDP: [...node.antecedentsDP]
 			};
 
 			if (node.premise) {
