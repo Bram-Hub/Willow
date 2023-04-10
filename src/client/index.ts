@@ -65,7 +65,7 @@ export const instance = vue
 				assignmentName: assignment?.name ?? '',
 				undoStack: [],
 				redoStack: [],
-				DPMode: false
+				DPMode: false,
 			};
 		},
 		computed: {

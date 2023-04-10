@@ -16,7 +16,7 @@ import {
 	createNDimensionalMapping,
 	EvaluationResponse,
 } from './util';
-import { resolveUrl } from 'ajv/dist/compile/resolve';
+import {resolveUrl} from 'ajv/dist/compile/resolve';
 
 export class CorrectnessError {
 	errorCode: string;
@@ -118,10 +118,10 @@ export class TruthTreeNode {
 
 	tree: TruthTree;
 
-	parent: number | null = null;			// physical parent
+	parent: number | null = null; // physical parent
 	children: number[] = [];
 
-	antecedent: number | null = null;		// logical parent
+	antecedent: number | null = null; // logical parent
 	decomposition: Set<number> = new Set();
 
 	// For Davis Puttnam reduction
@@ -594,8 +594,11 @@ export class TruthTreeNode {
 		// rightNode._statement ==> statement to reduce
 		let antecedentArr = Array.from(this.antecedentsDP);
 
-
-		console.log("isDPvalid arr length", this._statement.toString(), antecedentArr.length);
+		console.log(
+			'isDPvalid arr length',
+			this._statement.toString(),
+			antecedentArr.length
+		);
 		if (antecedentArr.length == 2) {
 			let left = antecedentArr[0];
 			let right = antecedentArr[1];
@@ -615,7 +618,7 @@ export class TruthTreeNode {
 				let res1 = statementReducer.validateReduction(this._statement);
 				let res2 = statementReducer2.validateReduction(this._statement);
 
-				if (res1 || res2){
+				if (res1 || res2) {
 					return true;
 				}
 			}
@@ -664,13 +667,12 @@ export class TruthTreeNode {
 
 		// return this.isDPValid();
 		// // TODO: DP mode
-		if (this.isDPValid() === true){
+		if (this.isDPValid() === true) {
 			return true;
 		}
 
 		// Non-premises must have an antecedent for this statement to be valid
 		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
-
 			return new CorrectnessError('not_logical_consequence1');
 		}
 
@@ -822,15 +824,15 @@ export class TruthTreeNode {
 		// we would like to check the two decompositions are correct
 		const decompArray = Array.from(this.decomposition);
 		if (decompArray.length != 2) {
-			return new CorrectnessError("invalid_decomposition");
+			return new CorrectnessError('invalid_decomposition');
 		}
 		const s1 = this.tree.nodes[decompArray[0]];
 		const s2 = this.tree.nodes[decompArray[1]];
 
-		if (s1.isDPValid() && s2.isDPValid()){
+		if (s1.isDPValid() && s2.isDPValid()) {
 			return true;
 		}
-		return new CorrectnessError("invalid_decomposition");
+		return new CorrectnessError('invalid_decomposition');
 	}
 
 	/**
@@ -1244,7 +1246,7 @@ export class TruthTree {
 				text: node.text,
 				children: node.children,
 				decomposition: [...node.decomposition],
-				antecedentsDP: [...node.antecedentsDP]
+				antecedentsDP: [...node.antecedentsDP],
 			};
 
 			if (node.premise) {
