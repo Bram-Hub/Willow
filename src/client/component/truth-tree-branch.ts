@@ -92,7 +92,10 @@ export const TruthTreeBranchComponent = defineComponent({
 				otherNode.decomposition.delete(selectedNode.id);
 			} else {
 				selectedNode.antecedentsDP.add(id);
-				otherNode.decomposition.add(selectedNode.id);
+
+				if (!otherNode.statement?.isLiteral()) {
+					otherNode.decomposition.add(selectedNode.id);
+				}
 			}
 
 			if (selectedNode.antecedent === id) {
@@ -255,6 +258,16 @@ export const TruthTreeBranchComponent = defineComponent({
 							antecedent:
 								selectedNode !== null &&
 								selectedNode.antecedent === id,
+							'antecedent-DP':
+								selectedNode != null &&
+								selectedNode.antecedentsDP.has(id) &&
+								$store.state.tree.nodes[id]._statement != null &&
+								!$store.state.tree.nodes[id]._statement.isLiteral(),
+							'antecedents-DP-branch':
+								selectedNode != null &&
+								selectedNode.antecedentsDP.has(id) &&
+								$store.state.tree.nodes[id]._statement != null &&
+								$store.state.tree.nodes[id]._statement.isLiteral(),
 							decomposition:
 								selectedNode !== null &&
 								selectedNode.decomposition.has(id),
