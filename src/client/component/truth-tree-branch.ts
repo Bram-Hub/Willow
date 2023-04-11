@@ -79,20 +79,21 @@ export const TruthTreeBranchComponent = defineComponent({
 		modifyAntecedentsDP(id: number) {
 			// TODO: Document this function more
 			const selectedNode: TruthTreeNode | null =
-				this.$store.getters.selectedNode;
+				this.$store.getters.selectedNode; // The node your cursor is on
 
 			if (selectedNode === null || selectedNode.id === id) {
 				return;
 			}
-			const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id]; // the node you right click (statement to reduce/branch)
+			const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id]; // The node you right click (statement to reduce/branch)
 
 			if (selectedNode.antecedentsDP.has(id)) {
-				// the node your cursor is on
+				
 				selectedNode.antecedentsDP.delete(id);
 				otherNode.decomposition.delete(selectedNode.id);
 			} else {
 				selectedNode.antecedentsDP.add(id);
 
+				// Don't add the selected node to a literal, i.e., the branch used for reducing
 				if (!otherNode.statement?.isLiteral()) {
 					otherNode.decomposition.add(selectedNode.id);
 				}
@@ -135,12 +136,8 @@ export const TruthTreeBranchComponent = defineComponent({
 				}
 				const decomp = Array.from(selectedNode.decomposition);
 				for (let i = 0; i < decomp.length; i++) {
-					// console.log("hello");
-					// console.log(decomp[i]);
 					console.log(this.tree.nodes[decomp[i]]);
 				}
-				// let first = decomp[0]
-				// console.log(this.tree.nodes[decomp[0]])
 			} else if (selectedNode.isAncestorOf(id)) {
 				// When the selected is BEFORE, it becomes decomposition
 				const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id];

@@ -97,14 +97,6 @@ export const TruthTreeNodeComponent = defineComponent({
         JSON.stringify(node.universe.map(formula => formula.toString()))
       }}
 	</span>
-	<span>
-		id: {{ id }},
-		valid: {{ node.isValid() }},
-      	decomposed: {{ node.isDecomposed() }},
-		decomposition: {{ node.decomposition }},
-		antecedentsDP: {{ node.antecedentsDP }},
-		antecedent: {{ node.antecedent }},
-	</span>
     <i :class="getNodeIconClasses(node)" :title="node.getFeedback()"></i>
     <input :id="'node' + this.id" type="text" v-model="node.text"
         @focus="$store.commit('select', {id: id, focus: false})"

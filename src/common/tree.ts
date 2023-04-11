@@ -673,19 +673,19 @@ export class TruthTreeNode {
 
 		// Non-premises must have an antecedent for this statement to be valid
 		if (this.antecedent === null || !(this.antecedent in this.tree.nodes)) {
-			return new CorrectnessError('not_logical_consequence1');
+			return new CorrectnessError('not_logical_consequence');
 		}
 
 		// The antecedent must have been successfully parsed into a statement
 		const antecedentNode = this.tree.nodes[this.antecedent];
 		if (antecedentNode.statement === null) {
 			// Cannot be a logical consequence of nothing
-			return new CorrectnessError('not_logical_consequence2');
+			return new CorrectnessError('not_logical_consequence');
 		}
 
 		// The antecedent must be in the ancestor branch
 		if (!this.getAncestorBranch().has(this.antecedent)) {
-			return new CorrectnessError('not_logical_consequence3');
+			return new CorrectnessError('not_logical_consequence');
 		}
 
 		// If the antecedent is a quantifier, there is a different procedure:
@@ -693,7 +693,7 @@ export class TruthTreeNode {
 		if (antecedentNode.statement instanceof QuantifierStatement) {
 			if (!antecedentNode.statement.symbolized().equals(this.statement)) {
 				// Not a valid instantiation of the quantifier.
-				return new CorrectnessError('invalid_instantiation4');
+				return new CorrectnessError('invalid_instantiation');
 			}
 
 			return true;
@@ -704,7 +704,7 @@ export class TruthTreeNode {
 			return true;
 		}
 
-		return new CorrectnessError('not_logical_consequence5');
+		return new CorrectnessError('not_logical_consequence');
 	}
 
 	/**
