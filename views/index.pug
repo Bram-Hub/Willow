@@ -82,6 +82,11 @@ html(lang='en')
             button.menu-option(onclick='toolbar.showModal("shortcuts-modal")') Shortcuts
             button.menu-option(onclick='toolbar.showModal("substitutions-modal")') Substitutions
         .dropdown
+          button Modes
+          .dropdown-menu
+            button.menu-option(onclick='toggleDPMode') Davis-Putnam Mode
+            button.menu-option(@click='toggleTTMode') Truth Tree Mode
+        .dropdown
           button Help
           .dropdown-menu
             a.menu-option(href='https://github.com/Bram-Hub/Willow/blob/master/userguide.md' target='_blank') User guide
@@ -260,11 +265,11 @@ html(lang='en')
             tr 
               td ⊤
               td 
-                substitution-recorder(symbol='⊤' default='T')
+                substitution-recorder(symbol='⊤' default='+')
             tr 
               td ⊥
               td 
-                substitution-recorder(symbol='⊥' default='F')
+                substitution-recorder(symbol='⊥' default='-')
             tr
               td ◯
               td

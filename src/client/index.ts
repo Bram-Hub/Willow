@@ -65,6 +65,7 @@ export const instance = vue
 				assignmentName: assignment?.name ?? '',
 				undoStack: [],
 				redoStack: [],
+				DPMode: false,
 			};
 		},
 		computed: {
@@ -88,6 +89,13 @@ export const instance = vue
 				) {
 					document.querySelector<HTMLInputElement>('#open-file')?.click();
 				}
+			},
+			// New fuctions to turn DP mode on and off
+			toggleDPMode() {
+				this.DPMode = true;
+			},
+			toggleTTMode() {
+				this.DPMode = false;
 			},
 			loadFile(event: Event) {
 				const input = event.target;
