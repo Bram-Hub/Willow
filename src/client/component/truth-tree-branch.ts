@@ -87,7 +87,6 @@ export const TruthTreeBranchComponent = defineComponent({
 			const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id]; // The node you right click (statement to reduce/branch)
 
 			if (selectedNode.antecedentsDP.has(id)) {
-				
 				selectedNode.antecedentsDP.delete(id);
 				otherNode.decomposition.delete(selectedNode.id);
 			} else {
