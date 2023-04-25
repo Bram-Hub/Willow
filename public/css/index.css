@@ -96,7 +96,7 @@
   background-color: var(--selected);
 }
 
-.antecedent, .antecedents-DP-branch {
+.antecedent, .antecedent-DP, .antecedents-DP-branch {
   background-color: var(--antecedent);
 }
 

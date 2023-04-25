@@ -9,6 +9,7 @@ import {
 	ExistenceStatement,
 	UniversalStatement,
 	DPStatementValidator,
+	Contradiction,
 } from './statement';
 import {
 	deleteMapping,
@@ -115,6 +116,8 @@ export class TruthTreeNode {
 	premise = false;
 	isTautology = false;
 	comment: string | null = null;
+
+	isBranchLiteral = false;
 
 	tree: TruthTree;
 
@@ -770,6 +773,17 @@ export class TruthTreeNode {
 	 * @returns true if this closed terminator is valid, false otherwise
 	 */
 	private isClosedTerminatorValid(): Response {
+		// ***another DP mode thing***
+		const antecedentsDPArray = Array.from(this.antecedentsDP);
+		if (antecedentsDPArray.length > 0) {
+			const antecedent = this.tree.nodes[antecedentsDPArray[0]];
+			if (antecedent.statement instanceof Contradiction) {
+				return true;
+			}
+
+			new CorrectnessError('closed_not_contradiction');
+		}
+
 		// Closed terminators must reference exactly two statements
 		if (this.decomposition.size !== 2) {
 			return new CorrectnessError('closed_reference_length');
@@ -1889,6 +1903,13 @@ export class TruthTree {
 					return false;
 				}
 				const decomposedNode = this.nodes[decomposedId];
+
+				// **potentially for DP node**
+				if (decomposedNode.statement instanceof Contradiction) {
+					console.log("herrreeee", node.id, decomposedNode.statement.toString());
+					continue;
+				}
+
 				if (decomposedNode.antecedent !== node.id) {
 					console.log(`${node.id} is not an antecedent of ${decomposedId}`);
 					return false;
