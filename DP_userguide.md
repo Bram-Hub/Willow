@@ -1,0 +1,1 @@
+# Davis-Putnam User's Guide
