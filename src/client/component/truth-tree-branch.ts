@@ -1,4 +1,4 @@
-import {Contradiction, NotStatement, OrStatement} from '../../common/statement';
+import {NotStatement, OrStatement} from '../../common/statement';
 import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {TruthTreeNodeComponent} from './truth-tree-node';
@@ -87,49 +87,36 @@ export const TruthTreeBranchComponent = defineComponent({
 			}
 			const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id]; // The node you right click (statement to reduce/branch)
 
+			// If the selected node already has the node that has been right
+			// clicked in its antecedents list, then remove it
 			if (selectedNode.antecedentsDP.has(id)) {
 				selectedNode.antecedentsDP.delete(id);
 				otherNode.decomposition.delete(selectedNode.id);
 
-				// add this maybe?
+				// Reset the selected node's antecedent to null
 				if (selectedNode.antecedent === id) {
 					selectedNode.antecedent = null;
 				}
-				
 			} else {
+				// Otherwise add the right clicked node to the current node's antecedents list
 				selectedNode.antecedentsDP.add(id);
 
-				// Don't add the selected node to a literal, i.e., the branch used for reducing
-				// if (!otherNode.statement?.isLiteral()) {
-				// 	otherNode.decomposition.add(selectedNode.id);
-				// }
-
-				console.log("TYPE:", otherNode.statement?.toString());
-
-				if (selectedNode.statement && otherNode.statement?.isTautology() && otherNode.statement.equals(new OrStatement(selectedNode.statement, new NotStatement(selectedNode.statement)))) {
-					console.log("here's a branch literal:", selectedNode.statement?.toString());
+				// If the selected node is a branch literal, specify it as such and clear out its decomposition
+				if (
+					otherNode.statement?.isTautology() &&
+					selectedNode.statement != null &&
+					otherNode.statement.equals(new OrStatement(selectedNode.statement, new NotStatement(selectedNode.statement)))
+				) {
 					selectedNode.isBranchLiteral = true;
 					selectedNode.decomposition.clear();
 				}
 
+				// Only add to the selected node's decomposition if it is not a branch literal
 				if (!otherNode.isBranchLiteral) {
-					console.log("yeah don't add me to its decomposition:", otherNode.statement?.toString());
 					otherNode.decomposition.add(selectedNode.id);
-
-					
-					selectedNode.antecedent = id; // add other node as antecedent
+					selectedNode.antecedent = id; // Add other node as antecedent
 				}
-
-
-				
 			}
-
-			// if (selectedNode.antecedent === id) {
-			// 	selectedNode.antecedent = null;
-			// } else {
-			// 	// Remove this node from the current antecedent decomposition
-			// 	selectedNode.antecedent = id;
-			// }
 
 			otherNode.correctDecomposition = null;
 			selectedNode.correctDecomposition = null;
@@ -158,10 +145,6 @@ export const TruthTreeBranchComponent = defineComponent({
 					selectedNode.decomposition.delete(id);
 				} else {
 					selectedNode.decomposition.add(id);
-				}
-				const decomp = Array.from(selectedNode.decomposition);
-				for (let i = 0; i < decomp.length; i++) {
-					console.log(this.tree.nodes[decomp[i]]);
 				}
 			} else if (selectedNode.isAncestorOf(id)) {
 				// When the selected is BEFORE, it becomes decomposition
