@@ -780,11 +780,6 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			console.log(
-				'Conditional statements REDUCED',
-				lhs.toString(),
-				rhs.toString()
-			);
 
 			// Second part of or is when assertions get absorbed by intermediate steps
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {

@@ -101,10 +101,7 @@ export const TruthTreeBranchComponent = defineComponent({
 				// Otherwise add the right clicked node to the current node's antecedents list
 				selectedNode.antecedentsDP.add(id);
 
-				if (selectedNode.statement) {
-					console.log("selected", otherNode.statement?.decompose());
-				}
-
+				// Determine whether the selected statement is a branch literal
 				let isBranch = false;
 				if (otherNode.statement instanceof OrStatement && selectedNode.statement) {
 					const lhs = otherNode.statement.operands[0];
