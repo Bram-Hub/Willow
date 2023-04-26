@@ -140,6 +140,15 @@
   transform: translateY(-50%);
 }
 
+.decomposition-DP::after {
+  content: 'reduces to';
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
 .closing-terminator-decomposition::after {
   content: 'is a result of';
 }

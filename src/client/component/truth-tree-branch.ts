@@ -291,6 +291,9 @@ export const TruthTreeBranchComponent = defineComponent({
 							decomposition:
 								selectedNode !== null &&
 								selectedNode.decomposition.has(id),
+							'decomposition-DP':
+								selectedNode !== null &&
+								selectedNode.decomposition.has(id),
 							'closing-terminator-decomposition':
 								selectedNode !== null &&
 								selectedNode.decomposition.has(id) &&
