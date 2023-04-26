@@ -1,6 +1,6 @@
 # Davis-Putnam Developer's Guide
 
-*This feature was implemented as a final project by Jenny Gao, Mason LeBouf, and Jody Sunray for Bram van Heuveln's Spring 2023 Computability and Logic course at RPI.*
+*This feature was implemented as a final project by Jenny Gao, Mason duBoef, and Jody Sunray for Bram van Heuveln's Spring 2023 Computability and Logic course at RPI.*
 
 ## Changes to existing functionality
 
