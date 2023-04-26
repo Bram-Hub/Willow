@@ -103,7 +103,10 @@ export const TruthTreeBranchComponent = defineComponent({
 
 				// Determine whether the selected statement is a branch literal
 				let isBranch = false;
-				if (otherNode.statement instanceof OrStatement && selectedNode.statement) {
+				if (
+					otherNode.statement instanceof OrStatement &&
+					selectedNode.statement
+				) {
 					const lhs = otherNode.statement.operands[0];
 					const rhs = otherNode.statement.operands[1];
 					if (lhs.equals(selectedNode.statement)) {

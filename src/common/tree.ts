@@ -10,9 +10,7 @@ import {
 	DPStatementValidator,
 	Contradiction,
 } from './statement';
-import {
-	EvaluationResponse,
-} from './util';
+import {EvaluationResponse} from './util';
 
 export class CorrectnessError {
 	errorCode: string;
@@ -212,7 +210,10 @@ export class TruthTreeNode {
 			newNode.premise = jsonObject.premise;
 		}
 
-		if ('isBranchLiteral' in jsonObject && typeof jsonObject.isBranchLiteral === 'boolean') {
+		if (
+			'isBranchLiteral' in jsonObject &&
+			typeof jsonObject.isBranchLiteral === 'boolean'
+		) {
 			newNode.isBranchLiteral = jsonObject.isBranchLiteral;
 		}
 
@@ -763,7 +764,10 @@ export class TruthTreeNode {
 	 */
 	private isClosedTerminatorValid(): Response {
 		// TODO: DP mode
-		if (this.antecedent && this.tree.nodes[this.antecedent].statement instanceof Contradiction) {
+		if (
+			this.antecedent &&
+			this.tree.nodes[this.antecedent].statement instanceof Contradiction
+		) {
 			return true;
 		}
 
@@ -1248,7 +1252,7 @@ export class TruthTree {
 				children: node.children,
 				decomposition: [...node.decomposition],
 				antecedentsDP: [...node.antecedentsDP], // TODO: add other DP mode variables here
-				isBranchLiteral: node.isBranchLiteral
+				isBranchLiteral: node.isBranchLiteral,
 			};
 
 			if (node.premise) {

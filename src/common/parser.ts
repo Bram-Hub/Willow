@@ -317,7 +317,7 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		or: ['∨', '|', 'or'],
 		not: ['¬', '!', '~', 'not'],
 		taut: ['⊤'],
-		con: ['⊥']
+		con: ['⊥'],
 	};
 
 	start(): Statement {
@@ -549,7 +549,7 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 		or: ['∨', '|', 'or'],
 		not: ['¬', '!', '~', 'not'],
 		taut: ['⊤'],
-		con: ['⊥']
+		con: ['⊥'],
 	};
 
 	unaryExpression(): Statement {
