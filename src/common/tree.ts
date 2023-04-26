@@ -212,6 +212,10 @@ export class TruthTreeNode {
 			newNode.premise = jsonObject.premise;
 		}
 
+		if ('isBranchLiteral' in jsonObject && typeof jsonObject.isBranchLiteral === 'boolean') {
+			newNode.isBranchLiteral = jsonObject.isBranchLiteral;
+		}
+
 		if ('comment' in jsonObject && typeof jsonObject.comment === 'string') {
 			newNode.comment = jsonObject.comment;
 		}
@@ -1244,6 +1248,7 @@ export class TruthTree {
 				children: node.children,
 				decomposition: [...node.decomposition],
 				antecedentsDP: [...node.antecedentsDP], // TODO: add other DP mode variables here
+				isBranchLiteral: node.isBranchLiteral
 			};
 
 			if (node.premise) {
