@@ -1,4 +1,4 @@
-import {Contradiction, OrStatement} from '../../common/statement';
+import {Contradiction, NotStatement, OrStatement} from '../../common/statement';
 import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {TruthTreeNodeComponent} from './truth-tree-node';
@@ -106,9 +106,10 @@ export const TruthTreeBranchComponent = defineComponent({
 
 				console.log("TYPE:", otherNode.statement?.toString());
 
-				if (otherNode.statement instanceof OrStatement) {
+				if (selectedNode.statement && otherNode.statement?.isTautology() && otherNode.statement.equals(new OrStatement(selectedNode.statement, new NotStatement(selectedNode.statement)))) {
 					console.log("here's a branch literal:", selectedNode.statement?.toString());
 					selectedNode.isBranchLiteral = true;
+					selectedNode.decomposition.clear();
 				}
 
 				if (!otherNode.isBranchLiteral) {

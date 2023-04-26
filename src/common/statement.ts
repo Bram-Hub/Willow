@@ -914,6 +914,9 @@ export class DPStatementValidator {
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
 	validateReduction(conclusion: Statement): boolean {
+		if (this.statement.equals(this.assertion)) {
+			return conclusion.equals(new Tautology());
+		}
 		return this.validConclusion.equals(conclusion);
 	}
 }
