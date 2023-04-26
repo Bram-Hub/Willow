@@ -30,13 +30,13 @@ When designing an implementation of Davis-Putnam (DP) supported by Willow, we wa
 
     <img width="945" alt="Screenshot 2023-04-26 at 12 31 19 PM" src="https://user-images.githubusercontent.com/55996087/234642070-23daacd9-c597-4b24-9baf-b2a662150b88.png">
 
-6. **Functional frontend to that supports both DP and truth-tree methods**: We decided that the DP method should be a separate mode on the Willow site, so that by default users interact with the original truth-tree method. To achieve this, we created a toggle in the menu bar. When clicked, the toggle sets a state variable `DPMode` to `true` or `false`. The value of this variable controls whether certain code additions will be run or not.
+6. **Functional frontend that supports both DP and truth-tree methods**: We decided that the DP method should be a separate mode on the Willow site, so that by default users interact with the original truth tree method. To achieve this, we created a toggle in the menu bar. When clicked, the toggle sets a state variable `DPMode` to `true` or `false`. The value of this variable controls whether certain code additions will be run or not.
 
     <img width="947" alt="Screenshot 2023-04-26 at 12 32 01 PM" src="https://user-images.githubusercontent.com/55996087/234642243-2d97c0e4-72c4-4fb9-b5d5-90a56e414893.png">
 
 8. **Create a new version of `modifyDecomposition` to store and update antecedents called `modifyAntecedentsDP`**: When a user selects a particular statement and then right clicks on another, the `modifyDecomposition` function is called to update logical relationships within the tree, specifically a statement's decomposition and antecedents. For DP mode, we modify this function (and call it `modifyAntecedentsDP`). The main additional functionality of this function is to update the selected statement's antecedents, i.e., the statement it is reducing from and the literal it is branching on.
 
-10. **Statement validation for DP (`isDPValid`, which calls `validateReduction`)**: A statement is considered a valid inference if it follows from one of the reduction rules listed above. Since validation for DP differs from validation for truth trees, we decided to create a separate function called `isDPValid`. This function checks whether a statement is valid given its antecedents (i.e., the statement it is reduced from and the branch literal).
+10. **Statement validation for DP (`isDPValid`, which calls `validateReduction`)**: A statement is considered a valid inference if it follows from one of the reduction rules listed above. Since validation for DP differs from validation for truth trees, we decided to create a separate function called `isDPValid()`. This function checks whether a statement is valid given its antecedents (i.e., the statement it is reduced from and the branch literal).
 
     In the image below, the selected statement (highlighted in blue) is valid since it is a correct inference of H ∧ (I → F) given that we have taken the H branch (i.e., H is true).
 
@@ -54,14 +54,14 @@ When designing an implementation of Davis-Putnam (DP) supported by Willow, we wa
 
     <img width="943" alt="Screenshot 2023-04-26 at 2 16 45 PM" src="https://user-images.githubusercontent.com/55996087/234666728-048283bb-dae8-434d-8cc4-02352c5c09f0.png">
 
-14. **Extensive testing of reduction rules (`tests/reductionRules.test.ts`)**: After implementing the reduction rules listed above, we created a test suite that tests each one works as expected since these rules are crucial to the rest of the implentation of the DP method. This test suite can be run using the command `npm run test`, which runs all tests.
+14. **Extensive testing of reduction rules (`tests/reductionRules.test.ts`)**: After implementing the reduction rules listed above, we created a test suite that tests each one works as expected since these rules are crucial to the rest of the implementation of the DP method. This test suite can be run using the command `npm run test`, which runs all tests.
 
-16. **Updated tree node highlighting and labeling**: We simply applied the existing color scheme to the new DP functionality, with a couple language changes in the labels. As with Willow's truth tree method, when any statement is selected, there may be both red and green highlighting:
+16. **Updated tree node highlighting and labeling**: We simply applied the existing color scheme to the new DP functionality, with a couple language changes in the labels. As with Willow's truth tree method, when any statement is selected, there may be both green and red highlighting:
 
     1. *Statements highlighted in **green** indicate **antecedents*** of the currently selected node. Non-branch literals are labeled as "reduces from," and branch literals are labeled as "using."
     2. *Statements highlighted in **red** indicate those that **reduce*** from the currently selected node. There may be zero, one, or two nodes in any given decomposition. Each node in the decomposition will be labeled with the text "reduces to."
     
-9. **Updated status bar labeling**: In addition to modifying the tree node labels, we also modified the language in the status bar in addition to adding new statuses. For example, a tautology has a status to indicate it as such:
+9. **Updated status bar labeling**: In addition to modifying the tree node labels, we also modified the language in the status bar as well as added new statuses. For example, a tautology has a status to indicate it as such:
 
     <img width="945" alt="Screenshot 2023-04-26 at 2 07 03 PM" src="https://user-images.githubusercontent.com/55996087/234664782-06325497-7f45-4849-8b61-814afb03cd20.png">
 
