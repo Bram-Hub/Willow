@@ -8,7 +8,7 @@ When designing an implementation of Davis-Putnam (DP) supported by Willow, we wa
 
 1. **By default two branches are created**: This feature was not a requirement for our project, but it made our lives easier. Plus, it was requested by Bram. :)
 
-https://user-images.githubusercontent.com/55996087/234662990-85eb9160-8ba4-4c81-a45a-d7121f7adbcc.mov
+    https://user-images.githubusercontent.com/55996087/234662990-85eb9160-8ba4-4c81-a45a-d7121f7adbcc.mov
 
 
 1. **Implementation of the reduction rules for each type of statement**: These rules were used to reduce statements given the truth value of a literal. The reduction rules are as follows.
@@ -46,13 +46,13 @@ https://user-images.githubusercontent.com/55996087/234662990-85eb9160-8ba4-4c81-
 
     In the image below, the selected statement is not only valid but also reduced since both statements in its decomposition (⊤ and ¬I) are valid. Thus, because the selected statement is both valid and decomposed correctly, it is marked with a green check.
 
-<img width="945" alt="Screenshot 2023-04-26 at 1 47 13 PM" src="https://user-images.githubusercontent.com/55996087/234660442-996768f7-969a-4b37-aeca-e2a265da7980.png">
+    <img width="945" alt="Screenshot 2023-04-26 at 1 47 13 PM" src="https://user-images.githubusercontent.com/55996087/234660442-996768f7-969a-4b37-aeca-e2a265da7980.png">
 
 13. **Support for closed terminator**: We modified the `isClosedTerminatorValid()` function to validate a closed terminal when its antecedent is a contradiction.
 
-   In the image below, the terminator is considered valid since it reduces from a contradiction (⊥).
+    In the image below, the terminator is considered valid since it reduces from a contradiction (⊥).
 
-   <img width="943" alt="Screenshot 2023-04-26 at 2 16 45 PM" src="https://user-images.githubusercontent.com/55996087/234666728-048283bb-dae8-434d-8cc4-02352c5c09f0.png">
+    <img width="943" alt="Screenshot 2023-04-26 at 2 16 45 PM" src="https://user-images.githubusercontent.com/55996087/234666728-048283bb-dae8-434d-8cc4-02352c5c09f0.png">
 
 14. **Extensive testing of reduction rules (`tests/reductionRules.test.ts`)**: After implementing the reduction rules listed above, we created a test suite that tests each one works as expected since these rules are crucial to the rest of the implentation of the DP method. This test suite can be run using the command `npm run test`, which runs all tests.
 
@@ -63,7 +63,7 @@ https://user-images.githubusercontent.com/55996087/234662990-85eb9160-8ba4-4c81-
     
 9. **Updated status bar labeling**: In addition to modifying the tree node labels, we also modified the language in the status bar in addition to adding new statuses. For example, a tautology has a status to indicate it as such:
 
-<img width="945" alt="Screenshot 2023-04-26 at 2 07 03 PM" src="https://user-images.githubusercontent.com/55996087/234664782-06325497-7f45-4849-8b61-814afb03cd20.png">
+    <img width="945" alt="Screenshot 2023-04-26 at 2 07 03 PM" src="https://user-images.githubusercontent.com/55996087/234664782-06325497-7f45-4849-8b61-814afb03cd20.png">
 
 11. **Support for saving and reopening files that use the DP method**: When testing our implementation on larger examples, it became tedious to have to retype the example each time the application is rerun. To resolve this, we modified the `serialize()` and `fromJSON()` functions to account for any variables we added for DP mode. This allows trees that implement DP to be saved and later reopened.
 
