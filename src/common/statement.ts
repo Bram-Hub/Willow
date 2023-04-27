@@ -1,4 +1,3 @@
-import {not} from 'ajv/dist/compile/codegen';
 import {Formula, REPLACEMENT_SYMBOL} from './formula';
 import {AssignmentMap} from './util';
 
@@ -15,6 +14,11 @@ export abstract class Statement {
 		);
 	}
 
+	/**
+	 * Determines whether or not this statement is a tautology, i.e., the law of
+	 * excluded middle.
+	 * @returns true if this statement is a tautology, false otherwise
+	 */
 	isTautology(): boolean {
 		if (this instanceof OrStatement) {
 			const lhs = this.operands[0];
@@ -604,14 +608,16 @@ class StatementEquivalenceEvaluator {
  * StatementReducer
  */
 export class DPStatementReducer {
-	statement: Statement; // the conclustion
+	statement: Statement; // The conclusion
 
 	constructor(statement: Statement) {
 		this.statement = statement;
 	}
 
 	/**
-	 * check if statment is a simple statement
+	 * Checks if the statement is a simple statement, i.e., it cannot be reduced. This
+	 * could either be an atomic statement, taut symbol, or con symbol.
+	 * @param statement the statement to be checked
 	 */
 	private isSimpleStatement(statement: Statement) {
 		// TODO: maybe check statement can be Tautology/ Contradiction
@@ -630,8 +636,6 @@ export class DPStatementReducer {
 	 */
 	private reduceNotStatement(assertion: Statement): Statement {
 		if (this.statement instanceof NotStatement) {
-			// console.log('NotStatment!');
-			// console.log(this.statement.operand);
 			let operand = this.statement.operand;
 
 			if (!this.isSimpleStatement(operand)) {
@@ -664,11 +668,6 @@ export class DPStatementReducer {
 	 */
 	private reduceAndStatement(assertion: Statement): Statement {
 		if (this.statement instanceof AndStatement) {
-			// console.log('[hi] AndStatement!');
-			// console.log(this.statement.toString());
-
-			// console.log('left: ' + this.statement.operands[0]);
-			// console.log('right: ' + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
 
@@ -688,7 +687,6 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			// console.log('And statements REDUCED', lhs.toString, rhs.toString);
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
 			} else if (
@@ -718,9 +716,6 @@ export class DPStatementReducer {
 	 */
 	private reduceOrStatement(assertion: Statement): Statement {
 		if (this.statement instanceof OrStatement) {
-			// console.log('OrStatement!');
-			// console.log('left: ' + this.statement.operands[0]);
-			// console.log('right: ' + this.statement.operands[1]);
 			let lhs = this.statement.operands[0];
 			let rhs = this.statement.operands[1];
 			if (!this.isSimpleStatement(lhs)) {
@@ -766,13 +761,7 @@ export class DPStatementReducer {
 	 * @param conclusion the predicted conclusion
 	 */
 	private reduceConditionalStatement(assertion: Statement): Statement {
-		// can we reduce on the statement
 		if (this.statement instanceof ConditionalStatement) {
-			// console.log('[hi] ConditionalStatement!');
-			// console.log(this.statement.toString());
-
-			// console.log('left: ' + this.statement.lhs);
-			// console.log('right: ' + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
 			if (!this.isSimpleStatement(lhs)) {
@@ -791,13 +780,8 @@ export class DPStatementReducer {
 					rhs = new_operand;
 				}
 			}
-			console.log(
-				'Conditional statements REDUCED',
-				lhs.toString(),
-				rhs.toString()
-			);
 
-			// second part of or is when assertions get absorbed by intermediate steps
+			// Second part of or is when assertions get absorbed by intermediate steps
 			if (assertion.equals(lhs) || lhs instanceof Tautology) {
 				return rhs;
 			} else if (
@@ -827,9 +811,6 @@ export class DPStatementReducer {
 	 */
 	private reduceBiconditionalStatement(assertion: Statement): Statement {
 		if (this.statement instanceof BiconditionalStatement) {
-			// console.log('BiconditionalStatement!');
-			// console.log('left: ' + this.statement.lhs);
-			// console.log('right: ' + this.statement.rhs);
 			let lhs = this.statement.lhs;
 			let rhs = this.statement.rhs;
 			if (!this.isSimpleStatement(lhs)) {
@@ -895,9 +876,8 @@ export class DPStatementReducer {
 }
 
 export class DPStatementValidator {
-	statement: Statement; // statement we're attempting to reduce
+	statement: Statement; // Statement we're attempting to reduce
 	assertion: Statement;
-	// reducer: DPStatementReducer;
 	validConclusion: Statement;
 
 	constructor(statement: Statement, assertion: Statement) {
@@ -914,6 +894,9 @@ export class DPStatementValidator {
 	 * @returns true if the conclusion is valid and false otherwise
 	 */
 	validateReduction(conclusion: Statement): boolean {
+		if (this.statement.equals(this.assertion)) {
+			return conclusion.equals(new Tautology());
+		}
 		return this.validConclusion.equals(conclusion);
 	}
 }
