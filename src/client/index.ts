@@ -66,6 +66,7 @@ export const instance = vue
 				assignmentName: assignment?.name ?? '',
 				undoStack: [],
 				redoStack: [],
+				buttonLabel: getDPMode() ? 'Davis-Putnam Mode' : 'Truth Tree Mode'
 			};
 		},
 		computed: {
@@ -79,7 +80,7 @@ export const instance = vue
 				return this.$store.getters.selectedNode;
 			},
 			getButtonLabel() {
-				return getDPMode() ? "Davis-Putnam Mode" : "Truth Tree Mode";
+				this.buttonLabel = getDPMode() ? 'Davis-Putnam Mode' : 'Truth Tree Mode';
 			}
 		},
 		methods: {
@@ -93,10 +94,14 @@ export const instance = vue
 					document.querySelector<HTMLInputElement>('#open-file')?.click();
 				}
 			},
+			updateButtonLabel() {
+				this.buttonLabel = getDPMode() ? 'Davis-Putnam Mode' : 'Truth Tree Mode';
+			},
 			toggleTTMode() {
 				const current = !getDPMode();
 				setDPMode(current);
 				console.log(getDPMode());
+				this.updateButtonLabel();
 			},
 			loadFile(event: Event) {
 				const input = event.target;
