@@ -7,6 +7,7 @@ import {TruthTreeBranchComponent} from './component/truth-tree-branch';
 import {getNodeIconClasses} from './component/truth-tree-node';
 import {Assignment} from '../types/routes/index/assignment';
 import {AssignmentsByCourse} from 'types/routes/index/assignments-by-course';
+import { setDPMode, getDPMode } from './globals';
 
 interface StoreState {
 	shortcuts: {
@@ -65,7 +66,6 @@ export const instance = vue
 				assignmentName: assignment?.name ?? '',
 				undoStack: [],
 				redoStack: [],
-				DPMode: false
 			};
 		},
 		computed: {
@@ -78,6 +78,9 @@ export const instance = vue
 			selectedNode() {
 				return this.$store.getters.selectedNode;
 			},
+			getButtonLabel() {
+				return getDPMode() ? "Davis-Putnam Mode" : "Truth Tree Mode";
+			}
 		},
 		methods: {
 			getNodeIconClasses: getNodeIconClasses,
@@ -90,12 +93,10 @@ export const instance = vue
 					document.querySelector<HTMLInputElement>('#open-file')?.click();
 				}
 			},
-			// New fuctions to turn DP mode on and off
-			toggleDPMode() {
-				this.DPMode = true;
-			},
 			toggleTTMode() {
-				this.DPMode = false;
+				const current = !getDPMode();
+				setDPMode(current);
+				console.log(getDPMode());
 			},
 			loadFile(event: Event) {
 				const input = event.target;
