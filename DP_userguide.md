@@ -30,7 +30,7 @@ We will walk through a simple example. Is the following clause satisfiable?
 ![Clause](https://user-images.githubusercontent.com/29582421/234971620-2e1994ff-81e8-40b4-a66b-5a8e7acfef1a.jpg)
 
 1. **Select Mode**   
-Ensure your are in Davis-Putnam Mode. The two different modes have different rules that can be used to satisfy a set of statements.
+Ensure your are in Davis-Putnam mode by toggling the mode button in the header. The two different modes have different rules that can be used to satisfy a set of statements.
 ![DP Mode](https://user-images.githubusercontent.com/55996087/235231376-7ccd563f-edbd-4bc1-8eff-a47664e8c164.png)
 
 2. **Adding tautologies**   
