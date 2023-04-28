@@ -2,6 +2,7 @@ import {NotStatement, OrStatement} from '../../common/statement';
 import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {TruthTreeNodeComponent} from './truth-tree-node';
+import { getDPMode } from '../globals';
 
 /**
  * A Vue component that renders a branch of a truth tree. Note that this
@@ -75,6 +76,13 @@ export const TruthTreeBranchComponent = defineComponent({
 		addChildBranchRef(ref?: any | null) {
 			if (ref) {
 				this.childBranches.push(ref);
+			}
+		},
+		determineModifyRule(id: number) {
+			if (getDPMode() == true) {
+				this.modifyAntecedentsDP(id);
+			} else {
+				this.modifyDecomposition(id);
 			}
 		},
 		modifyAntecedentsDP(id: number) {
@@ -271,7 +279,7 @@ export const TruthTreeBranchComponent = defineComponent({
     <ul class="branch">
       <template v-for="id, index in branch">
         <li v-if="index === 0 || expanded"
-						@contextmenu.prevent="modifyAntecedentsDP(id)"
+						@contextmenu.prevent="determineModifyRule(id)"
 						@click="$store.commit('select', {id: id})"
 						:class="{
 							selected: selected === id,
