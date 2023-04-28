@@ -1,4 +1,4 @@
-let dpMode = true;
+let dpMode = false;
 
 export function setDPMode(value: boolean) {
   dpMode = value;
