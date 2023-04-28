@@ -1637,6 +1637,10 @@ export class TruthTree {
 			for (const childId of node.decomposition) {
 				const childNode = this.nodes[childId];
 				childNode.antecedent = null;
+				
+				if (getDPMode()) {
+					childNode.antecedentsDP.clear();
+				}
 			}
 		}
 
