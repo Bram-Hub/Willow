@@ -141,9 +141,3 @@ dist
 ##  TypeScript  ##
 ##################
 build/
-
-##################
-##    Willow    ##
-##################
-*.willow 
-WillowFiles
