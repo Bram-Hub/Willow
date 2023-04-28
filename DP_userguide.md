@@ -1,18 +1,18 @@
 # Davis-Putnam User's Guide
 
-Refer to [userguide](userguide.md) for instructions on the Willow interface.  
-Refer to [DP_developer_guide](DP_developer_guide.md) if you are interested in extending existing functionality. 
+- Refer to [userguide.md](userguide.md) for instructions on the Willow interface.
+- Refer to [DP_developer_guide.md](DP_developer_guide.md) if you are interested in extending existing functionality for Davis-Putnam. 
 
 This guide will walk through how to verify whether a set of statements is satisfiable using Davis-Putnam.
 
 ## What is Davis-Putnam?
 
-[Davis Putnam](https://en.wikipedia.org/wiki/Davis%E2%80%93Putnam_algorithm), similar to truth trees, is another procedue used to determine if a set of statements is satisfiable. This is achieved by recursively selecting a literal, and creating a branch for each of the possible states. A literal can be either `True` or `False`, resulting in the creation of at most 2 states per literal. Statements are reduce with regard to some literal. This procedure halts once all states have either reached a contradiction or is deemed satisfiable. 
+[Davis Putnam](https://en.wikipedia.org/wiki/Davis%E2%80%93Putnam_algorithm), similar to truth trees, is another procedue used to determine if a set of statements is satisfiable. This is achieved by recursively selecting a literal, and creating a branch for each of the possible states. A literal can be either `true` or `false`, resulting in the creation of at most 2 states per literal. Statements are reduced with regard to some literal. This procedure halts once all states have either reached a contradiction or are deemed satisfiable. 
 
 The following **Reduction Rules** can be used to reduce statements with respect to the truthy value of some literal.
 
-- `⊤` means a literal is True  
-- `⊥` means a literal is False.
+- `⊤` means a literal is true  
+- `⊥` means a literal is false.
 
  
 | Not       | And         | Or          | Conditional | Biconditional |
