@@ -8,6 +8,8 @@ import {
 	OrStatement,
 	UniversalStatement,
 	ExistenceStatement,
+	Tautology,
+	Contradiction,
 } from './statement';
 import {Formula} from './formula';
 
@@ -314,6 +316,8 @@ export class PropositionalLogicParser extends Parser<Statement> {
 		and: ['∧', '&', 'and'],
 		or: ['∨', '|', 'or'],
 		not: ['¬', '!', '~', 'not'],
+		taut: ['⊤'],
+		con: ['⊥'],
 	};
 
 	start(): Statement {
@@ -544,6 +548,8 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 		and: ['∧', '&', 'and'],
 		or: ['∨', '|', 'or'],
 		not: ['¬', '!', '~', 'not'],
+		taut: ['⊤'],
+		con: ['⊥'],
 	};
 
 	unaryExpression(): Statement {
@@ -574,6 +580,10 @@ export class FirstOrderLogicParser extends PropositionalLogicParser {
 			this.keyword(')');
 
 			return parensStmt;
+		} else if (this.maybeKeyword('⊤')) {
+			return new Tautology();
+		} else if (this.maybeKeyword('⊥')) {
+			return new Contradiction();
 		}
 
 		return new AtomicStatement(this.match('predicate'));

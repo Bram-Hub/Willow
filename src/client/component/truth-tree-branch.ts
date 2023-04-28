@@ -1,3 +1,4 @@
+import {NotStatement, OrStatement} from '../../common/statement';
 import {defineComponent} from 'vue';
 import {TruthTree, TruthTreeNode} from '../../common/tree';
 import {TruthTreeNodeComponent} from './truth-tree-node';
@@ -76,26 +77,64 @@ export const TruthTreeBranchComponent = defineComponent({
 				this.childBranches.push(ref);
 			}
 		},
-		modifyDecompositionDP(id: number) {
+		modifyAntecedentsDP(id: number) {
 			// TODO: Document this function more
 			const selectedNode: TruthTreeNode | null =
-				this.$store.getters.selectedNode;
+				this.$store.getters.selectedNode; // The node your cursor is on
 
 			if (selectedNode === null || selectedNode.id === id) {
 				return;
 			}
+			const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id]; // The node you right click (statement to reduce/branch)
 
-			if (selectedNode.decomposition.has(id)) {
-				selectedNode.decomposition.delete(id);
+			// If the selected node already has the node that has been right
+			// clicked in its antecedents list, then remove it
+			if (selectedNode.antecedentsDP.has(id)) {
+				selectedNode.antecedentsDP.delete(id);
+				otherNode.decomposition.delete(selectedNode.id);
+
+				// Reset the selected node's antecedent to null
+				if (selectedNode.antecedent === id) {
+					selectedNode.antecedent = null;
+				}
 			} else {
-				selectedNode.decomposition.add(id);
+				// Otherwise add the right clicked node to the current node's antecedents list
+				selectedNode.antecedentsDP.add(id);
+
+				// Determine whether the selected statement is a branch literal
+				let isBranch = false;
+				if (
+					otherNode.statement instanceof OrStatement &&
+					selectedNode.statement
+				) {
+					const lhs = otherNode.statement.operands[0];
+					const rhs = otherNode.statement.operands[1];
+					if (lhs.equals(selectedNode.statement)) {
+						isBranch = true;
+					} else if (rhs.equals(selectedNode.statement)) {
+						isBranch = true;
+					}
+				}
+
+				// If the selected node is a branch literal, specify it as such and clear out its decomposition
+				if (
+					otherNode.statement?.isTautology() &&
+					selectedNode.statement != null &&
+					isBranch == true
+				) {
+					selectedNode.isBranchLiteral = true;
+					selectedNode.decomposition.clear();
+				}
+
+				// Only add to the selected node's decomposition if it is not a branch literal
+				if (!otherNode.isBranchLiteral) {
+					otherNode.decomposition.add(selectedNode.id);
+					selectedNode.antecedent = id; // Add other node as antecedent
+				}
 			}
-			const decomp = Array.from(selectedNode.decomposition);
-			for (let i = 0; i < decomp.length; i++) {
-				// console.log("hello");
-				// console.log(decomp[i]);
-				console.log(this.tree.nodes[decomp[i]]);
-			}
+
+			otherNode.correctDecomposition = null;
+			selectedNode.correctDecomposition = null;
 		},
 		/**
 		 * Adds or removes a given node from the decomposition of the selected node,
@@ -122,14 +161,6 @@ export const TruthTreeBranchComponent = defineComponent({
 				} else {
 					selectedNode.decomposition.add(id);
 				}
-				const decomp = Array.from(selectedNode.decomposition);
-				for (let i = 0; i < decomp.length; i++) {
-					// console.log("hello");
-					// console.log(decomp[i]);
-					console.log(this.tree.nodes[decomp[i]]);
-				}
-				// let first = decomp[0]
-				// console.log(this.tree.nodes[decomp[0]])
 			} else if (selectedNode.isAncestorOf(id)) {
 				// When the selected is BEFORE, it becomes decomposition
 				const otherNode: TruthTreeNode = this.$store.state.tree.nodes[id];
@@ -240,14 +271,27 @@ export const TruthTreeBranchComponent = defineComponent({
     <ul class="branch">
       <template v-for="id, index in branch">
         <li v-if="index === 0 || expanded"
-						@contextmenu.prevent="modifyDecompositionDP(id)"
+						@contextmenu.prevent="modifyAntecedentsDP(id)"
 						@click="$store.commit('select', {id: id})"
 						:class="{
 							selected: selected === id,
 							antecedent:
 								selectedNode !== null &&
 								selectedNode.antecedent === id,
+							'antecedent-DP':
+								selectedNode != null &&
+								selectedNode.antecedentsDP.has(id) &&
+								$store.state.tree.nodes[id]._statement != null &&
+								!$store.state.tree.nodes[id].isBranchLiteral,
+							'antecedents-DP-branch':
+								selectedNode != null &&
+								selectedNode.antecedentsDP.has(id) &&
+								$store.state.tree.nodes[id]._statement != null &&
+								$store.state.tree.nodes[id].isBranchLiteral,
 							decomposition:
+								selectedNode !== null &&
+								selectedNode.decomposition.has(id),
+							'decomposition-DP':
 								selectedNode !== null &&
 								selectedNode.decomposition.has(id),
 							'closing-terminator-decomposition':
