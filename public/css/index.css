@@ -96,12 +96,30 @@
   background-color: var(--selected);
 }
 
-.antecedent {
+.antecedent, .antecedent-DP, .antecedents-DP-branch {
   background-color: var(--antecedent);
 }
 
 .antecedent::after {
   content: 'logical consequence of';
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+.antecedents-DP-branch::after {
+  content: 'using';
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+.antecedent-DP::after {
+  content: 'reduces from';
   font-style: italic;
   position: absolute;
   top: 50%;
@@ -115,6 +133,15 @@
 
 .decomposition::after {
   content: 'decomposes into';
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+.decomposition-DP::after {
+  content: 'reduces to';
   font-style: italic;
   position: absolute;
   top: 50%;

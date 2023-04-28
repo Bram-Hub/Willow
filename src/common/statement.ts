@@ -15,6 +15,24 @@ export abstract class Statement {
 	}
 
 	/**
+	 * Determines whether or not this statement is a tautology, i.e., the law of
+	 * excluded middle.
+	 * @returns true if this statement is a tautology, false otherwise
+	 */
+	isTautology(): boolean {
+		if (this instanceof OrStatement) {
+			const lhs = this.operands[0];
+			const rhs = this.operands[1];
+			if (lhs.equals(new NotStatement(rhs))) {
+				return true;
+			} else if (rhs.equals(new NotStatement(lhs))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Decomposes this statement into an array of branches, where each branch
 	 * contains the necessary decomposed statements.
 	 * @returns the decomposed statements by branch
@@ -581,5 +599,304 @@ class StatementEquivalenceEvaluator {
 
 		// This means they had not matching types, which are clearly not equivalent
 		return false;
+	}
+}
+
+/*
+ * Given a statement and literal, check it reduces to conclusion
+ * Our davis puttnam reducer
+ * StatementReducer
+ */
+export class DPStatementReducer {
+	statement: Statement; // The conclusion
+
+	constructor(statement: Statement) {
+		this.statement = statement;
+	}
+
+	/**
+	 * Checks if the statement is a simple statement, i.e., it cannot be reduced. This
+	 * could either be an atomic statement, taut symbol, or con symbol.
+	 * @param statement the statement to be checked
+	 */
+	private isSimpleStatement(statement: Statement) {
+		// TODO: maybe check statement can be Tautology/ Contradiction
+		return (
+			statement instanceof AtomicStatement ||
+			statement instanceof Tautology ||
+			statement instanceof Contradiction
+		);
+	}
+
+	/**
+	 * Checks if the conclusion is a valid not reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private reduceNotStatement(assertion: Statement): Statement {
+		if (this.statement instanceof NotStatement) {
+			let operand = this.statement.operand;
+
+			if (!this.isSimpleStatement(operand)) {
+				let new_operand = new DPStatementReducer(operand).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					operand = new_operand;
+				}
+			}
+
+			if (assertion.equals(operand) || operand instanceof Tautology) {
+				return new Contradiction();
+			} else if (
+				assertion.equals(new NotStatement(operand)) ||
+				operand instanceof Contradiction
+			) {
+				return new Tautology();
+			}
+			return new NotStatement(operand);
+		}
+		return this.statement;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid and reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private reduceAndStatement(assertion: Statement): Statement {
+		if (this.statement instanceof AndStatement) {
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
+				return rhs;
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
+				return new Contradiction();
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
+				return lhs;
+			} else if (
+				assertion.equals(new NotStatement(rhs)) ||
+				rhs instanceof Contradiction
+			) {
+				return new Contradiction();
+			}
+			return new AndStatement(lhs, rhs);
+		}
+
+		return this.statement;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid or reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private reduceOrStatement(assertion: Statement): Statement {
+		if (this.statement instanceof OrStatement) {
+			let lhs = this.statement.operands[0];
+			let rhs = this.statement.operands[1];
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
+				return new Tautology();
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
+				return rhs;
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
+				return new Tautology();
+			} else if (
+				assertion.equals(new NotStatement(rhs) || rhs instanceof Contradiction)
+			) {
+				return lhs;
+			}
+			return new OrStatement(lhs, rhs);
+		}
+
+		return this.statement;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid conditional reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private reduceConditionalStatement(assertion: Statement): Statement {
+		if (this.statement instanceof ConditionalStatement) {
+			let lhs = this.statement.lhs;
+			let rhs = this.statement.rhs;
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
+
+			// Second part of or is when assertions get absorbed by intermediate steps
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
+				return rhs;
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
+				return new Tautology();
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
+				return new Tautology();
+			} else if (
+				assertion.equals(new NotStatement(rhs)) ||
+				rhs instanceof Contradiction
+			) {
+				return new NotStatement(lhs);
+			}
+			return new ConditionalStatement(lhs, rhs);
+		}
+
+		return this.statement;
+	}
+
+	/**
+	 * Checks if the conclusion is a valid biconditional reduction of this statement
+	 * given the literal.
+	 * @param literal the branch taken (e.g., H or ¬H)
+	 * @param conclusion the predicted conclusion
+	 */
+	private reduceBiconditionalStatement(assertion: Statement): Statement {
+		if (this.statement instanceof BiconditionalStatement) {
+			let lhs = this.statement.lhs;
+			let rhs = this.statement.rhs;
+			if (!this.isSimpleStatement(lhs)) {
+				let new_operand = new DPStatementReducer(lhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					lhs = new_operand;
+				}
+			}
+			if (!this.isSimpleStatement(rhs)) {
+				let new_operand = new DPStatementReducer(rhs).reduceStatement(
+					assertion
+				);
+				if (new_operand) {
+					rhs = new_operand;
+				}
+			}
+			if (assertion.equals(lhs) || lhs instanceof Tautology) {
+				return rhs;
+			} else if (
+				assertion.equals(new NotStatement(lhs)) ||
+				lhs instanceof Contradiction
+			) {
+				return new NotStatement(rhs);
+			} else if (assertion.equals(rhs) || rhs instanceof Tautology) {
+				return lhs;
+			} else if (
+				assertion.equals(new NotStatement(rhs)) ||
+				rhs instanceof Contradiction
+			) {
+				return new NotStatement(lhs);
+			}
+			return new BiconditionalStatement(lhs, rhs);
+		}
+
+		return this.statement;
+	}
+
+	/**
+	 * Verifies whether the conclusion is a valid reduction (i.e., it must satisfy
+	 * one of the reduction rules).
+	 * @returns true if the conclusion is valid and false otherwise
+	 */
+	reduceStatement(assertion: Statement): Statement {
+		if (this.statement instanceof NotStatement) {
+			return this.reduceNotStatement(assertion);
+		}
+		if (this.statement instanceof AndStatement) {
+			return this.reduceAndStatement(assertion);
+		}
+		if (this.statement instanceof OrStatement) {
+			return this.reduceOrStatement(assertion);
+		}
+		if (this.statement instanceof ConditionalStatement) {
+			return this.reduceConditionalStatement(assertion);
+		}
+		if (this.statement instanceof BiconditionalStatement) {
+			return this.reduceBiconditionalStatement(assertion);
+		}
+		return this.statement;
+	}
+}
+
+export class DPStatementValidator {
+	statement: Statement; // Statement we're attempting to reduce
+	assertion: Statement;
+	validConclusion: Statement;
+
+	constructor(statement: Statement, assertion: Statement) {
+		this.statement = statement;
+		this.assertion = assertion;
+		this.validConclusion = new DPStatementReducer(statement).reduceStatement(
+			this.assertion
+		);
+	}
+
+	/**
+	 * Verifies whether the conclusion is a valid reduction (i.e., it must satisfy
+	 * one of the reduction rules).
+	 * @returns true if the conclusion is valid and false otherwise
+	 */
+	validateReduction(conclusion: Statement): boolean {
+		if (this.statement.equals(this.assertion)) {
+			return conclusion.equals(new Tautology());
+		}
+		return this.validConclusion.equals(conclusion);
 	}
 }

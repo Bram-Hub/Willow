@@ -32,6 +32,8 @@ Symbol|Options
 [Equivalence](https://en.wikipedia.org/wiki/If_and_only_if)|`iff` `equiv` `↔` `%` `<->`
 [Universal Quantifier](https://en.wikipedia.org/wiki/Universal_quantification)|`forall` `∀`
 [Existential Quantifier](https://en.wikipedia.org/wiki/Existential_quantification)|`exists` `∃`
+[Tautology](https://en.wikipedia.org/wiki/Tautology_(logic))|`⊤`
+[Contradition](https://en.wikipedia.org/wiki/Contradiction)|`⊥`
 Open Branch|`◯`
 Closed Branch|`×`
 

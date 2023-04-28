@@ -1,5 +1,6 @@
 import {FirstOrderLogicParser} from './parser';
 import {Formula} from './formula';
+
 import {
 	Statement,
 	AtomicStatement,
@@ -7,6 +8,8 @@ import {
 	QuantifierStatement,
 	ExistenceStatement,
 	UniversalStatement,
+	DPStatementValidator,
+	Contradiction,
 } from './statement';
 import {
 	deleteMapping,
@@ -14,6 +17,7 @@ import {
 	createNDimensionalMapping,
 	EvaluationResponse,
 } from './util';
+import { getDPMode } from '../client/globals';
 
 export class CorrectnessError {
 	errorCode: string;
@@ -34,7 +38,11 @@ export class CorrectnessError {
 				return 'This statement is not parsable.';
 			}
 			case 'not_logical_consequence': {
-				return 'This statement is not a logical consequence of a statement that occurs before it.';
+				if(getDPMode()==false){
+					return 'This statement is not a logical consequence of a statement that occurs before it.';
+				}else{
+					return 'This statement is not a logical inference of a statement that occurs before it.';
+				}
 			}
 			case 'invalid_instantiation': {
 				return 'This statement does not instantiate the statement it references';
@@ -87,6 +95,9 @@ export class CorrectnessError {
 			case 'universal_variables_length': {
 				return 'Universals with multiple variables cannot be evaluated yet; please split into multiple universal statements.';
 			}
+			case 'tautology not decomposed': {
+				return 'Tautology is not decomposed';
+			}
 		}
 
 		return 'Unknown error code. Contact a developer :)';
@@ -107,15 +118,22 @@ export class TruthTreeNode {
 	private _text = '';
 	private _statement: Statement | null = null;
 	premise = false;
+	isTautology = false;
 	comment: string | null = null;
+
+	isBranchLiteral = false;
 
 	tree: TruthTree;
 
-	parent: number | null = null;
+	parent: number | null = null; // Physical parent
 	children: number[] = [];
 
-	antecedent: number | null = null;
+	antecedent: number | null = null; // Logical parent
 	decomposition: Set<number> = new Set();
+
+	// For Davis Putnam reduction
+	antecedentsDP: Set<number> = new Set();
+
 	private _correctDecomposition: Set<number> | null = null;
 
 	/**
@@ -139,12 +157,14 @@ export class TruthTreeNode {
 		const newNode = new TruthTreeNode(this.id, newTree);
 		newNode.text = this.text;
 		newNode.premise = this.premise;
+		newNode.isTautology = this.isTautology;
+		newNode.isBranchLiteral = this.isBranchLiteral;
 		newNode.comment = this.comment;
 		newNode.parent = this.parent;
 		newNode.children = [...this.children];
 		newNode.antecedent = this.antecedent;
 		newNode.decomposition = new Set(this.decomposition);
-
+		newNode.antecedentsDP = new Set(this.antecedentsDP);
 		return newNode;
 	}
 
@@ -187,9 +207,28 @@ export class TruthTreeNode {
 		}
 		newNode.decomposition = new Set(jsonObject.decomposition);
 
+		if (
+			!(
+				'antecedentsDP' in jsonObject &&
+				typeof jsonObject.antecedentsDP === 'object' &&
+				Array.isArray(jsonObject.antecedentsDP) &&
+				jsonObject.antecedentsDP.every(element => typeof element === 'number')
+			)
+		) {
+			throw new Error('TruthTreeNode#fromJSON: antecedentsDP not found.');
+		}
+		newNode.antecedentsDP = new Set(jsonObject.antecedentsDP);
+
 		// Check for optional properties
 		if ('premise' in jsonObject && typeof jsonObject.premise === 'boolean') {
 			newNode.premise = jsonObject.premise;
+		}
+
+		if (
+			'isBranchLiteral' in jsonObject &&
+			typeof jsonObject.isBranchLiteral === 'boolean'
+		) {
+			newNode.isBranchLiteral = jsonObject.isBranchLiteral;
 		}
 
 		if ('comment' in jsonObject && typeof jsonObject.comment === 'string') {
@@ -238,6 +277,9 @@ export class TruthTreeNode {
 	 */
 	set statement(newStatement: Statement | null) {
 		this._statement = newStatement;
+		if (this._statement?.isTautology()) {
+			this.isTautology = true;
+		}
 		this._correctDecomposition = null;
 		// Anything that references this is also invalid.
 		if (this.antecedent !== null) {
@@ -555,6 +597,43 @@ export class TruthTreeNode {
 		return TruthTree.CLOSED_TERMINATOR === this.text.trim();
 	}
 
+	isDPValid(): Response {
+		// For DP: check statement logically follows from antecedent using branch
+
+		if (!this._statement) {
+			// TODO: change error
+			return new CorrectnessError('not_parsable');
+		}
+
+		let antecedentArr = Array.from(this.antecedentsDP);
+
+		if (antecedentArr.length == 2) {
+			let left = antecedentArr[0];
+			let right = antecedentArr[1];
+			let leftNode = this.tree.nodes[left];
+			let rightNode = this.tree.nodes[right];
+
+			if (leftNode._statement && rightNode._statement) {
+				// Validator takes in statement we would like to reduce along with assertion
+				let statementReducer = new DPStatementValidator(
+					leftNode._statement,
+					rightNode._statement
+				);
+				let statementReducer2 = new DPStatementValidator(
+					rightNode._statement,
+					leftNode._statement
+				);
+				let res1 = statementReducer.validateReduction(this._statement);
+				let res2 = statementReducer2.validateReduction(this._statement);
+
+				if (res1 || res2) {
+					return true;
+				}
+			}
+		}
+		// TODO: change error
+		return new CorrectnessError('not_logical_consequence');
+	}
 	/**
 	 * Determines whether or not this statement is valid; i.e., it is a logical
 	 * consequence of some other statement in the truth tree.
@@ -586,6 +665,15 @@ export class TruthTreeNode {
 
 		if (this.premise) {
 			// Premises are always valid
+			return true;
+		}
+
+		if (this.isTautology) {
+			// Tautologies are always valid
+			return true;
+		}
+
+		if (getDPMode() && this.isDPValid() === true) {
 			return true;
 		}
 
@@ -688,14 +776,30 @@ export class TruthTreeNode {
 	 * @returns true if this closed terminator is valid, false otherwise
 	 */
 	private isClosedTerminatorValid(): Response {
+		if (
+			getDPMode() &&
+			this.antecedent &&
+			this.tree.nodes[this.antecedent].statement instanceof Contradiction
+		) {
+			return true;
+		}
+
 		// Closed terminators must reference exactly two statements
-		if (this.decomposition.size !== 2) {
+		if (!(this.decomposition.size == 2 || (getDPMode() && this.antecedentsDP.size == 2))) {
 			return new CorrectnessError('closed_reference_length');
 		}
 
-		const decomposed_statements = [...this.decomposition].map(
-			id => this.tree.nodes[id].statement
-		);
+		let decomposed_statements = [];
+
+		if (getDPMode()) {
+			decomposed_statements = [...this.antecedentsDP].map(
+				id => this.tree.nodes[id].statement
+			);
+		} else {
+			decomposed_statements = [...this.decomposition].map(
+				id => this.tree.nodes[id].statement
+			);
+		}
 
 		for (let i = 0; i < 2; ++i) {
 			const first = decomposed_statements[i];
@@ -739,6 +843,25 @@ export class TruthTreeNode {
 	}
 
 	/**
+	 * Determines whether or not a statement has been reduced completely. This is
+	 * done by checking to make sure every statement in its decomposition is valid.
+	 * @returns true if this statement is fully reduced, false otherwise
+	 */
+	isReduced(): Response {
+		// We would like to check the two decompositions are correct
+		const decompArray = Array.from(this.decomposition);
+		if (decompArray.length != 2) {
+			return new CorrectnessError('invalid_decomposition');
+		}
+		const s1 = this.tree.nodes[decompArray[0]];
+		const s2 = this.tree.nodes[decompArray[1]];
+		if (s1.isDPValid() && s2.isDPValid()) {
+			return true;
+		}
+		return new CorrectnessError('invalid_decomposition');
+	}
+
+	/**
 	 * Determines whether or not this statement is fully decomposed in every
 	 * open branch.
 	 * @returns true if this statement is decomposed, false otherwise
@@ -773,6 +896,10 @@ export class TruthTreeNode {
 			if (!this.isAncestorOf(decomposedId)) {
 				return new CorrectnessError('reference_not_after');
 			}
+		}
+
+		if (getDPMode() == true) {
+			return this.isReduced();
 		}
 
 		// This statement must be decomposed in every non-closed branch that
@@ -934,9 +1061,11 @@ export class TruthTreeNode {
 		if (decomp !== true) {
 			return decomp.getErrorMessage();
 		}
-
 		if (this.premise) {
 			return 'This statement is a premise.';
+		}
+		if (this.isTautology) {
+			return 'This statement is a tautology.';
 		}
 
 		if (this.isTerminator()) {
@@ -946,7 +1075,11 @@ export class TruthTreeNode {
 			return 'This branch is successfully closed.';
 		}
 
-		return 'This statement is a logical consequence and is decomposed correctly.';
+		if(getDPMode()==false){
+			return 'This statement is a logical consequence and is decomposed correctly.';
+		}else{
+			return 'This statement is a logical inference and is reduced correctly.';
+		}
 	}
 
 	/**
@@ -1144,6 +1277,8 @@ export class TruthTree {
 				text: node.text,
 				children: node.children,
 				decomposition: [...node.decomposition],
+				antecedentsDP: [...node.antecedentsDP], // TODO: add other DP mode variables here
+				isBranchLiteral: node.isBranchLiteral
 			};
 
 			if (node.premise) {
@@ -1502,6 +1637,10 @@ export class TruthTree {
 			for (const childId of node.decomposition) {
 				const childNode = this.nodes[childId];
 				childNode.antecedent = null;
+				
+				if (getDPMode()) {
+					childNode.antecedentsDP.clear();
+				}
 			}
 		}
 
@@ -1786,6 +1925,13 @@ export class TruthTree {
 					return false;
 				}
 				const decomposedNode = this.nodes[decomposedId];
+
+				// Don't worry about a contradiction's antecedents since it technically
+				// has more than one
+				if (getDPMode() && decomposedNode.statement instanceof Contradiction) {
+					continue;
+				}
+
 				if (decomposedNode.antecedent !== node.id) {
 					console.log(`${node.id} is not an antecedent of ${decomposedId}`);
 					return false;
