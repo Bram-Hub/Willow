@@ -785,13 +785,21 @@ export class TruthTreeNode {
 		}
 
 		// Closed terminators must reference exactly two statements
-		if (this.decomposition.size !== 2) {
+		if (!(this.decomposition.size == 2 || (getDPMode() && this.antecedentsDP.size == 2))) {
 			return new CorrectnessError('closed_reference_length');
 		}
 
-		const decomposed_statements = [...this.decomposition].map(
-			id => this.tree.nodes[id].statement
-		);
+		let decomposed_statements = [];
+
+		if (getDPMode()) {
+			decomposed_statements = [...this.antecedentsDP].map(
+				id => this.tree.nodes[id].statement
+			);
+		} else {
+			decomposed_statements = [...this.decomposition].map(
+				id => this.tree.nodes[id].statement
+			);
+		}
 
 		for (let i = 0; i < 2; ++i) {
 			const first = decomposed_statements[i];
