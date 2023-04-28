@@ -6,6 +6,8 @@
 
 When designing an implementation of Davis-Putnam (DP) supported by Willow, we wanted to utilize as much of the existing functionality as possible. Below are the major changes and additions that were made.
 
+**Note**: old `.willow` files are no longer supported. This is due to DP statements having 2 antecedents (a parent statement and literal branch), changing the structure of the tree.
+
 1. **By default two branches are created**: This feature was not a requirement for our project, but it made our lives easier. Plus, it was requested by Bram. :)
 
     https://user-images.githubusercontent.com/55996087/235219000-896ab2e9-242e-4622-b0d1-42ff31878bb8.mov
