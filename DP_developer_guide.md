@@ -81,9 +81,16 @@ When designing an implementation of Davis-Putnam (DP) supported by Willow, we wa
 
 The implementation of DP in Willow is completely usable in its current state. However, there are a few action items that we were not able to get to, and more thorough testing will need to be done to ensure that the feature is production-ready.
 
-1. Handle lingering statements that have not been fully decomposed
+1. **Handle unchecked statements that have not been fully decomposed**: As shown in the image below, there are a few statements that are not marked with a green check because they have not yet been decomposed.
 
     <img width="943" alt="Screenshot 2023-04-26 at 1 34 59 PM" src="https://user-images.githubusercontent.com/55996087/234657144-c56b4be0-49cc-46c0-aef2-215da6825f84.png">
+    
+    One idea to make the red 'X' appear less alarming is by using a different symbol, such as the yellow warning icon. Another idea is to have two icons per statement: one to check the correctness of the statement, and one to check whether it has been fully decomposed.
+    
+2. **Don't require users to reduce every statement for every branch**: Each time we branch on a literal, we require users to reduce each statement even if the branch literal is irrelevant to that statement. For example, say we have the statement F ∨ G and we are branching on the literal H; this statement does not reduce further given this branch, so it should be necessary to rewrite it (since it is a bit redundant).
+    
+2. **Make switching between the two modes more clear**: When a user toggles from one mode to the other, their current tree is not going to be compatible with the rules of the new mode. Because of this, there should be an alert to confirm whether the user intended to switch modes, and potentially warn them that they should save their progress and then clear their tree before switching over to the other mode.
 
-3. Ensure all the labels are correct when a statement is selected
-4. Perform additional testing (bug hunting)
+3. **Ensure all statement labels are satisfactory**: As noted above, each statement has green and red labels which indicate their antecedents and decomposition. Additionally, the status bar on the bottom of the screen is updated accordingly. While we did perform substantial visual testing, these labels and the status bar should be double checked for different statements and scenarios to make sure they are correct.
+
+5. **Perform additional testing (bug hunting)**: As with any new feature, it is important to fully test it (and try to break it). Throughout the development of the project, we encountered small bugs in our implementation that we had to fix. It is definitely possible (and very likely) that there are other bugs to be addressed.
