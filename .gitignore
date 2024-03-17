@@ -3,6 +3,8 @@ config.yml
 logs/*
 !logs/.keep
 
+src/types/
+
 public/js/index.js
 public/js/index.js.LICENSE.txt
 public/js/settings.js
