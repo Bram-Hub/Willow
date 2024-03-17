@@ -92,6 +92,10 @@
   color: var(--tt-chevron);
 }
 
+.selected-branch {
+  background-color: var(--selected-branch);
+}
+
 .selected {
   background-color: var(--selected);
 }
