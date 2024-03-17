@@ -32,6 +32,7 @@
     --premise-label: #808080;
     --tt-chevron: #000000;
     --selected: rgba(51, 153, 255, 0.5);
+    --selected-branch: rgba(51, 153, 255, 0.15);
     --antecedent: rgba(128, 192, 128, 0.5);
     --decomposition: rgba(192, 128, 128, 0.5);
 

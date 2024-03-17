@@ -439,6 +439,15 @@ export const instance = vue
 				selectedNode(state) {
 					return state.tree.getNode(state.selected);
 				},
+				selectedBranch(state, getters) {
+					const selectedBranch: Set<number> = new Set();
+					let node: TruthTreeNode | null = getters.selectedNode;
+					while (node !== null) {
+						selectedBranch.add(node.id);
+						node = state.tree.getNode(node.parent);
+					}
+					return selectedBranch;
+				}
 			},
 			mutations: {
 				toggleDeveloperMode(state: StoreState) {

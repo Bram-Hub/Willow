@@ -44,6 +44,9 @@ export const TruthTreeBranchComponent = defineComponent({
 		selectedNode(): TruthTreeNode | null {
 			return this.$store.getters.selectedNode;
 		},
+		selectedBranch(): Set<number> {
+			return this.$store.getters.selectedBranch;
+		},
 		/**
 		 * Returns the node at the head of this branch.
 		 * @returns the head node of this branch
@@ -215,6 +218,7 @@ export const TruthTreeBranchComponent = defineComponent({
 						@click="$store.commit('select', {id: id})"
 						:class="{
 							selected: selected === id,
+							'selected-branch': selectedBranch.has(id),
 							antecedent:
 								selectedNode !== null &&
 								selectedNode.antecedent === id,
